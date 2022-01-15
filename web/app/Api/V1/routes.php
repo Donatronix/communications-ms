@@ -6,8 +6,10 @@
 $router->group([
     'prefix' => env('APP_API_VERSION', ''),
     'namespace' => '\App\Api\V1\Controllers',
-    'middleware' => 'checkUser'
+   //'middleware' => 'checkUser'
 ], function ($router) {
+
+	 $router->get('/telegram', 'TelegramController@index');
 
     /**
      * ADMIN PANEL
@@ -19,3 +21,4 @@ $router->group([
     ], function ($router) {
     });
 });
+
