@@ -1,16 +1,15 @@
 <?php
 
 namespace App\Api\V1\Controllers;
-use App\Services\Messenger;
-
-class TelegramController extends Controller
+use LINE\LINEBot;
+//use Telegram;
+class LineController extends Controller
 {
- 
 	 /**
      * Display a listing of the resource.
      *
      * @OA\Get(
-     *     path="/telegram",
+     *     path="/linebot",
      *     summary="Load contributors list",
      *     description="Load contributors list",
      *     tags={"Telegram"},
@@ -89,17 +88,23 @@ class TelegramController extends Controller
      *         description="Not found"
      *     )
      * )
+    /**
+     * Create a new controller instance.
+     *
+     * @return void
      */
     public function index()
     {
+        $httpClient = new \LINE\LINEBot\HTTPClient\CurlHTTPClient(env('LINE_BOT_CHANNEL_ACCESS_TOKEN'));
+		$bot = new \LINE\LINEBot($httpClient, ['channelSecret' => env('TELEGRAM_CHAT_ID')]);
+		$bot->replyMessage('<reply token>', $textMessageBuilder);
+		if ($response->isSucceeded()) {
+			echo 'Succeeded!';
+			return;
+		}
 
-       $telegram = Messenger::getInstance('telegram');
-    //dd($telegram);
-		$response = $telegram->sendMessage();
-		
-		$messageId = $response->getMessageId();
-		return response()->json([
-								'data' => $messageId
-									],200);
-    }
+		// Failed
+		echo $response->getHTTPStatus() . ' ' . $response->getRawBody();
+	}
+	
 }

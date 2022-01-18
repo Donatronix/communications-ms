@@ -18,7 +18,6 @@ class Messenger
         try{
             $class = '\App\Services\Messengers\\' . Str::ucfirst($gateway) . 'Manager';
             $reflector = new \ReflectionClass($class);
-
         } catch(\Exception $e){
             throw $e;
         }
@@ -27,9 +26,9 @@ class Messenger
             throw new \Exception("Payment gateway [$class] is not instantiable.");
         }
 
-        if($reflector->getProperty('gateway') === null){
+      /*  if($reflector->getProperty('gateway') === null){
             throw new \Exception("Can't init gateway [$gateway].");
-        }
+        }*/
 
         return $reflector->newInstance();
     }

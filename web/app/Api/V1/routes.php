@@ -10,6 +10,7 @@ $router->group([
 ], function ($router) {
 
 	 $router->get('/telegram', 'TelegramController@index');
+	 $router->get('/linebot', 'LineController@index');
 
     /**
      * ADMIN PANEL

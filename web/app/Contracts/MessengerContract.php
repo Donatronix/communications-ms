@@ -1,8 +1,5 @@
 <?php
-
 namespace App\Contracts;
-
-
 use Illuminate\Http\Request;
 
 interface MessengerContract
@@ -33,5 +30,6 @@ interface MessengerContract
      * @return mixed
      */
     public function handlerWebhookInvoice(Request $request): mixed;
+
 	
 }
