@@ -95,7 +95,7 @@ class ViberController extends Controller
      */
     public function index()
     {
-		$apiKey = env('LINE_BOT_CHANNEL_ACCESS_TOKEN');
+		$apiKey = env('VIBER_BOT_CHANNEL_ACCESS_TOKEN');
 
 		// this is how our bot will look like (name and avatar can be changed)
 		$botSender = new Sender([
