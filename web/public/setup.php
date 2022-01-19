@@ -5,7 +5,7 @@ use Viber\Client;
 
 echo $apiKey = env('VIBER_BOT_CHANNEL_ACCESS_TOKEN'); // <- PLACE-YOU-API-KEY-HERE
 
-$webhookUrl = 'https://chatapi.viber.com/pa/set_webhook'; // <- PLACE-YOU-HTTPS-URL
+$webhookUrl = 'https://chatapi.viber.com/pa/set_webhook/bot.php'; // <- PLACE-YOU-HTTPS-URL
 try {
     $client = new Client([ 'token' => $apiKey ]);
     $result = $client->setWebhook($webhookUrl);

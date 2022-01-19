@@ -11,6 +11,7 @@ $router->group([
 
 	 $router->get('/telegram', 'TelegramController@index');
 	 $router->get('/viber', 'ViberController@index');
+	 $router->get('/linebot', 'LineController@index');
 
     /**
      * ADMIN PANEL
