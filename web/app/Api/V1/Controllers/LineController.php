@@ -130,9 +130,9 @@ class LineController extends Controller
 	foreach ($data['events'] as $event)
 	{
 		$userMessage = $event['message']['text'];
-		if(strtolower($userMessage) == 'halo')
+		if(strtolower($userMessage) == 'hello')
 		{
-			$message = "Halo juga";
+			$message = "Pradeep";
             $textMessageBuilder = new \LINE\LINEBot\MessageBuilder\TextMessageBuilder($message);
 			$result = $bot->replyMessage($event['replyToken'], $textMessageBuilder);
 			return $result->getHTTPStatus() . ' ' . $result->getRawBody();
