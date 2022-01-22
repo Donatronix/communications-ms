@@ -1,5 +1,5 @@
 <?php
-
+use \LINE\LINEBot\SignatureValidator as SignatureValidator;
 /**
  * @var Laravel\Lumen\Routing\Router $router
  */
@@ -12,6 +12,7 @@ $router->group([
 	 $router->get('/telegram', 'TelegramController@index');
 	 $router->get('/viber', 'ViberController@index');
 	 $router->get('/linebot', 'LineController@index');
+
 
     /**
      * ADMIN PANEL

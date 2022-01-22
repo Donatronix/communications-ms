@@ -3,13 +3,14 @@
 $app = require __DIR__.'/../bootstrap/app.php';
 use Viber\Client;
 
-echo $apiKey = env('VIBER_BOT_CHANNEL_ACCESS_TOKEN'); // <- PLACE-YOU-API-KEY-HERE
+$apiKey = env('VIBER_BOT_CHANNEL_ACCESS_TOKEN'); // <- PLACE-YOU-API-KEY-HERE
 
-$webhookUrl = 'https://chatapi.viber.com/pa/set_webhook/bot.php'; // <- PLACE-YOU-HTTPS-URL
+$webhookUrl = 'https://927b-117-96-42-93.ngrok.io/communications-ms/web/public/v1/viber'; // for exmaple https://my.com/bot.php
+		//dd($this->apiKey);
 try {
-    $client = new Client([ 'token' => $apiKey ]);
-    $result = $client->setWebhook($webhookUrl);
-    echo "Success!\n";
+	$client = new Client(['token' => $apiKey]);
+	$result = $client->setWebhook($webhookUrl);
+	echo "Success!\n"; // print_r($result);
 } catch (Exception $e) {
-    echo "Error: ". $e->getError() ."\n";
+	echo 'Error: ' . $e->getMessage() . "\n";
 }

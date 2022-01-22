@@ -2,9 +2,19 @@
 
 namespace App\Api\V1\Controllers;
 use LINE\LINEBot;
-
+use Illuminate\Http\Response;
+use \LINE\LINEBot\SignatureValidator as SignatureValidator;
 class LineController extends Controller
 {
+	public function __construct(){
+		
+		/*$this->channelAccessToken = Setting::getChannelAccessToken();
+		$this->channelSecret = Setting::getChannelSecret();
+		$this->apiReply = Setting::getApiReply();
+		$this->apiPush = Setting::getApiPush();
+		$this->webhookResponse = file_get_contents('php://input');
+		$this->webhookEventObject = json_decode($this->webhookResponse);*/
+	}
 	 /**
      * Display a listing of the resource.
      *
@@ -93,20 +103,42 @@ class LineController extends Controller
      *
      * @return void
      */
-    public function index()
+    public function index(Response $response)
     {
-        $httpClient = new \LINE\LINEBot\HTTPClient\CurlHTTPClient(env('LINE_BOT_CHANNEL_ACCESS_TOKEN'));
-		$bot = new \LINE\LINEBot($httpClient, ['channelSecret' => env('LINE_BOT_CHANNEL_SECRET')]);
-		$textMessageBuilder = new \LINE\LINEBot\MessageBuilder\TextMessageBuilder('hello');
-		$response = $bot->replyMessage('1656821044', $textMessageBuilder);
-		//$response = $bot->pushMessage('1656821044', $textMessageBuilder);
-		if ($response->isSucceeded()) {
-			echo 'Succeeded!';
-			return;
-		}
+	
+	// get request body and line signature header
+	$body 	   = file_get_contents('php://input');
+	//$signature = $_SERVER['HTTP_X_LINE_SIGNATURE'];
 
-		// Failed
-		echo $response->getHTTPStatus() . ' ' . $response->getRawBody();
+	// log body and signature
+	file_put_contents('php://stderr', 'Body: '.$body);
+
+	// is LINE_SIGNATURE exists in request header?
+	/*if (empty($signature)){
+		return $response->withStatus(400, 'Signature not set');
+	}
+
+	// is this request comes from LINE?
+	if($_ENV['PASS_SIGNATURE'] == false && ! SignatureValidator::validateSignature($body, $_ENV['CHANNEL_SECRET'], $signature)){
+		return $response->withStatus(400, 'Invalid signature');
+	}*/
+
+	// init bot
+	$httpClient = new \LINE\LINEBot\HTTPClient\CurlHTTPClient(env('LINE_BOT_CHANNEL_ACCESS_TOKEN'));
+	$bot = new \LINE\LINEBot($httpClient, ['channelSecret' => env('LINE_BOT_CHANNEL_SECRET')]);
+	$data = json_decode($body, true);
+	foreach ($data['events'] as $event)
+	{
+		$userMessage = $event['message']['text'];
+		if(strtolower($userMessage) == 'halo')
+		{
+			$message = "Halo juga";
+            $textMessageBuilder = new \LINE\LINEBot\MessageBuilder\TextMessageBuilder($message);
+			$result = $bot->replyMessage($event['replyToken'], $textMessageBuilder);
+			return $result->getHTTPStatus() . ' ' . $result->getRawBody();
+		
+		}
+	}
 	}
 	
 }
