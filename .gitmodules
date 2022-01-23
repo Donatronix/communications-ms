@@ -1,6 +1,3 @@
 [submodule "json-api"]
 	path = json-api
 	url = https://pradeepmaurya78@bitbucket.org/sumraprague/json-api.git
-[submodule "pubsub"]
-	path = pubsub
-	url = https://pradeepmaurya78@bitbucket.org/sumraprague/pubsub.git
