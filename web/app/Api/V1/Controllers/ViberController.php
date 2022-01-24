@@ -29,7 +29,7 @@ class ViberController extends Controller
      * Display a listing of the resource.
      *
      * @OA\Get(
-     *     path="/linebot",
+     *     path="/viberbot",
      *     summary="Load contributors list",
      *     description="Load contributors list",
      *     tags={"Telegram"},

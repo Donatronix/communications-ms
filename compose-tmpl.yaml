@@ -8,8 +8,8 @@ services:
     networks:
       - sumra-net
     ports:
-      - '8111:80'
-      - '18111:443'
+      - '8093:80'
+      - '18093:443'
     environment:
       - WEB_DOCUMENT_ROOT=/var/www/html/public
 #      - WEB_ALIAS_DOMAIN=api.sumrameet.com
