@@ -24,4 +24,3 @@ $router->group([
     ], function ($router) {
     });
 });
-
