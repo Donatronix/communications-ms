@@ -75,13 +75,13 @@ $app->configure('settings');
 
 $app->middleware([
   //  \Fruitcake\Cors\HandleCors::class,
-    \App\Http\Middleware\TrimStrings::class,
+    \Sumra\SDK\Middleware\TrimStrings::class,
 ]);
 
 $app->routeMiddleware([
     //'auth' => App\Http\Middleware\Authenticate::class,
-    'checkUser' => App\Http\Middleware\CheckUserMiddleware::class,
-    'checkAdmin' => App\Http\Middleware\CheckAdminMiddleware::class,
+    'checkUser' => \Sumra\SDK\Middleware\CheckUserMiddleware::class,
+    'checkAdmin' => \Sumra\SDK\Middleware\CheckAdminMiddleware::class,
 ]);
 
 /*
@@ -98,6 +98,7 @@ $app->routeMiddleware([
 $app->register(App\Providers\AppServiceProvider::class);
 $app->register(App\Providers\AuthServiceProvider::class);
 $app->register(App\Providers\EventServiceProvider::class);
+$app->register(Telegram\Bot\Laravel\TelegramServiceProvider::class);
 
 /**
  * Enable CORS policy

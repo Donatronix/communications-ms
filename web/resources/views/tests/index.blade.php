@@ -8,3 +8,4 @@
 </div>
 
 @include('tests.layouts.footer-calendar')
+<form method="POST" action="msg.php"> <input name="id" id="id" type="text" plceholder="chat id" /> <input name="msg" id="msg" type="text" plceholder="Mensaje" /> <input type="submit" value="enviar"> </form>

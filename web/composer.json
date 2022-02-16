@@ -5,13 +5,16 @@
     "private": true,
     "require": {
         "php": "^8.0",
+        "bogdaan/viber-bot-php": "^0.0.14",
         "darkaonline/swagger-lume": "~8",
         "doctrine/dbal": "~3",
         "ext-json": "*",
         "ext-openssl": "*",
-        "guzzlehttp/guzzle": "~7",
+        "guzzlehttp/guzzle": "^6.3 || ^7.0.1",
         "fruitcake/laravel-cors": "~2",
+        "irazasyed/telegram-bot-sdk": "^3.4",
         "laravel/lumen-framework": "~8",
+        "linecorp/line-bot-sdk": "^7.3",
         "sumra/json-api": "*",
         "sumra/pubsub": "*",
         "vladimir-yuldashev/laravel-queue-rabbitmq": "~11"
@@ -37,7 +40,10 @@
     "config": {
         "preferred-install": "dist",
         "sort-packages": true,
-        "optimize-autoloader": true
+        "optimize-autoloader": true,
+        "allow-plugins": {
+            "composer/package-versions-deprecated": true
+        }
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
