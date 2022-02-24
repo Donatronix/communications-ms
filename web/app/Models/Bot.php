@@ -104,4 +104,15 @@ class Bot extends Model
         6 => self::TYPE_TWILIO,
         7 => self::TYPE_NEXMO,
     ];
+
+    public static function validationRules(){
+        return [
+            'name' => 'required|string|min:4',
+            'token' => 'required|string|min:30',
+            'uri' => 'required|string|min:4',
+            'type' => 'string|min:4',
+            'platform' => 'string|min:4',
+            'webhook_url' => 'string'
+        ];
+    }
 }

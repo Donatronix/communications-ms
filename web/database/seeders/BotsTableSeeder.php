@@ -16,17 +16,17 @@ class BotsTableSeeder extends Seeder
     {
         $list = [
             [
-                'id' => '29b75201-88ac-4b13-8863-2c01770d47d0',
-                'name' => 'Sumra Bot',
-                'uri' => 'sumrabot',
-                'token' => '4d48c35e58a7d09f-8e1add1cf575de7c-ce9503c6be86523f',
+                'id' => 'e3276487-349a-4959-a616-3ac69b45f253',
+                'name' => 'OneStepID by Sumra',
+                'uri' => '@OneStepID_Sumra_Bot',
+                'token' => '2078755563:AAHtPzW2xyqngQxbyZSh0U821oRdMeankn8',
                 'platform' => 'SUMRA',
-                'type' => 'VIBER',
-                'status' => 0
+                'type' => 'TELEGRAM',
+                'status' => 1
             ],
             [
                 'id' => '373458be-3f01-40ca-b6f3-245239c7889f',
-                'name' => 'Ultainfinity by OneStep',
+                'name' => 'OneStepID by Ultainfinity',
                 'uri' => '@OneStepID_Ultainfinity_Bot',
                 'token' => '2088982449:AAHJ7d16HCpFI9j9B9JqOX1yDEgSb5piKmc',
                 'platform' => 'ULTAINFINITY',
@@ -34,12 +34,12 @@ class BotsTableSeeder extends Seeder
                 'status' => 1
             ],
             [
-                'id' => '37f1ec65-3a26-407a-9b8a-ac98673d00c0',
-                'name' => 'UltainfinityBot By OneStep',
-                'uri' => '902917102187450458',
-                'token' => 'OTAyOTE3MTAyMTg3NDUwNDU4.YXlZFA.2Vtm5-rhiia6TyPqS_f1Er6nTVY',
-                'platform' => 'ULTAINFINITY',
-                'type' => 'DISCORD',
+                'id' => 'a126ae9d-f55a-443e-ad3f-b1cb20d5e1f1',
+                'name' => 'Sumra by OneStep',
+                'uri' => 'sumrabyonestep',
+                'token' => '4e2f25788667df4c-5ba2bdeaf5991ff4-b4956e9dba79982',
+                'platform' => 'SUMRA',
+                'type' => 'VIBER',
                 'status' => 1
             ],
             [
@@ -54,9 +54,20 @@ class BotsTableSeeder extends Seeder
             [
                 'id' => '498f8236-568d-4446-b0f6-693dfbb6915c',
                 'name' => 'SumraBot by OneStep',
-                'uri' => '900773740160376843',
+                //'uri' => '900773740160376843',
+                'uri' => 'https://discord.gg/75xbhgmbvP',
                 'token' => 'OTAwNzczNzQwMTYwMzc2ODQz.YXGM6w.B9B9uaFnz86dwZE5LiCb3ctORrk',
                 'platform' => 'SUMRA',
+                'type' => 'DISCORD',
+                'status' => 1
+            ],
+            [
+                'id' => '37f1ec65-3a26-407a-9b8a-ac98673d00c0',
+                'name' => 'UltainfinityBot By OneStep',
+                //'uri' => '902917102187450458',
+                'uri' => 'https://discord.gg/DUMwfyckKy',
+                'token' => 'OTAyOTE3MTAyMTg3NDUwNDU4.YXlZFA.2Vtm5-rhiia6TyPqS_f1Er6nTVY',
+                'platform' => 'ULTAINFINITY',
                 'type' => 'DISCORD',
                 'status' => 1
             ],
@@ -70,48 +81,12 @@ class BotsTableSeeder extends Seeder
                 'status' => 1
             ],
             [
-                'id' => 'a126ae9d-f55a-443e-ad3f-b1cb20d5e1f1',
-                'name' => 'Sumra by OneStep',
-                'uri' => 'sumrabyonestep',
-                'token' => '4e2f25788667df4c-5ba2bdeaf5991ff4-b4956e9dba79982',
-                'platform' => 'SUMRA',
-                'type' => 'VIBER',
-                'status' => 1
-            ],
-            [
                 'id' => 'a886ec79-9254-426c-b4a5-80b8a1d77d1e',
                 'name' => 'Sumra by OneStep',
                 'uri' => '@587eedqw',
                 'token' => 'iJzFgGgCWhhF6MuJKCr9nJzmrLadgvvYtnND\/1L5PU52qNfndGFNNrBtpySwTZVcSYrp54SSFcrUiwxS2CtmGiuHKzYzoeojizpQJhHyH2z98L8K3fIYRhmRTVCueDnbCsWImEp8JixgWN+wZ7ZutQdB04t89\/1O\/w1cDnyilFU=',
                 'platform' => 'SUMRA',
                 'type' => 'LINE',
-                'status' => 1
-            ],
-            [
-                'id' => 'af17e653-9d6c-48ed-a2a1-ba7426934787',
-                'name' => 'SumraBot Old',
-                'uri' => '@SumraBot',
-                'token' => '1425950903:AAEaX7zJ4rGexSyFvnqUnt21MsWUsfendlQ',
-                'platform' => 'SUMRA',
-                'type' => 'TELEGRAM',
-                'status' => 0
-            ],
-            [
-                'id' => 'b58913d1-7c32-4fb3-8242-def1fd0743f9',
-                'name' => 'SumraBot Old',
-                'uri' => '',
-                'token' => 'ODQzODEwNjYwMzI0NDc0ODkw.YKJR6g._IgprLLJti_250guVLn7dUJyyIQ',
-                'platform' => 'SUMRA',
-                'type' => 'DISCORD',
-                'status' => 0
-            ],
-            [
-                'id' => 'e3276487-349a-4959-a616-3ac69b45f253',
-                'name' => 'Sumra by OneStep',
-                'uri' => '@OneStepID_Sumra_Bot',
-                'token' => '2078755563:AAHtPzW2xyqngQxbyZSh0U821oRdMeankn8',
-                'platform' => 'SUMRA',
-                'type' => 'TELEGRAM',
                 'status' => 1
             ],
             [
