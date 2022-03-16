@@ -111,19 +111,18 @@ $app->register(Fruitcake\Cors\CorsServiceProvider::class);
 $app->configure('queues');
 $app->register(VladimirYuldashev\LaravelQueueRabbitMQ\LaravelQueueRabbitMQServiceProvider::class);
 class_alias(\Illuminate\Support\Facades\App::class, 'App');
-$app->register(\Sumra\PubSub\PubSubServiceProvider::class);
+$app->register(\Sumra\SDK\PubSubServiceProvider::class);
 
 /**
  * Json API
  */
-$app->register(\Sumra\JsonApi\JsonApiServiceProvider::class);
+$app->register(\Sumra\SDK\JsonApiServiceProvider::class);
 
 /**
  * Swagger
  */
 $app->configure('swagger-lume');
 $app->register(\SwaggerLume\ServiceProvider::class);
-
 
 /**
  * Artisan Commands Lumen Generator

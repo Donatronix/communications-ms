@@ -21,5 +21,6 @@ Route::group(
     }
 );
 
-if (file_exists(__DIR__ . '/tests.php'))
+if (file_exists(__DIR__ . '/tests.php')){
     require_once(__DIR__ . '/tests.php');
+}
