@@ -5,16 +5,17 @@
     "private": true,
     "require": {
         "php": "^8.0",
-        "bogdaan/viber-bot-php": "^0.0.14",
-        "doctrine/dbal": "~3",
         "ext-json": "*",
         "ext-openssl": "*",
+        "bogdaan/viber-bot-php": "^0.0.14",
+        "doctrine/dbal": "~3",
         "guzzlehttp/guzzle": "~6 || ~7",
-        "irazasyed/telegram-bot-sdk": "~3",
+        "irazasyed/telegram-bot-sdk": "^3.5",
         "laravel/lumen-framework": "~8",
         "linecorp/line-bot-sdk": "~7",
+        "sumra/sdk": "*",
         "twilio/sdk": "~6",
-        "sumra/sdk": "*"
+        "ext-fileinfo": "*"
     },
     "require-dev": {
         "fakerphp/faker": "~1",

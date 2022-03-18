@@ -9,18 +9,14 @@ class Messenger
     /**
      * @param $gateway
      *
-     * @return mixed
+     * @return object
      * @throws \ReflectionException
      */
-    public static function getInstance($gateway)
+    public static function getInstance($gateway): object
     {
 
-        try{
-            $class = '\App\Services\Messengers\\' . Str::ucfirst($gateway) . 'Manager';
-            $reflector = new \ReflectionClass($class);
-        } catch(\Exception $e){
-            throw $e;
-        }
+        $class = '\App\Services\Messengers\\' . Str::ucfirst($gateway) . 'Manager';
+        $reflector = new \ReflectionClass($class);
 
         if (!$reflector->isInstantiable()) {
             throw new \Exception("Payment gateway [$class] is not instantiable.");
