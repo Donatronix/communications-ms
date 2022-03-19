@@ -1,12 +1,13 @@
 <?php
 
 namespace App\Api\V1\Controllers;
+
 use App\Services\Messenger;
 
 class TelegramController extends Controller
 {
- 
-	 /**
+
+    /**
      * Display a listing of the resource.
      *
      * @OA\Get(
@@ -93,13 +94,13 @@ class TelegramController extends Controller
     public function index()
     {
 
-       $telegram = Messenger::getInstance('telegram');
-    //dd($telegram);
-		$response = $telegram->sendMessage();
-		
-		$messageId = $response->getMessageId();
-		return response()->json([
-								'data' => $messageId
-									],200);
+        $telegram = Messenger::getInstance('telegram');
+        //dd($telegram);
+        $response = $telegram->sendMessage();
+
+        $messageId = $response->getMessageId();
+        return response()->json([
+            'data' => $messageId,
+        ], 200);
     }
 }
