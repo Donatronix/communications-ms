@@ -3,8 +3,11 @@
 namespace App\Api\V1\Controllers;
 
 use App\Services\Messenger;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use ReflectionException;
 
-class TelegramController extends Controller
+class MessengerController extends Controller
 {
 
     /**
@@ -91,12 +94,51 @@ class TelegramController extends Controller
      *     )
      * )
      */
-    public function index()
+    public function index($messengerInstance)
     {
 
-        $telegram = Messenger::getInstance('telegram');
+        $telegram = Messenger::getInstance(strtolower($messengerInstance));
         //dd($telegram);
         $response = $telegram->sendMessage();
+
+        $messageId = $response->getMessageId();
+        return response()->json([
+            'data' => $messageId,
+        ], 200);
+    }
+
+
+    /**
+     * @param Request $request
+     * @param         $messengerInstance
+     *
+     * @return JsonResponse
+     * @throws ReflectionException
+     */
+    public function sendMessage(Request $request, $messengerInstance): JsonResponse
+    {
+        $telegram = Messenger::getInstance(strtolower($messengerInstance));
+        //dd($telegram);
+        $response = $telegram->sendMessage($request);
+
+        $messageId = $response->getMessageId();
+        return response()->json([
+            'data' => $messageId,
+        ], 200);
+    }
+
+    /**
+     * @param Request $request
+     * @param         $messengerInstance
+     *
+     * @return JsonResponse
+     * @throws ReflectionException
+     */
+    public function handleWebhook(Request $request, $messengerInstance): JsonResponse
+    {
+        $telegram = Messenger::getInstance(strtolower($messengerInstance));
+        //dd($telegram);
+        $response = $telegram->handlerWebhookInvoice($request);
 
         $messageId = $response->getMessageId();
         return response()->json([
