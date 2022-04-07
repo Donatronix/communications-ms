@@ -118,7 +118,7 @@ class MessengerController extends Controller
     {
         $messenger = Messenger::getInstance(strtolower($messengerInstance));
 
-        $response = $messenger->sendMessage($request);
+        $response = $messenger->sendMessage($request->message, $request->receiver ?? null);
 
         $messageId = $response->getMessageId();
         return response()->json([

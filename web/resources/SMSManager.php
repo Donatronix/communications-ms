@@ -1,10 +1,9 @@
 <?php
 
-namespace App\Services;
 
 use App\Contracts\MessengerContract;
-use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Twilio\Rest\Client;
 
 class SMSManager implements MessengerContract
 {

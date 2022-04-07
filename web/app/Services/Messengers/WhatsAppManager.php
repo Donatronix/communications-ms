@@ -3,10 +3,13 @@
 namespace App\Services\Messengers;
 
 use App\Contracts\MessengerContract;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Http\Request;
+use Twilio\Exceptions\ConfigurationException;
+use Twilio\Exceptions\TwilioException;
+use Twilio\Rest\Api\V2010\Account\MessageInstance;
+use Twilio\Rest\Client;
 
 class WhatsAppManager implements MessengerContract
 {
@@ -20,6 +23,9 @@ class WhatsAppManager implements MessengerContract
 
     private Client $client;
 
+    /**
+     * @throws ConfigurationException
+     */
     public function __construct()
     {
         $this->twilioSid = env('TWILIO_SID');
@@ -66,14 +72,14 @@ class WhatsAppManager implements MessengerContract
      * @param Request $request
      *
      * @return mixed
-     * @throws GuzzleException
+     * @throws TwilioException
      */
     public function handlerWebhookInvoice(Request $request): mixed
     {
         $from = $request->input('From');
         $body = $request->input('Body');
 
-        $client = new Client();
+        $client = new GuzzleClient();
         try {
             $response = $client->request('GET', "https://api.github.com/users/$body");
             $githubResponse = json_decode($response->getBody());
@@ -92,17 +98,19 @@ class WhatsAppManager implements MessengerContract
         } catch (RequestException $th) {
             $response = json_decode($th->getResponse()->getBody());
             $this->sendMessage($response->message, $from);
+        } catch (TwilioException $e) {
         }
         return;
     }
 
     /**
-     * @param string $message
-     * @param string $recipient
+     * @param string      $message
+     * @param string|null $recipient
      *
-     * @return mixed
+     * @return MessageInstance
+     * @throws TwilioException
      */
-    public function sendMessage(string $message, string $recipient): mixed
+    public function sendMessage(string $message, string $recipient = null): MessageInstance
     {
         $twilio_whatsapp_number = $this->twilioWhatsappNumber;
 
