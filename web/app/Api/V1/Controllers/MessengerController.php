@@ -97,9 +97,8 @@ class MessengerController extends Controller
     public function index($messengerInstance)
     {
 
-        $telegram = Messenger::getInstance(strtolower($messengerInstance));
-        //dd($telegram);
-        $response = $telegram->sendMessage();
+        $messenger = Messenger::getInstance(strtolower($messengerInstance));
+        $response = $messenger->sendMessage();
 
         $messageId = $response->getMessageId();
         return response()->json([
@@ -117,9 +116,9 @@ class MessengerController extends Controller
      */
     public function sendMessage(Request $request, $messengerInstance): JsonResponse
     {
-        $telegram = Messenger::getInstance(strtolower($messengerInstance));
-        //dd($telegram);
-        $response = $telegram->sendMessage($request);
+        $messenger = Messenger::getInstance(strtolower($messengerInstance));
+
+        $response = $messenger->sendMessage($request);
 
         $messageId = $response->getMessageId();
         return response()->json([
@@ -136,9 +135,8 @@ class MessengerController extends Controller
      */
     public function handleWebhook(Request $request, $messengerInstance): JsonResponse
     {
-        $telegram = Messenger::getInstance(strtolower($messengerInstance));
-        //dd($telegram);
-        $response = $telegram->handlerWebhookInvoice($request);
+        $messenger = Messenger::getInstance(strtolower($messengerInstance));
+        $response = $messenger->handlerWebhookInvoice($request);
 
         $messageId = $response->getMessageId();
         return response()->json([
