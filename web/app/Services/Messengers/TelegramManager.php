@@ -66,10 +66,13 @@ class TelegramManager implements MessengerContract
     }
 
     /**
+     * @param string      $message
+     * @param string|null $recipient
+     *
      * @return Message
      * @throws TelegramSDKException
      */
-    public function sendMessage(): Message
+    public function sendMessage(string $message, string $recipient = null): Message
     {
 
         if (request()->hasFile('file')) {
@@ -90,7 +93,7 @@ class TelegramManager implements MessengerContract
 
         return $this->object->sendMessage([
             'chat_id' => $this->chatId,
-            'text' => request()->message,
+            'text' => $message,
         ]);
 
     }

@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Contracts;
+
 use Illuminate\Http\Request;
 
 interface MessengerContract
@@ -25,11 +27,19 @@ interface MessengerContract
     public static function getNewStatusId();
 
     /**
-     * @param \Illuminate\Http\Request $request
+     * @param Request $request
      *
      * @return mixed
      */
     public function handlerWebhookInvoice(Request $request): mixed;
 
-	
+
+    /**
+     * @param string      $message
+     * @param string|null $recipient
+     *
+     * @return mixed
+     */
+    public function sendMessage(string $message, string $recipient = null): mixed;
+
 }

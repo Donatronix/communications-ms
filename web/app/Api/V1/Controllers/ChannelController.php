@@ -3,6 +3,7 @@
 namespace App\Api\V1\Controllers;
 
 use App\Models\Bot;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -66,14 +67,14 @@ class ChannelController extends Controller
         // Validate input
         $validator = Validator::make(
             [
-                'platform' => $platform
+                'platform' => $platform,
             ],
             [
                 'platform' => [
                     'required',
                     'string',
                     Rule::in(Bot::$platforms),
-                ]
+                ],
             ]
         );
 
@@ -82,7 +83,7 @@ class ChannelController extends Controller
                 'type' => 'warning',
                 'title' => '',
                 'message' => "Validation error",
-                'data' => $validator->errors()
+                'data' => $validator->errors(),
             ], 400);
         }
 
@@ -105,7 +106,7 @@ class ChannelController extends Controller
 
                         $result[$key] = array_merge($result[$key], [
                             'href' => "https://t.me/{$uri}",
-                            'hrefMobile' => "tg://resolve?domain={$uri}"
+                            'hrefMobile' => "tg://resolve?domain={$uri}",
                         ]);
 
                         break;
@@ -113,7 +114,7 @@ class ChannelController extends Controller
                         $result[$key] = array_merge($result[$key], [
                             //'href' => "https://chats.viber.com/{$bot->uri}",
                             'href' => "viber://pa?ChatURI={$bot->uri}",
-                            'hrefMobile' => "viber://pa?ChatURI={$bot->uri}"
+                            'hrefMobile' => "viber://pa?ChatURI={$bot->uri}",
                         ]);
                         break;
                     case 'line':
@@ -136,14 +137,14 @@ class ChannelController extends Controller
                     case 'signal':
                         $result[$key] = array_merge($result[$key], [
                             'href' => $bot->uri,
-                            'hrefMobile' => $bot->uri
+                            'hrefMobile' => $bot->uri,
                         ]);
 
                         break;
                     case 'messenger':
                         $result[$key] = array_merge($result[$key], [
                             'href' => $bot->uri,
-                            'hrefMobile' => $bot->uri
+                            'hrefMobile' => $bot->uri,
                         ]);
                         //href: "https://m.me/SumraBot",
                         //hrefMobile: "https://m.me/SumraBot",
@@ -152,7 +153,7 @@ class ChannelController extends Controller
                     case 'whatsapp':
                         $result[$key] = array_merge($result[$key], [
                             'href' => $bot->uri,
-                            'hrefMobile' => $bot->uri
+                            'hrefMobile' => $bot->uri,
                         ]);
 
                         // https://wa.me/14155238886
@@ -163,7 +164,7 @@ class ChannelController extends Controller
                     case 'nexmo':
                         $result[$key] = array_merge($result[$key], [
                             'href_send_phone' => "https://{$request->getHost()}/api/v1/sms/send-phone?bot_id={$bot->id}",
-                            'href_send_sms' => "https://{$request->getHost()}/api/v1/sms/send-sms?bot_id={$bot->id}"
+                            'href_send_sms' => "https://{$request->getHost()}/api/v1/sms/send-sms?bot_id={$bot->id}",
                         ]);
                         break;
                     default:
@@ -175,14 +176,14 @@ class ChannelController extends Controller
                 'type' => 'success',
                 'title' => 'Get auth channels list',
                 'message' => 'Bots filtered by platform received successfully',
-                'data' => $result
+                'data' => $result,
             ], 200);
         } catch (Exception $e) {
             return response()->jsonApi([
                 'type' => 'danger',
                 'title' => 'Get auth channels list',
                 'message' => $e->getMessage(),
-                'data' => null
+                'data' => null,
             ], 400);
         }
     }

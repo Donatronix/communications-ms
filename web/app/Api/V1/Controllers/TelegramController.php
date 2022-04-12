@@ -95,7 +95,6 @@ class TelegramController extends Controller
     {
 
         $telegram = Messenger::getInstance('telegram');
-        //dd($telegram);
         $response = $telegram->sendMessage();
 
         $messageId = $response->getMessageId();
