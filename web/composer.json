@@ -1,15 +1,14 @@
 {
     "name": "kus/communications-ms",
     "description": "Communications API Microservice",
+    "license": "MIT",
     "type": "project",
     "private": true,
     "require": {
         "php": "^8.0",
         "bogdaan/viber-bot-php": "^0.0.14",
-        "doctrine/dbal": "~3",
         "ext-json": "*",
         "ext-openssl": "*",
-        "guzzlehttp/guzzle": "~6 || ~7",
         "irazasyed/telegram-bot-sdk": "~3",
         "laravel/lumen-framework": "~8",
         "linecorp/line-bot-sdk": "~7",
@@ -19,28 +18,20 @@
     "require-dev": {
         "fakerphp/faker": "~1",
         "mockery/mockery": "~1",
-        "phpunit/phpunit": "dev-master"
+        "phpunit/phpunit": "~9"
     },
     "autoload": {
         "psr-4": {
-            "Tests\\": "tests/",
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         }
     },
     "autoload-dev": {
-        "classmap": [
-            "tests/"
-        ]
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
     },
-    "config": {
-        "preferred-install": "dist",
-        "sort-packages": true,
-        "optimize-autoloader": true
-    },
-    "minimum-stability": "dev",
-    "prefer-stable": true,
     "repositories": [
         {
             "type": "path",
@@ -54,5 +45,12 @@
         "post-root-package-install": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
         ]
-    }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

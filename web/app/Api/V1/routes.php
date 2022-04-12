@@ -5,9 +5,16 @@
  */
 $router->group([
     'prefix' => env('APP_API_VERSION', ''),
-    'namespace' => '\App\Api\V1\Controllers',
-   //'middleware' => 'checkUser'
+    'namespace' => '\App\Api\V1\Controllers'
 ], function ($router) {
+    /**
+     * Internal access
+     */
+    $router->group([
+        'middleware' => 'checkUser'
+    ], function ($router) {
+    });
+
     /**
      * Channels Auth
      */
@@ -17,11 +24,9 @@ $router->group([
         $router->get('/auth/{platform}', 'ChannelController');
     });
 
-
     $router->get('/telegram', 'TelegramController@index');
-	$router->get('/viber', 'ViberController@index');
-	$router->get('/linebot', 'LineController@index');
-
+    $router->get('/viber', 'ViberController@index');
+    $router->get('/linebot', 'LineController@index');
 
     /**
      * ADMIN PANEL
@@ -29,7 +34,10 @@ $router->group([
     $router->group([
         'prefix' => 'admin',
         'namespace' => 'Admin',
-        'middleware' => 'checkAdmin'
+        'middleware' => [
+            'checkUser',
+            'checkAdmin'
+        ]
     ], function ($router) {
         /**
          * Channels (Bots)
@@ -43,7 +51,6 @@ $router->group([
             $router->put('/{id:[a-fA-F0-9\-]{36}}', 'BotController@update');
             $router->delete('/{id:[a-fA-F0-9\-]{36}}', 'BotController@destroy');
             $router->post('/{id:[a-fA-F0-9\-]{36}}/update-status', 'BotController@updateStatus');
-
         });
     });
 });
