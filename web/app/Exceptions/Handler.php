@@ -51,8 +51,6 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
-        if ($exception instanceof ModelNotFoundException) {
-            $classFullName = $exception->getModel();
         if ($exception instanceof UnableToExecuteRequestException) {
             return new Response(json_encode(['errors' => [$exception->getMessage()]]), $exception->getCode());
         }

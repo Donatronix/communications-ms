@@ -22,9 +22,6 @@ $router->group([
             $router->get('/auth/{platform}', 'ChannelController');
         });
 
-    $router->get('/bot/{messengerInstance}/send-message', 'MessengerController@sendMessage')->name('send-message');
-    $router->get('/bot/{messengerInstance}/webhook', 'MessengerController@handleWebhook')->name('webhook');
-
         $router->get('/bot/{messengerInstance}/send-message', 'MessengerController@sendMessage')->name('send-message');
         $router->get('/bot/{messengerInstance}/webhook', 'MessengerController@handleWebhook')->name('webhook');
     });
