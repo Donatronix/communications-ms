@@ -13,20 +13,21 @@ $router->group([
     $router->group([
         'middleware' => 'checkUser'
     ], function ($router) {
-    });
+        /**
+         * Channels Auth
+         */
+        $router->group([
+            'prefix' => 'channels',
+        ], function ($router) {
+            $router->get('/auth/{platform}', 'ChannelController');
+        });
 
-    /**
-     * Channels Auth
-     */
-    $router->group([
-        'prefix' => 'channels',
-    ], function ($router) {
-        $router->get('/auth/{platform}', 'ChannelController');
-    });
+    $router->get('/bot/{messengerInstance}/send-message', 'MessengerController@sendMessage')->name('send-message');
+    $router->get('/bot/{messengerInstance}/webhook', 'MessengerController@handleWebhook')->name('webhook');
 
-    $router->get('/telegram', 'TelegramController@index');
-    $router->get('/viber', 'ViberController@index');
-    $router->get('/linebot', 'LineController@index');
+        $router->get('/bot/{messengerInstance}/send-message', 'MessengerController@sendMessage')->name('send-message');
+        $router->get('/bot/{messengerInstance}/webhook', 'MessengerController@handleWebhook')->name('webhook');
+    });
 
     /**
      * ADMIN PANEL

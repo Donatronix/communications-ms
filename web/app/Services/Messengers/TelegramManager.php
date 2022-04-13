@@ -1,63 +1,123 @@
 <?php
+
 namespace App\Services\Messengers;
+
 use App\Contracts\MessengerContract;
-use Telegram\Bot\Api;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Telegram\Bot\Api;
+use Telegram\Bot\Exceptions\TelegramSDKException;
+use Telegram\Bot\Objects\Message;
+
 class TelegramManager implements MessengerContract
 {
-	public $object;
-	/*public function __construct(){
-		
-			$object = new API();
-			$telegram = new Api(env('TELEGRAM_BOT_TOKEN'));
-			//dd($telegram);
-			
-	}*/
-	public function __construct()
-	{
-		$this->object= new Api(env('TELEGRAM_BOT_TOKEN'));			
-	}
-	public static function gateway()
-	{
-		return [];
-	}
-	 public static function name()
-	 {
-		return [];
-	}
-	public function sendMessage(){
+    const STATUS_CHAT_STARTED = 1;
 
-        return  $this->object->sendMessage([
-            'chat_id' => env('TELEGRAM_CHAT_ID'),
-            'text' => 'Hello World Bugfix'
-        ]);
-        
-    }
     /**
-     * @return mixed
+     * @var Api
      */
-    public static function description()
-	{
-		return [];
-	}
+    public Api $object;
+
+
+    /**
+     * @var mixed
+     */
+    private mixed $chatId;
+
+    /**
+     * @throws TelegramSDKException
+     */
+    public function __construct()
+    {
+        $this->chatId = env('TELEGRAM_CHAT_ID');
+        $this->object = new Api(env('TELEGRAM_BOT_TOKEN'), true);
+    }
+
+    /**
+     * @return string
+     */
+    public static function gateway(): string
+    {
+        return 'telegram';
+    }
+
+    /**
+     * @return string
+     */
+    public static function name(): string
+    {
+        return 'Telegram';
+    }
+
+    /**
+     * @return string
+     */
+    public static function description(): string
+    {
+        return 'Telegram is...';
+    }
 
     /**
      * @return integer
      */
-    public static function getNewStatusId()
-	{
-		return [];
-	}
+    public static function getNewStatusId(): int
+    {
+        return self::STATUS_CHAT_STARTED;
+    }
 
     /**
-     * @param \Illuminate\Http\Request $request
+     * @param string      $message
+     * @param string|null $recipient
+     *
+     * @return Message
+     * @throws TelegramSDKException
+     */
+    public function sendMessage(string $message, string $recipient = null): Message
+    {
+
+        if (request()->hasFile('file')) {
+            $file = request()->file('file');
+            $path = $file->getPath();
+
+            $mime = $file->getMimeType();
+            if (str_contains($mime, "video/")) {
+                return $this->object->sendVideo(['chat_id' => $this->chatId, 'video' => $path]);
+            } else if (str_contains($mime, "image/")) {
+                return $this->object->sendPhoto(['chat_id' => $this->chatId, 'photo' => $path]);
+            } else if (str_contains($mime, "audio/")) {
+                return $this->object->sendAudio(['chat_id' => $this->chatId, 'photo' => $path]);
+            } else {
+                return $this->object->sendDocument(['chat_id' => $this->chatId, 'photo' => $path]);
+            }
+        }
+
+        return $this->object->sendMessage([
+            'chat_id' => $this->chatId,
+            'text' => $message,
+        ]);
+
+    }
+
+    /**
+     * @param Request $request
      *
      * @return mixed
+     * @throws TelegramSDKException
      */
     public function handlerWebhookInvoice(Request $request): mixed
-	{
-		return[];
-	}
-	
-	
+    {
+        $updates = $this->object->getUpdates();
+        if ($updates) {
+            return $updates;
+        }
+
+        return $this->object->chatJoinRequest([
+            'chat' => $this->object->getChat($this->chatId),
+            'from' => $request->user(),
+            'date' => Carbon::now(),
+            'invite_link' => $request->invite_link,
+        ]);
+    }
+
+
 }
