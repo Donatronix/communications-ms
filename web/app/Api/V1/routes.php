@@ -22,8 +22,8 @@ $router->group([
             $router->get('/auth/{platform}', 'ChannelController');
         });
 
-        $router->get('/bot/{messengerInstance}/send-message', 'MessengerController@sendMessage')->name('send-message');
-        $router->get('/bot/{messengerInstance}/webhook', 'MessengerController@handleWebhook')->name('webhook');
+        $router->get('/messengers', 'MessengerController@index');
+        $router->get('/messengers/{messengerInstance}/send-message', 'MessengerController@sendMessage');
     });
 
     /**
@@ -51,4 +51,7 @@ $router->group([
             $router->post('/{id:[a-fA-F0-9\-]{36}}/update-status', 'BotController@updateStatus');
         });
     });
+
+
+    $router->get('/messengers/{messengerInstance}/webhook', 'MessengerController@handleWebhook');
 });

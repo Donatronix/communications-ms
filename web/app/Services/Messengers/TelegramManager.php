@@ -18,7 +18,6 @@ class TelegramManager implements MessengerContract
      */
     public Api $object;
 
-
     /**
      * @var mixed
      */
@@ -82,9 +81,9 @@ class TelegramManager implements MessengerContract
             $mime = $file->getMimeType();
             if (str_contains($mime, "video/")) {
                 return $this->object->sendVideo(['chat_id' => $this->chatId, 'video' => $path]);
-            } else if (str_contains($mime, "image/")) {
+            } elseif (str_contains($mime, "image/")) {
                 return $this->object->sendPhoto(['chat_id' => $this->chatId, 'photo' => $path]);
-            } else if (str_contains($mime, "audio/")) {
+            } elseif (str_contains($mime, "audio/")) {
                 return $this->object->sendAudio(['chat_id' => $this->chatId, 'photo' => $path]);
             } else {
                 return $this->object->sendDocument(['chat_id' => $this->chatId, 'photo' => $path]);
@@ -95,7 +94,6 @@ class TelegramManager implements MessengerContract
             'chat_id' => $this->chatId,
             'text' => $message,
         ]);
-
     }
 
     /**
@@ -118,6 +116,4 @@ class TelegramManager implements MessengerContract
             'invite_link' => $request->invite_link,
         ]);
     }
-
-
 }

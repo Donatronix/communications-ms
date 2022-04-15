@@ -20,21 +20,23 @@ use Viber\Api\Sender;
 use Viber\Bot;
 use Viber\Client;
 
-
 class ViberManager implements MessengerContract
 {
     /**
      *
      */
     const STATUS_CHAT_STARTED = 1;
+
     /**
      * @var string|mixed
      */
     private string $apiKey;
+
     /**
      * @var string|mixed
      */
     private string $webhookUrl;
+
     /**
      * @var string
      */
@@ -70,8 +72,8 @@ class ViberManager implements MessengerContract
      */
     public function __construct()
     {
-        $this->apiKey = env('ViBER_BOT_TOKEN'); // from PA "Edit Details" page
-        $this->webhookUrl = env('VIBER_WEBHOOK_URL'); // for exmaple https://my.com/bot.php
+        $this->apiKey = env('ViBER_BOT_TOKEN');
+        $this->webhookUrl = env('VIBER_WEBHOOK_URL');
 
         $this->client = new Client(['token' => $this->apiKey]);
         $result = $this->client->setWebhook($this->webhookUrl, [
@@ -83,6 +85,21 @@ class ViberManager implements MessengerContract
             Type::CONVERSATION,
             Type::MESSAGE,
         ]);
+
+        try {
+            $this->client = new Client(['token' => $this->apiKey]);
+            $result = $this->client->setWebhook($this->webhookUrl, [
+                Type::DELIVERED,  // if message delivered to device
+                Type::SEEN,       // if message is seen device
+                Type::FAILED,     // if message not delivered
+                Type::SUBSCRIBED,
+                Type::UNSUBSCRIBED,
+                Type::CONVERSATION,
+                Type::MESSAGE,
+            ]);
+        } catch (Exception $e) {
+            echo 'Error: ' . $e->getMessage() . "\n";
+        }
 
         $this->botSender = new Sender([
             'name' => 'Reply bot',
@@ -129,20 +146,6 @@ class ViberManager implements MessengerContract
     }
 
     /**
-     * @param string $message
-     *
-     * @return Response
-     */
-    public function sendMessage(string $message): Response
-    {
-        return $this->bot->getClient()->sendMessage(
-            (new Text())
-                ->setSender($this->botSender)
-                ->setText($message)
-        );
-    }
-
-    /**
      * @param Request $request
      *
      * @return array
@@ -167,6 +170,7 @@ class ViberManager implements MessengerContract
                                 ->setActionBody('k' . $i)
                                 ->setText('k' . $i);
                     }
+
                     return (new Text())
                         ->setSender($botSender)
                         ->setText("Hi, welcome to our chat bot")
@@ -225,9 +229,90 @@ class ViberManager implements MessengerContract
         } catch (Throwable $th) {
             $log->error($th->getMessage());
         }
-        return [];
 
+        return [];
     }
 
+    /**
+     * @param string $message
+     *
+     * @return Response
+     */
+    public function sendMessage(string $message): Response
+    {
+        return $this->bot->getClient()->sendMessage(
+            (new Text())
+                ->setSender($this->botSender)
+                ->setText($message)
+        );
+    }
 
+    public function index()
+    {
+        $this->apiKey = env('VIBER_BOT_CHANNEL_ACCESS_TOKEN');
+        // reply name
+        $botSender = new Sender([
+            'name' => 'Whois bot',
+            'avatar' => 'https://developers.viber.com/img/favicon.ico',
+        ]);
+
+        // log bot interaction
+        $log = new Logger('bot');
+        $log->pushHandler(new StreamHandler('/tmp/bot.log'));
+
+        try {
+            // create bot instance
+            $bot = new Bot(['token' => $this->apiKey]);
+            $bot
+                ->onConversation(function ($event) use ($bot, $botSender, $log) {
+                    $log->info('onConversation ' . var_export($event, true));
+                    // this event fires if user open chat, you can return "welcome message"
+                    // to user, but you can't send more messages!
+                    return (new Text())
+                        ->setSender($botSender)
+                        ->setText('Can i help you?');
+                })
+                ->onText('|whois .*|si', function ($event) use ($bot, $botSender, $log) {
+                    $log->info('onText whois ' . var_export($event, true));
+                    // match by template, for example "whois Bogdaan"
+                    $bot->getClient()->sendMessage(
+                        (new Text())
+                            ->setSender($botSender)
+                            ->setReceiver($event->getSender()->getId())
+                            ->setText('I do not know )')
+                    );
+                })
+                ->onText('|.*|s', function ($event) use ($bot, $botSender, $log) {
+                    $log->info('onText ' . var_export($event, true));
+                    // .* - match any symbols
+                    $bot->getClient()->sendMessage(
+                        (new Text())
+                            ->setSender($botSender)
+                            ->setReceiver($event->getSender()->getId())
+                            ->setText('HI!')
+                    );
+                })
+                ->onPicture(function ($event) use ($bot, $botSender, $log) {
+                    $log->info('onPicture ' . var_export($event, true));
+                    $bot->getClient()->sendMessage(
+                        (new Text())
+                            ->setSender($botSender)
+                            ->setReceiver($event->getSender()->getId())
+                            ->setText('Nice picture ;-)')
+                    );
+                })
+                ->on(function ($event) {
+                    return true; // match all
+                }, function ($event) use ($log) {
+                    $log->info('Other event: ' . var_export($event, true));
+                })
+                ->run();
+        } catch (Exception $e) {
+            $log->warning('Exception: ', $e->getMessage());
+            if ($bot) {
+                $log->warning('Actual sign: ' . $bot->getSignHeaderValue());
+                $log->warning('Actual body: ' . $bot->getInputBody());
+            }
+        }
+    }
 }

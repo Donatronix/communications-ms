@@ -33,7 +33,6 @@ class WhatsAppManager implements MessengerContract
         $this->twilioWhatsappNumber = env('TWILIO_WHATSAPP_NUMBER');
 
         $this->client = new Client($this->twilioSid, $this->twilioAuthToken);
-
     }
 
     /**
@@ -100,6 +99,7 @@ class WhatsAppManager implements MessengerContract
             $this->sendMessage($response->message, $from);
         } catch (TwilioException $e) {
         }
+
         return;
     }
 
@@ -114,8 +114,9 @@ class WhatsAppManager implements MessengerContract
     {
         $twilio_whatsapp_number = $this->twilioWhatsappNumber;
 
-        return $this->client->messages->create($recipient, ['from' => "whatsapp:$twilio_whatsapp_number", 'body' => $message]);
+        return $this->client->messages->create($recipient, [
+            'from' => "whatsapp:$twilio_whatsapp_number",
+            'body' => $message
+        ]);
     }
-
-
 }

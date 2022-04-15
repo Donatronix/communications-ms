@@ -14,7 +14,9 @@ use Illuminate\Support\Facades\Http;
 class DiscordManager implements MessengerContract
 {
     const STATUS_CHAT_STARTED = 1;
+
     private mixed $botToken;
+
     private mixed $webhookUrl;
 
     public function __construct()
@@ -98,6 +100,4 @@ class DiscordManager implements MessengerContract
             ],
         ]);
     }
-
-
 }

@@ -4,11 +4,10 @@ namespace App\Api\V1\Controllers\Admin;
 
 use App\Api\V1\Controllers\Controller;
 use App\Models\Bot;
+use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Exception;
 
 /**
  * Class BotController
@@ -222,7 +221,7 @@ class BotController extends Controller
 
         // Checks if there is a bot in the database with the given token.
         $bot = Bot::where('token', $request->get('token', null))->first();
-        if($bot){
+        if ($bot) {
             return response()->jsonApi([
                 'type' => 'danger',
                 'title' => 'Adding a bot',
@@ -335,97 +334,23 @@ class BotController extends Controller
     }
 
     /**
-     * Update a bot given its identifier
+     * Get Bot object
      *
-     * @OA\Put(
-     *     path="/admin/bots/{id}",
-     *     summary="Update a bot given its identifier",
-     *     description="Update a bot given its identifier",
-     *     tags={"Admin / Bots"},
+     * @param $id
      *
-     *     security={{
-     *         "default": {
-     *             "ManagerRead",
-     *             "User",
-     *             "ManagerWrite"
-     *         }
-     *     }},
-     *     x={
-     *         "auth-type": "Application & Application User",
-     *         "throttling-tier": "Unlimited",
-     *         "wso2-application-security": {
-     *             "security-types": {"oauth2"},
-     *             "optional": "false"
-     *         }
-     *     },
-     *
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="Bot Id",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/BotSchema")
-     *     ),
-     *     @OA\Response(
-     *         response="200",
-     *         description="The bot was successfully updated."
-     *     ),
-     *     @OA\Response(
-     *         response="400",
-     *         description="Validation Error"
-     *     ),
-     *     @OA\Response(
-     *         response="404",
-     *         description="Bot not found"
-     *     ),
-     *     @OA\Response(
-     *         response="500",
-     *         description="Server got itself in trouble"
-     *     )
-     * )
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param                          $id
-     *
-     * @return \Illuminate\Http\JsonResponse
-     * @throws \Illuminate\Validation\ValidationException
+     * @return mixed
      */
-    public function update(Request $request, $id): JsonResponse
+    private function getObject($id)
     {
-        // Validate input
-        $this->validate($request, Bot::validationRules());
-
-        // Get object
-        $bot = $this->getObject($id);
-
-        if ($bot instanceof JsonApiResponse) {
-            return $bot;
-        }
-
-        // Try update bot model
         try {
-            $bot->name = $request->get('name', null);
-            $bot->save();
-
-            return response()->jsonApi([
-                'type' => 'success',
-                'title' => 'Update a bot',
-                'message' => "The bot was {$bot->name} successfully updated",
-                'data' => $bot->toArray()
-            ], 200);
-        } catch (Exception $e) {
+            return Bot::findOrFail($id);
+        } catch (ModelNotFoundException $e) {
             return response()->jsonApi([
                 'type' => 'danger',
-                'title' => 'Change a bot',
-                'message' => $e->getMessage(),
+                'title' => "Get bot",
+                'message' => "Bot #{$id} not found or empty",
                 'data' => null
-            ], 400);
+            ], 404);
         }
     }
 
@@ -597,23 +522,97 @@ class BotController extends Controller
     }
 
     /**
-     * Get Bot object
+     * Update a bot given its identifier
      *
-     * @param $id
+     * @OA\Put(
+     *     path="/admin/bots/{id}",
+     *     summary="Update a bot given its identifier",
+     *     description="Update a bot given its identifier",
+     *     tags={"Admin / Bots"},
      *
-     * @return mixed
+     *     security={{
+     *         "default": {
+     *             "ManagerRead",
+     *             "User",
+     *             "ManagerWrite"
+     *         }
+     *     }},
+     *     x={
+     *         "auth-type": "Application & Application User",
+     *         "throttling-tier": "Unlimited",
+     *         "wso2-application-security": {
+     *             "security-types": {"oauth2"},
+     *             "optional": "false"
+     *         }
+     *     },
+     *
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Bot Id",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/BotSchema")
+     *     ),
+     *     @OA\Response(
+     *         response="200",
+     *         description="The bot was successfully updated."
+     *     ),
+     *     @OA\Response(
+     *         response="400",
+     *         description="Validation Error"
+     *     ),
+     *     @OA\Response(
+     *         response="404",
+     *         description="Bot not found"
+     *     ),
+     *     @OA\Response(
+     *         response="500",
+     *         description="Server got itself in trouble"
+     *     )
+     * )
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param                          $id
+     *
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
      */
-    private function getObject($id)
+    public function update(Request $request, $id): JsonResponse
     {
+        // Validate input
+        $this->validate($request, Bot::validationRules());
+
+        // Get object
+        $bot = $this->getObject($id);
+
+        if ($bot instanceof JsonApiResponse) {
+            return $bot;
+        }
+
+        // Try update bot model
         try {
-            return Bot::findOrFail($id);
-        } catch (ModelNotFoundException $e) {
+            $bot->name = $request->get('name', null);
+            $bot->save();
+
+            return response()->jsonApi([
+                'type' => 'success',
+                'title' => 'Update a bot',
+                'message' => "The bot was {$bot->name} successfully updated",
+                'data' => $bot->toArray()
+            ], 200);
+        } catch (Exception $e) {
             return response()->jsonApi([
                 'type' => 'danger',
-                'title' => "Get bot",
-                'message' => "Bot #{$id} not found or empty",
+                'title' => 'Change a bot',
+                'message' => $e->getMessage(),
                 'data' => null
-            ], 404);
+            ], 400);
         }
     }
 }

@@ -9,15 +9,14 @@ use ReflectionException;
 
 class MessengerController extends Controller
 {
-
     /**
      * Display a listing of the resource.
      *
      * @OA\Get(
-     *     path="/telegram",
+     *     path="/messengers",
      *     summary="Load contributors list",
      *     description="Load contributors list",
-     *     tags={"Telegram"},
+     *     tags={"Messages"},
      *
      *     security={{
      *         "default": {
@@ -96,18 +95,64 @@ class MessengerController extends Controller
      */
     public function index($messengerInstance)
     {
-
         $messenger = Messenger::getInstance(strtolower($messengerInstance));
         $response = $messenger->sendMessage();
 
         $messageId = $response->getMessageId();
+
         return response()->json([
             'data' => $messageId,
         ], 200);
     }
 
-
     /**
+     * Create a new bot
+     *
+     * @OA\Post(
+     *     path="/messengers/{}/send-message",
+     *     summary="Create a new bot",
+     *     description="NOTICE. Bot type can be only: 'telegram', 'viber', 'line', 'discord', 'signal', 'whatsapp', 'twilio', 'nexmo'. Bot platform can be only: 'sumra', 'ultainfinity'.",
+     *     tags={"Admin / Bots"},
+     *
+     *     security={{
+     *         "default": {
+     *             "ManagerRead",
+     *             "User",
+     *             "ManagerWrite"
+     *         }
+     *     }},
+     *     x={
+     *         "auth-type": "Application & Application User",
+     *         "throttling-tier": "Unlimited",
+     *         "wso2-application-security": {
+     *             "security-types": {"oauth2"},
+     *             "optional": "false"
+     *         }
+     *     },
+     *
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/BotSchema")
+     *     ),
+     *
+     *     @OA\Response(
+     *         response="201",
+     *         description="New bot was successfully created"
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Bad request syntax or unsupported method"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized"
+     *     ),
+     *     @OA\Response(
+     *         response="500",
+     *         description="Server got itself in trouble"
+     *     )
+     * )
+     *
      * @param Request $request
      * @param         $messengerInstance
      *
@@ -121,6 +166,7 @@ class MessengerController extends Controller
         $response = $messenger->sendMessage($request->message, $request->receiver ?? null);
 
         $messageId = $response->getMessageId();
+
         return response()->json([
             'data' => $messageId,
         ], 200);
@@ -139,6 +185,7 @@ class MessengerController extends Controller
         $response = $messenger->handlerWebhookInvoice($request);
 
         $messageId = $response->getMessageId();
+
         return response()->json([
             'data' => $messageId,
         ], 200);

@@ -105,7 +105,8 @@ class Bot extends Model
         7 => self::TYPE_NEXMO,
     ];
 
-    public static function validationRules(){
+    public static function validationRules()
+    {
         return [
             'name' => 'required|string|min:4',
             'token' => 'required|string|min:30',
