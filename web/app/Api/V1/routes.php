@@ -8,7 +8,12 @@ $router->group([
     'namespace' => '\App\Api\V1\Controllers'
 ], function ($router) {
     /**
-     * Internal access
+     * PUBLIC ACCESS
+     */
+    $router->get('/messengers/{messengerInstance}/webhook', 'MessengerController@handleWebhook');
+
+    /**
+     * PRIVATE ACCESS
      */
     $router->group([
         'middleware' => 'checkUser'
@@ -27,7 +32,7 @@ $router->group([
     });
 
     /**
-     * ADMIN PANEL
+     * ADMIN PANEL ACCESS
      */
     $router->group([
         'prefix' => 'admin',
@@ -51,7 +56,4 @@ $router->group([
             $router->post('/{id:[a-fA-F0-9\-]{36}}/update-status', 'BotController@updateStatus');
         });
     });
-
-
-    $router->get('/messengers/{messengerInstance}/webhook', 'MessengerController@handleWebhook');
 });
