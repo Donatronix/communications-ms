@@ -69,7 +69,6 @@ class DiscordManager implements MessengerContract
         }
 
         $discord->on('ready', function (Discord $discord) {
-
             // Listen for messages.
             $discord->on(Event::MESSAGE_CREATE, function (Message $message, Discord $discord) {
                 return "{$message->author->username}: {$message->content}";

@@ -5,20 +5,29 @@
  */
 $router->group([
     'prefix' => env('APP_API_VERSION', ''),
-    'namespace' => '\App\Api\V1\Controllers',
-    //'middleware' => 'checkUser'
+    'namespace' => '\App\Api\V1\Controllers'
 ], function ($router) {
     /**
-     * Channels Auth
+     * Internal access
      */
     $router->group([
-        'prefix' => 'channels',
+        'middleware' => 'checkUser'
     ], function ($router) {
-        $router->get('/auth/{platform}', 'ChannelController');
+        /**
+         * Channels Auth
+         */
+        $router->group([
+            'prefix' => 'channels',
+        ], function ($router) {
+            $router->get('/auth/{platform}', 'ChannelController');
+        });
+
+        $router->get('/bot/{messengerInstance}/send-message', 'MessengerController@sendMessage')->name('send-message');
+        $router->get('/bot/{messengerInstance}/webhook', 'MessengerController@handleWebhook')->name('webhook');
     });
 
     $router->group([
-        'prefix' => 'bot',
+        'prefix' => 'messages',
     ], function ($router) {
         $router->get('/{messengerInstance}/send-message', 'MessengerController@sendMessage');
         $router->get('/{messengerInstance}/webhook', 'MessengerController@handleWebhook');
@@ -31,7 +40,10 @@ $router->group([
     $router->group([
         'prefix' => 'admin',
         'namespace' => 'Admin',
-        'middleware' => 'checkAdmin',
+        'middleware' => [
+            'checkUser',
+            'checkAdmin'
+        ]
     ], function ($router) {
         /**
          * Channels (Bots)
@@ -45,7 +57,6 @@ $router->group([
             $router->put('/{id:[a-fA-F0-9\-]{36}}', 'BotController@update');
             $router->delete('/{id:[a-fA-F0-9\-]{36}}', 'BotController@destroy');
             $router->post('/{id:[a-fA-F0-9\-]{36}}/update-status', 'BotController@updateStatus');
-
         });
     });
 });

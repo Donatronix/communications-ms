@@ -1,10 +1,5 @@
 /.idea
-/public/hot
-/public/storage
-/storage/api-docs
-/storage/app
-/storage/framework
-/storage/logs
+/.vscode
 /vendor
 .env
 .phpunit.result.cache
