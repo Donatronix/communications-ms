@@ -144,11 +144,12 @@ class LineManager implements MessengerContract
     }
 
     /**
-     * @param string $message
+     * @param string|array $message
+     * @param string|null  $recipient
      *
      * @return array
      */
-    public function sendMessage(string $message): array
+    public function sendMessage(string|array $message, string $recipient = null): array
     {
         $textMessageBuilder = new TextMessageBuilder($message);
         $response = $this->bot->replyMessage('<reply token>', $textMessageBuilder);

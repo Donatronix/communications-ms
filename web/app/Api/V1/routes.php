@@ -17,10 +17,13 @@ $router->group([
         $router->get('/auth/{platform}', 'ChannelController');
     });
 
+    $router->group([
+        'prefix' => 'bot',
+    ], function ($router) {
+        $router->get('/{messengerInstance}/send-message', 'MessengerController@sendMessage');
+        $router->get('/{messengerInstance}/webhook', 'MessengerController@handleWebhook');
+    });
 
-    $router->get('/bot/{messengerInstance}/send-message', 'MessengerController@sendMessage')->name('send-message');
-    $router->get('/bot/{messengerInstance}/webhook', 'MessengerController@handleWebhook')->name('webhook');
-    
 
     /**
      * ADMIN PANEL

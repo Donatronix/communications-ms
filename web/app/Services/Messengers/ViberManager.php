@@ -129,11 +129,12 @@ class ViberManager implements MessengerContract
     }
 
     /**
-     * @param string $message
+     * @param string|array $message
+     * @param string|null  $recipient
      *
      * @return Response
      */
-    public function sendMessage(string $message): Response
+    public function sendMessage(string|array $message, string $recipient = null): Response
     {
         return $this->bot->getClient()->sendMessage(
             (new Text())

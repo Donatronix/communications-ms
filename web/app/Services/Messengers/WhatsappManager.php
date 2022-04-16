@@ -11,7 +11,7 @@ use Twilio\Exceptions\TwilioException;
 use Twilio\Rest\Api\V2010\Account\MessageInstance;
 use Twilio\Rest\Client;
 
-class WhatsAppManager implements MessengerContract
+class WhatsappManager implements MessengerContract
 {
     const STATUS_CHAT_STARTED = 1;
 
@@ -104,13 +104,13 @@ class WhatsAppManager implements MessengerContract
     }
 
     /**
-     * @param string      $message
-     * @param string|null $recipient
+     * @param string|array $message
+     * @param string|null  $recipient
      *
      * @return MessageInstance
      * @throws TwilioException
      */
-    public function sendMessage(string $message, string $recipient = null): MessageInstance
+    public function sendMessage(string|array $message, string $recipient = null): MessageInstance
     {
         $twilio_whatsapp_number = $this->twilioWhatsappNumber;
 
