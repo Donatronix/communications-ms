@@ -3,13 +3,14 @@
 namespace App\Services\Messengers;
 
 use App\Contracts\MessengerContract;
-use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Twilio\Exceptions\ConfigurationException;
 use Twilio\Exceptions\TwilioException;
 use Twilio\Rest\Api\V2010\Account\MessageInstance;
 use Twilio\Rest\Client;
+use Twilio\TwiML\MessagingResponse;
 
 class WhatsappManager implements MessengerContract
 {
@@ -28,12 +29,11 @@ class WhatsappManager implements MessengerContract
      */
     public function __construct()
     {
-        $this->twilioSid = env('TWILIO_SID');
+        $this->twilioSid = env('TWILIO_ACCOUNT_SID');
         $this->twilioAuthToken = env('TWILIO_AUTH_TOKEN');
         $this->twilioWhatsappNumber = env('TWILIO_WHATSAPP_NUMBER');
 
         $this->client = new Client($this->twilioSid, $this->twilioAuthToken);
-
     }
 
     /**
@@ -71,36 +71,34 @@ class WhatsappManager implements MessengerContract
     /**
      * @param Request $request
      *
-     * @return mixed
+     * @return MessagingResponse
      * @throws TwilioException
      */
-    public function handlerWebhookInvoice(Request $request): mixed
+    public function handlerWebhookInvoice(Request $request): MessagingResponse
     {
-        $from = $request->input('From');
-        $body = $request->input('Body');
+        $from = $request->input('from');
+        $body = $request->input('body');
 
-        $client = new GuzzleClient();
         try {
-            $response = $client->request('GET', "https://api.github.com/users/$body");
-            $githubResponse = json_decode($response->getBody());
-            if ($response->getStatusCode() == 200) {
-                $message = "*Name:* $githubResponse->name\n";
-                $message .= "*Bio:* $githubResponse->bio\n";
-                $message .= "*Lives in:* $githubResponse->location\n";
-                $message .= "*Number of Repos:* $githubResponse->public_repos\n";
-                $message .= "*Followers:* $githubResponse->followers devs\n";
-                $message .= "*Following:* $githubResponse->following devs\n";
-                $message .= "*URL:* $githubResponse->html_url\n";
-                $this->sendMessage($message, $from);
+            // Get number of images in the request
+            $numMedia = (int)$request->input("NumMedia");
+
+            Log::debug("Media files received: {$numMedia}");
+
+            $response = new MessagingResponse();
+            if ($numMedia === 0) {
+                $message = $response->message("Send us an image!");
             } else {
-                $this->sendMessage($githubResponse->message, $from);
+                $message = $response->message("Thanks for the image!");
             }
+
+            return $response;
         } catch (RequestException $th) {
             $response = json_decode($th->getResponse()->getBody());
             $this->sendMessage($response->message, $from);
         } catch (TwilioException $e) {
+            $this->sendMessage($e->getMessage(), $from);
         }
-        return;
     }
 
     /**
@@ -112,10 +110,6 @@ class WhatsappManager implements MessengerContract
      */
     public function sendMessage(string|array $message, string $recipient = null): MessageInstance
     {
-        $twilio_whatsapp_number = $this->twilioWhatsappNumber;
-
-        return $this->client->messages->create($recipient, ['from' => "whatsapp:$twilio_whatsapp_number", 'body' => $message]);
+        return $this->client->messages->create("whatsapp:$recipient", ['from' => "whatsapp:$this->twilioWhatsappNumber", 'body' => $message]);
     }
-
-
 }

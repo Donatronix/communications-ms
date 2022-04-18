@@ -7,7 +7,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use ReflectionException;
 
-class MessengerController extends Controller
+class MessagesController extends Controller
 {
 
     /**
