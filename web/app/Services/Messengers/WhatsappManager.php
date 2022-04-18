@@ -71,10 +71,10 @@ class WhatsappManager implements MessengerContract
     /**
      * @param Request $request
      *
-     * @return MessagingResponse
+     * @return MessagingResponse|void
      * @throws TwilioException
      */
-    public function handlerWebhookInvoice(Request $request): MessagingResponse
+    public function handlerWebhookInvoice(Request $request): ?MessagingResponse
     {
         $from = $request->input('from', $this->twilioWhatsappNumber);
 
@@ -85,8 +85,8 @@ class WhatsappManager implements MessengerContract
             Log::debug("Media files received: {$numMedia}");
 
             $response = new MessagingResponse();
-            if ($numMedia === 0) {
-                $message = $response->message("Send us an image!");
+            if ($numMedia != 0) {
+                $message = $response->message("Thanks for the image!");
             } else {
                 $message = $response->message("Thanks for the message!");
             }
@@ -98,7 +98,7 @@ class WhatsappManager implements MessengerContract
         } catch (TwilioException $e) {
             $this->sendMessage($e->getMessage(), $from);
         }
-        
+        return;
     }
 
     /**
