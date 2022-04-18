@@ -22,8 +22,8 @@ $router->group([
             $router->get('/auth/{platform}', 'ChannelController');
         });
 
-        $router->get('/bot/{messengerInstance}/send-message', 'MessengerController@sendMessage');
-        $router->get('/bot/{messengerInstance}/webhook', 'MessengerController@handleWebhook');
+        $router->get('/bot/{messengerInstance}/send-message', 'MessagesController@sendMessage');
+        $router->get('/bot/{messengerInstance}/webhook', 'MessagesController@handleWebhook');
     });
 
     /**
@@ -32,8 +32,8 @@ $router->group([
     $router->group([
         'prefix' => 'messages',
     ], function ($router) {
-        $router->get('/{messengerInstance}/send-message', 'MessengerController@sendMessage');
-        $router->get('/{messengerInstance}/webhook', 'MessengerController@handleWebhook');
+        $router->get('/{messengerInstance}/send-message', 'MessagesController@sendMessage');
+        $router->get('/{messengerInstance}/webhook', 'MessagesController@handleWebhook');
     });
 
 
