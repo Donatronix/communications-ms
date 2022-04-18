@@ -5,13 +5,13 @@
  */
 $router->group([
     'prefix' => env('APP_API_VERSION', ''),
-    'namespace' => '\App\Api\V1\Controllers'
+    'namespace' => '\App\Api\V1\Controllers',
 ], function ($router) {
     /**
      * Internal access
      */
     $router->group([
-        'middleware' => 'checkUser'
+        'middleware' => 'checkUser',
     ], function ($router) {
         /**
          * Channels Auth
@@ -22,10 +22,13 @@ $router->group([
             $router->get('/auth/{platform}', 'ChannelController');
         });
 
-        $router->get('/bot/{messengerInstance}/send-message', 'MessengerController@sendMessage')->name('send-message');
-        $router->get('/bot/{messengerInstance}/webhook', 'MessengerController@handleWebhook')->name('webhook');
+        $router->get('/bot/{messengerInstance}/send-message', 'MessengerController@sendMessage');
+        $router->get('/bot/{messengerInstance}/webhook', 'MessengerController@handleWebhook');
     });
 
+    /**
+     * Messenger instance
+     */
     $router->group([
         'prefix' => 'messages',
     ], function ($router) {
@@ -42,8 +45,8 @@ $router->group([
         'namespace' => 'Admin',
         'middleware' => [
             'checkUser',
-            'checkAdmin'
-        ]
+            'checkAdmin',
+        ],
     ], function ($router) {
         /**
          * Channels (Bots)

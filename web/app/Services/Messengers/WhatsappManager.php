@@ -76,8 +76,7 @@ class WhatsappManager implements MessengerContract
      */
     public function handlerWebhookInvoice(Request $request): MessagingResponse
     {
-        $from = $request->input('from');
-        $body = $request->input('body');
+        $from = $request->input('from', $this->twilioWhatsappNumber);
 
         try {
             // Get number of images in the request
@@ -89,7 +88,7 @@ class WhatsappManager implements MessengerContract
             if ($numMedia === 0) {
                 $message = $response->message("Send us an image!");
             } else {
-                $message = $response->message("Thanks for the image!");
+                $message = $response->message("Thanks for the message!");
             }
 
             return $response;
@@ -99,6 +98,7 @@ class WhatsappManager implements MessengerContract
         } catch (TwilioException $e) {
             $this->sendMessage($e->getMessage(), $from);
         }
+        
     }
 
     /**
