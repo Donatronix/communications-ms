@@ -70,7 +70,7 @@ class ViberManager implements MessengerContract
      */
     public function __construct()
     {
-        $this->apiKey = env('ViBER_BOT_TOKEN'); // from PA "Edit Details" page
+        $this->apiKey = env('VIBER_BOT_TOKEN'); // from PA "Edit Details" page
         $this->webhookUrl = env('VIBER_WEBHOOK_URL'); // for exmaple https://my.com/bot.php
 
         $this->client = new Client(['token' => $this->apiKey]);

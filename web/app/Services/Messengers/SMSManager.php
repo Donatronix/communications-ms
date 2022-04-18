@@ -41,7 +41,7 @@ class SMSManager implements MessengerContract
      */
     public function __construct()
     {
-        $this->twilioSid = env('TWILIO_SID');
+        $this->twilioSid = env('TWILIO_ACCOUNT_SID');
         $this->twilioAuthToken = env('TWILIO_AUTH_TOKEN');
         $this->twilioNumber = env('TWILIO_NUMBER');
 
