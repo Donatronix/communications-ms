@@ -10,10 +10,19 @@ $router->group([
     /**
      * PUBLIC ACCESS
      */
-    $router->get('/messengers/{messengerInstance}/webhook', 'MessengerController@handleWebhook');
 
     /**
-     * PRIVATE ACCESS
+     * Messenger instance
+     */
+    $router->group([
+        'prefix' => 'messages',
+    ], function ($router) {
+        $router->post('/{messengerInstance}/webhook', 'MessagesController@handleWebhook');
+    });
+
+
+    /**
+     * Internal access
      */
     $router->group([
         'middleware' => 'checkUser'
@@ -24,11 +33,21 @@ $router->group([
         $router->group([
             'prefix' => 'channels',
         ], function ($router) {
-            $router->get('/auth/{platform}', 'ChannelController');
+//            $router->get('/auth/{platform}', 'ChannelController');
+
+            $router->post('/{messengerInstance}/send-message', 'MessagesController@sendMessage');
+            $router->post('/{messengerInstance}/webhook', 'MessagesController@handleWebhook');
         });
 
-        $router->get('/messengers', 'MessengerController@index');
-        $router->get('/messengers/{messengerInstance}/send-message', 'MessengerController@sendMessage');
+
+        /**
+         * Messenger instance
+         */
+        $router->group([
+            'prefix' => 'messages',
+        ], function ($router) {
+            $router->post('/{messengerInstance}/send-message', 'MessagesController@sendMessage');
+        });
     });
 
     /**
@@ -46,14 +65,14 @@ $router->group([
          * Channels (Bots)
          */
         $router->group([
-            'prefix' => 'bots',
+            'prefix' => 'channels',
         ], function ($router) {
-            $router->get('/', 'BotController@index');
-            $router->post('/', 'BotController@store');
-            $router->get('/{id:[a-fA-F0-9\-]{36}}', 'BotController@show');
-            $router->put('/{id:[a-fA-F0-9\-]{36}}', 'BotController@update');
-            $router->delete('/{id:[a-fA-F0-9\-]{36}}', 'BotController@destroy');
-            $router->post('/{id:[a-fA-F0-9\-]{36}}/update-status', 'BotController@updateStatus');
+            $router->get('/', 'ChannelController@index');
+            $router->post('/', 'ChannelController@store');
+            $router->get('/{id:[a-fA-F0-9\-]{36}}', 'ChannelController@show');
+            $router->put('/{id:[a-fA-F0-9\-]{36}}', 'ChannelController@update');
+            $router->delete('/{id:[a-fA-F0-9\-]{36}}', 'ChannelController@destroy');
+            $router->post('/{id:[a-fA-F0-9\-]{36}}/update-status', 'ChannelController@updateStatus');
         });
     });
 });

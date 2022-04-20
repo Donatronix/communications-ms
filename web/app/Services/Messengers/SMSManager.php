@@ -1,9 +1,15 @@
 <?php
 
 
+namespace App\Services\Messengers;
+
 use App\Contracts\MessengerContract;
 use Illuminate\Http\Request;
+use Twilio\Exceptions\ConfigurationException;
+use Twilio\Exceptions\TwilioException;
+use Twilio\Rest\Api\V2010\Account\MessageInstance;
 use Twilio\Rest\Client;
+use function env;
 
 class SMSManager implements MessengerContract
 {
@@ -30,9 +36,12 @@ class SMSManager implements MessengerContract
      */
     private Client $client;
 
+    /**
+     * @throws ConfigurationException
+     */
     public function __construct()
     {
-        $this->twilioSid = env('TWILIO_SID');
+        $this->twilioSid = env('TWILIO_ACCOUNT_SID');
         $this->twilioAuthToken = env('TWILIO_AUTH_TOKEN');
         $this->twilioNumber = env('TWILIO_NUMBER');
 
@@ -76,16 +85,17 @@ class SMSManager implements MessengerContract
      */
     public function handlerWebhookInvoice(Request $request): mixed
     {
-        // TODO: Implement handlerWebhookInvoice() method.
+        //
     }
 
     /**
-     * @param string      $message
-     * @param string|null $recipient
+     * @param string|array $message
+     * @param string|null  $recipient
      *
-     * @return mixed
+     * @return MessageInstance
+     * @throws TwilioException
      */
-    public function sendMessage(string $message, string $recipient = null): mixed
+    public function sendMessage(string|array $message, string $recipient = null): MessageInstance
     {
         return $this->client->messages->create($recipient, ['from' => $this->twilioNumber, 'body' => $message]);
     }

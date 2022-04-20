@@ -83,11 +83,12 @@ class DiscordManager implements MessengerContract
     }
 
     /**
-     * @param array $message
+     * @param string|array $message
+     * @param string|null  $recipient
      *
      * @return Response
      */
-    public function sendMessage(array $message): Response
+    public function sendMessage(string|array $message, string $recipient = null): Response
     {
         return Http::post($this->webhookUrl, [
             'content' => $message['content'],

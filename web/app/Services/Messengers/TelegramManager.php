@@ -65,13 +65,13 @@ class TelegramManager implements MessengerContract
     }
 
     /**
-     * @param string      $message
-     * @param string|null $recipient
+     * @param string|array $message
+     * @param string|null  $recipient
      *
      * @return Message
      * @throws TelegramSDKException
      */
-    public function sendMessage(string $message, string $recipient = null): Message
+    public function sendMessage(string|array $message, string $recipient = null): Message
     {
 
         if (request()->hasFile('file')) {

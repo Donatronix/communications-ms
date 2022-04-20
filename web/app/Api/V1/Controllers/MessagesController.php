@@ -7,16 +7,16 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use ReflectionException;
 
-class MessengerController extends Controller
+class MessagesController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Send message.
      *
-     * @OA\Get(
-     *     path="/messengers",
-     *     summary="Load contributors list",
-     *     description="Load contributors list",
-     *     tags={"Messages"},
+     * @OA\Post(
+     *     path="/messages/{messengerInstance}/send-message",
+     *     summary="Send message using messenger",
+     *     description="Send message using messenger",
+     *     tags={"Messenger"},
      *
      *     security={{
      *         "default": {
@@ -35,41 +35,33 @@ class MessengerController extends Controller
      *     },
      *
      *     @OA\Parameter(
-     *         name="limit",
+     *         name="from",
      *         in="query",
-     *         description="Limit contributors of page",
-     *         @OA\Schema(
-     *             type="number"
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="page",
-     *         in="query",
-     *         description="Count contributors of page",
-     *         @OA\Schema(
-     *             type="number"
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="search",
-     *         in="query",
-     *         description="Search keywords",
+     *         description="Sender's Id or number",
      *         @OA\Schema(
      *             type="string"
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="sort[by]",
+     *         name="to",
      *         in="query",
-     *         description="Sort by field ()",
+     *         description="Receiver's ID or number",
      *         @OA\Schema(
      *             type="string"
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="sort[order]",
+     *         name="message",
      *         in="query",
-     *         description="Sort order (asc, desc)",
+     *         description="Message to be sent",
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="messengerInstance",
+     *         in="path",
+     *         description="Messenger instance to use for sending message",
      *         @OA\Schema(
      *             type="string"
      *         )
@@ -90,13 +82,20 @@ class MessengerController extends Controller
      *     @OA\Response(
      *         response="404",
      *         description="Not found"
-     *     )
+     *     ),
      * )
+     *
+     * @param Request $request
+     * @param         $messengerInstance
+     *
+     * @return JsonResponse
+     * @throws ReflectionException
      */
-    public function index($messengerInstance)
+    public function sendMessage(Request $request, $messengerInstance): JsonResponse
     {
         $messenger = Messenger::getInstance(strtolower($messengerInstance));
-        $response = $messenger->sendMessage();
+
+        $response = $messenger->sendMessage($request->message, $request->to ?? null);
 
         $messageId = $response->getMessageId();
 
@@ -106,13 +105,13 @@ class MessengerController extends Controller
     }
 
     /**
-     * Create a new bot
+     * Handle webhook.
      *
      * @OA\Post(
-     *     path="/messengers/{}/send-message",
-     *     summary="Create a new bot",
-     *     description="NOTICE. Bot type can be only: 'telegram', 'viber', 'line', 'discord', 'signal', 'whatsapp', 'twilio', 'nexmo'. Bot platform can be only: 'sumra', 'ultainfinity'.",
-     *     tags={"Admin / Bots"},
+     *     path="/messages/{messengerInstance}/webhook",
+     *     summary="Handle webhook from messenger",
+     *     description="Handle webhook from messenger",
+     *     tags={"Messenger"},
      *
      *     security={{
      *         "default": {
@@ -130,49 +129,57 @@ class MessengerController extends Controller
      *         }
      *     },
      *
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/BotSchema")
+     *     @OA\Parameter(
+     *         name="from",
+     *         in="query",
+     *         description="Sender's Id or number",
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="to",
+     *         in="query",
+     *         description="Receiver's ID or number",
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="message",
+     *         in="query",
+     *         description="Message to be sent",
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="messengerInstance",
+     *         in="path",
+     *         description="Messenger instance to use for sending message",
+     *         @OA\Schema(
+     *             type="string"
+     *         )
      *     ),
      *
      *     @OA\Response(
-     *         response="201",
-     *         description="New bot was successfully created"
+     *         response="200",
+     *         description="Success send data"
      *     ),
      *     @OA\Response(
-     *         response=400,
-     *         description="Bad request syntax or unsupported method"
-     *     ),
-     *     @OA\Response(
-     *         response=401,
+     *         response="401",
      *         description="Unauthorized"
      *     ),
      *     @OA\Response(
-     *         response="500",
-     *         description="Server got itself in trouble"
-     *     )
+     *         response="400",
+     *         description="Invalid request"
+     *     ),
+     *     @OA\Response(
+     *         response="404",
+     *         description="Not found"
+     *     ),
      * )
      *
-     * @param Request $request
-     * @param         $messengerInstance
-     *
-     * @return JsonResponse
-     * @throws ReflectionException
-     */
-    public function sendMessage(Request $request, $messengerInstance): JsonResponse
-    {
-        $messenger = Messenger::getInstance(strtolower($messengerInstance));
-
-        $response = $messenger->sendMessage($request->message, $request->receiver ?? null);
-
-        $messageId = $response->getMessageId();
-
-        return response()->json([
-            'data' => $messageId,
-        ], 200);
-    }
-
-    /**
      * @param Request $request
      * @param         $messengerInstance
      *
