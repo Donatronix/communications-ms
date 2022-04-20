@@ -66,7 +66,7 @@ $router->group([
          * Channels (Bots)
          */
         $router->group([
-            'prefix' => 'bots',
+            'prefix' => 'channels',
         ], function ($router) {
             $router->get('/', 'ChannelController@index');
             $router->post('/', 'ChannelController@store');
