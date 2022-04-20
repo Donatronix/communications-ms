@@ -5,30 +5,30 @@ namespace App\Api\V1\Controllers\Admin;
 use App\Api\V1\Controllers\Controller;
 use App\Models\Channel;
 use Exception;
-use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use Sumra\SDK\JsonApiResponse;
 
 /**
- * Class BotController
+ * Class ChannelController
  *
- * Bots Administration
+ * Channels Administration
  *
  * @package App\Api\V1\Controllers\Admin
  */
 class ChannelController extends Controller
 {
     /**
-     * Receiving list of Bots. Can get all bots, if type=None and platform=None
-     * else receive bots by filtering type or platform fields.
+     * Receiving list of Channels. Can get all channels, if type=None and platform=None
+     * else receive channels by filtering type or platform fields.
      *
      * @OA\Get(
-     *     path="/admin/bots",
-     *     summary="Load bots list",
-     *     description="Load bots list",
-     *     tags={"Admin / Bots"},
+     *     path="/admin/channels",
+     *     summary="Load channels list",
+     *     description="Load channels list",
+     *     tags={"Admin / Channels"},
      *
      *     security={{
      *         "default": {
@@ -49,7 +49,7 @@ class ChannelController extends Controller
      *     @OA\Parameter(
      *         name="limit",
      *         in="query",
-     *         description="Limit bots of page",
+     *         description="Limit channels of page",
      *         @OA\Schema(
      *             type="number"
      *         )
@@ -57,7 +57,7 @@ class ChannelController extends Controller
      *     @OA\Parameter(
      *         name="page",
      *         in="query",
-     *         description="Amount bots by page",
+     *         description="Amount channels by page",
      *         @OA\Schema(
      *             type="number"
      *         )
@@ -73,7 +73,7 @@ class ChannelController extends Controller
      *     @OA\Parameter(
      *         name="status",
      *         in="query",
-     *         description="Show bots by status",
+     *         description="Show channels by status",
      *         @OA\Schema(
      *             type="boolean"
      *         )
@@ -81,7 +81,7 @@ class ChannelController extends Controller
      *     @OA\Parameter(
      *         name="type",
      *         in="query",
-     *         description="Show bots by type",
+     *         description="Show channels by type",
      *         @OA\Schema(
      *             type="enum"
      *         )
@@ -89,7 +89,7 @@ class ChannelController extends Controller
      *     @OA\Parameter(
      *         name="platform",
      *         in="query",
-     *         description="Show bots by platform",
+     *         description="Show channels by platform",
      *         @OA\Schema(
      *             type="enum"
      *         )
@@ -113,7 +113,7 @@ class ChannelController extends Controller
      *
      *     @OA\Response(
      *         response="200",
-     *         description="All bots received successfully"
+     *         description="All channels received successfully"
      *     ),
      *     @OA\Response(
      *         response=401,
@@ -134,8 +134,8 @@ class ChannelController extends Controller
     public function index(Request $request)
     {
         try {
-            // Get bots list
-            $bots = Channel::select('id', 'name', 'uri', 'token', 'type', 'status')
+            // Get channels list
+            $channels = Channel::select('id', 'name', 'uri', 'token', 'type', 'status')
                 ->when($request->has('type'), function ($q) use ($request) {
                     return $q->where('type', $request->get('type'));
                 })
@@ -150,27 +150,27 @@ class ChannelController extends Controller
             // Return response
             return response()->jsonApi([
                 'type' => 'success',
-                'title' => "Bots list",
-                'message' => 'All bots received successfully',
-                'data' => $bots->toArray(),
+                'title' => "Channels list",
+                'message' => 'All channels received successfully',
+                'data' => $channels->toArray(),
             ], 200);
         } catch (Exception $e) {
             return response()->jsonApi([
                 'type' => 'danger',
-                'title' => "Bots list",
-                'message' => 'Failed to get all bots' . $e->getMessage(),
+                'title' => "Channels list",
+                'message' => 'Failed to get all channels' . $e->getMessage(),
             ], 400);
         }
     }
 
     /**
-     * Create a new bot
+     * Create a new channel
      *
      * @OA\Post(
-     *     path="/admin/bots",
-     *     summary="Create a new bot",
-     *     description="NOTICE. Bot type can be only: 'telegram', 'viber', 'line', 'discord', 'signal', 'whatsapp', 'twilio', 'nexmo'. Bot platform can be only: 'sumra', 'ultainfinity'.",
-     *     tags={"Admin / Bots"},
+     *     path="/admin/channels",
+     *     summary="Create a new channel",
+     *     description="NOTICE. Channel type can be only: 'telegram', 'viber', 'line', 'discord', 'signal', 'whatsapp', 'twilio', 'nexmo'. Channel platform can be only: 'sumra', 'ultainfinity'.",
+     *     tags={"Admin / Channels"},
      *
      *     security={{
      *         "default": {
@@ -190,12 +190,12 @@ class ChannelController extends Controller
      *
      *     @OA\RequestBody(
      *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/BotSchema")
+     *         @OA\JsonContent(ref="#/components/schemas/ChannelSchema")
      *     ),
      *
      *     @OA\Response(
      *         response="201",
-     *         description="New bot was successfully created"
+     *         description="New channel was successfully created"
      *     ),
      *     @OA\Response(
      *         response=400,
@@ -221,19 +221,19 @@ class ChannelController extends Controller
         // Validate input
         $this->validate($request, Channel::validationRules());
 
-        // Checks if there is a bot in the database with the given token.
-        $bot = Channel::where('token', $request->get('token', null))->first();
-        if ($bot) {
+        // Checks if there is a channel in the database with the given token.
+        $channel = Channel::where('token', $request->get('token', null))->first();
+        if ($channel) {
             return response()->jsonApi([
                 'type' => 'danger',
-                'title' => 'Adding a bot',
-                'message' => 'Bot with this token already exists.',
+                'title' => 'Adding a channel',
+                'message' => 'Channel with this token already exists.',
                 'data' => null,
             ], 400);
         }
 
         try {
-            $bot = Channel::create([
+            $channel = Channel::create([
                 'name' => $request->get('name', null),
                 'uri',
                 'token',
@@ -243,31 +243,31 @@ class ChannelController extends Controller
 
             return response()->jsonApi([
                 'type' => 'success',
-                'title' => 'Adding a bot',
-                'message' => "New bot {$bot->name} was successfully added",
-                'data' => $bot->toArray(),
+                'title' => 'Adding a channel',
+                'message' => "New channel {$channel->name} was successfully added",
+                'data' => $channel->toArray(),
             ], 201);
         } catch (Exception $e) {
             return response()->jsonApi([
                 'type' => 'danger',
-                'title' => 'Adding a bot',
-                'message' => 'New bot was not created: ' . $e->getMessage(),
+                'title' => 'Adding a channel',
+                'message' => 'New channel was not created: ' . $e->getMessage(),
                 'data' => null,
             ], 400);
         }
     }
 
     /**
-     * Get detail info about Bot
+     * Get detail info about Channel
      *
-     * Handles HTTP requests to URL: /api/v1/admin/bots/<string:bot_id>.
-     * Show a single bot and lets you update and delete them.
+     * Handles HTTP requests to URL: /api/v1/admin/channels/<string:channel_id>.
+     * Show a single channel and lets you update and delete them.
      *
      * @OA\Get(
-     *     path="/admin/bots/{id}",
-     *     summary="Get detail data about bot",
-     *     description="Get detail data about Bot",
-     *     tags={"Admin / Bots"},
+     *     path="/admin/channels/{id}",
+     *     summary="Get detail data about channel",
+     *     description="Get detail data about Channel",
+     *     tags={"Admin / Channels"},
      *
      *     security={{
      *         "default": {
@@ -289,18 +289,18 @@ class ChannelController extends Controller
      *         name="id",
      *         in="path",
      *         required=true,
-     *         description="Bot ID",
+     *         description="Channel ID",
      *         @OA\Schema(
      *             type="string"
      *         )
      *     ),
      *     @OA\Response(
      *          response="200",
-     *          description="The bot was successfully received"
+     *          description="The channel was successfully received"
      *     ),
      *     @OA\Response(
      *          response="404",
-     *          description="Bot not found"
+     *          description="Channel not found"
      *     ),
      *     @OA\Response(
      *          response="500",
@@ -308,10 +308,11 @@ class ChannelController extends Controller
      *     )
      * )
      *
-     * @param $id
+     * @param         $id
+     * @param Request $request
      *
      * @return mixed
-     * @throws GuzzleException
+     * @throws ValidationException
      */
     public function show($id, Request $request)
     {
@@ -321,22 +322,22 @@ class ChannelController extends Controller
         ]);
 
         // Get object
-        $bot = $this->getObject($id);
+        $channel = $this->getObject($id);
 
-        if ($bot instanceof JsonApiResponse) {
-            return $bot;
+        if ($channel instanceof JsonApiResponse) {
+            return $channel;
         }
 
         return response()->jsonApi([
             'type' => 'success',
-            'title' => 'Bot details',
-            'message' => "The bot was successfully received",
-            'data' => $bot->toArray(),
+            'title' => 'Channel details',
+            'message' => "The channel was successfully received",
+            'data' => $channel->toArray(),
         ], 200);
     }
 
     /**
-     * Get Bot object
+     * Get Channel object
      *
      * @param $id
      *
@@ -349,21 +350,21 @@ class ChannelController extends Controller
         } catch (ModelNotFoundException $e) {
             return response()->jsonApi([
                 'type' => 'danger',
-                'title' => "Get bot",
-                'message' => "Bot #{$id} not found or empty",
+                'title' => "Get channel",
+                'message' => "Channel #{$id} not found or empty",
                 'data' => null,
             ], 404);
         }
     }
 
     /**
-     * Update a bot given its identifier
+     * Update a channel given its identifier
      *
      * @OA\Put(
-     *     path="/admin/bots/{id}",
-     *     summary="Update a bot given its identifier",
-     *     description="Update a bot given its identifier",
-     *     tags={"Admin / Bots"},
+     *     path="/admin/channels/{id}",
+     *     summary="Update a channel given its identifier",
+     *     description="Update a channel given its identifier",
+     *     tags={"Admin / Channels"},
      *
      *     security={{
      *         "default": {
@@ -384,7 +385,7 @@ class ChannelController extends Controller
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="Bot Id",
+     *         description="Channel Id",
      *         required=true,
      *         @OA\Schema(
      *             type="string"
@@ -392,11 +393,11 @@ class ChannelController extends Controller
      *     ),
      *     @OA\RequestBody(
      *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/BotSchema")
+     *         @OA\JsonContent(ref="#/components/schemas/ChannelSchema")
      *     ),
      *     @OA\Response(
      *         response="200",
-     *         description="The bot was successfully updated."
+     *         description="The channel was successfully updated."
      *     ),
      *     @OA\Response(
      *         response="400",
@@ -404,7 +405,7 @@ class ChannelController extends Controller
      *     ),
      *     @OA\Response(
      *         response="404",
-     *         description="Bot not found"
+     *         description="Channel not found"
      *     ),
      *     @OA\Response(
      *         response="500",
@@ -424,27 +425,27 @@ class ChannelController extends Controller
         $this->validate($request, Channel::validationRules());
 
         // Get object
-        $bot = $this->getObject($id);
+        $channel = $this->getObject($id);
 
-        if ($bot instanceof JsonApiResponse) {
-            return $bot;
+        if ($channel instanceof JsonApiResponse) {
+            return $channel;
         }
 
-        // Try update bot model
+        // Try update channel model
         try {
-            $bot->name = $request->get('name', null);
-            $bot->save();
+            $channel->name = $request->get('name', null);
+            $channel->save();
 
             return response()->jsonApi([
                 'type' => 'success',
-                'title' => 'Update a bot',
-                'message' => "The bot was {$bot->name} successfully updated",
-                'data' => $bot->toArray(),
+                'title' => 'Update a channel',
+                'message' => "The channel was {$channel->name} successfully updated",
+                'data' => $channel->toArray(),
             ], 200);
         } catch (Exception $e) {
             return response()->jsonApi([
                 'type' => 'danger',
-                'title' => 'Change a bot',
+                'title' => 'Change a channel',
                 'message' => $e->getMessage(),
                 'data' => null,
             ], 400);
@@ -452,13 +453,13 @@ class ChannelController extends Controller
     }
 
     /**
-     * Delete a bot given its identifier
+     * Delete a channel given its identifier
      *
      * @OA\Delete(
-     *     path="/admin/bots/{id}",
-     *     summary="Delete a bot given its identifier",
-     *     description="Delete a bot given its identifier",
-     *     tags={"Admin / Bots"},
+     *     path="/admin/channels/{id}",
+     *     summary="Delete a channel given its identifier",
+     *     description="Delete a channel given its identifier",
+     *     tags={"Admin / Channels"},
      *
      *     security={{
      *         "default": {
@@ -480,14 +481,14 @@ class ChannelController extends Controller
      *         name="id",
      *         in="path",
      *         required=true,
-     *         description="Bot ID uuid4",
+     *         description="Channel ID uuid4",
      *         @OA\Schema(
      *             type="string"
      *         )
      *     ),
      *     @OA\Response(
      *         response="204",
-     *         description="The bot was successfully deleted."
+     *         description="The channel was successfully deleted."
      *     ),
      *     @OA\Response(
      *         response=401,
@@ -495,7 +496,7 @@ class ChannelController extends Controller
      *     ),
      *     @OA\Response(
      *         response="404",
-     *         description="Bot not found"
+     *         description="Channel not found"
      *     ),
      *     @OA\Response(
      *         response="500",
@@ -515,40 +516,40 @@ class ChannelController extends Controller
         ]);
 
         // Get object
-        $bot = $this->getObject($id);
+        $channel = $this->getObject($id);
 
-        if ($bot instanceof JsonApiResponse) {
-            return $bot;
+        if ($channel instanceof JsonApiResponse) {
+            return $channel;
         }
 
-        // Try to detach Bots and delete bot
+        // Try to detach Channels and delete channel
         try {
-            $bot->delete();
+            $channel->delete();
 
             return response()->jsonApi([
                 'type' => 'success',
-                'title' => "Delete of bot",
-                'message' => 'The bot was successfully deleted',
+                'title' => "Delete of channel",
+                'message' => 'The channel was successfully deleted',
                 'data' => null,
             ], 204);
         } catch (Exception $e) {
             return response()->jsonApi([
                 'type' => 'danger',
-                'title' => "Delete of bot",
-                'message' => 'Cannot delete bot' . $e->getMessage(),
+                'title' => "Delete of channel",
+                'message' => 'Cannot delete channel' . $e->getMessage(),
                 'data' => null,
             ], 400);
         }
     }
 
     /**
-     * Update status of bots
+     * Update status of channels
      *
      * @OA\Post(
-     *     path="/admin/bots/{id}/update-status",
-     *     summary="Update status of bots",
-     *     description="Update status of bots",
-     *     tags={"Admin / Bots"},
+     *     path="/admin/channels/{id}/update-status",
+     *     summary="Update status of channels",
+     *     description="Update status of channels",
+     *     tags={"Admin / Channels"},
      *
      *     security={{
      *         "default": {
@@ -570,7 +571,7 @@ class ChannelController extends Controller
      *         name="id",
      *         in="path",
      *         required=true,
-     *         description="Bot ID",
+     *         description="Channel ID",
      *         @OA\Schema(
      *             type="string"
      *         )
@@ -588,32 +589,32 @@ class ChannelController extends Controller
     public function updateStatus($id): JsonResponse
     {
         // Get object
-        $bot = $this->getObject($id);
+        $channel = $this->getObject($id);
 
-        if ($bot instanceof JsonApiResponse) {
-            return $bot;
+        if ($channel instanceof JsonApiResponse) {
+            return $channel;
         }
 
-        // Try to detach Bots and delete bot
+        // Try to detach Channels and delete channel
         try {
-            $bot->update([
-                'status' => !$bot->status,
+            $channel->update([
+                'status' => !$channel->status,
             ]);
 
-            // Load bot
-            $bot->load('bots');
+            // Load channel
+            $channel->load('channels');
 
             return response()->jsonApi([
                 'type' => 'success',
                 'title' => 'Favorites list',
-                'message' => sprintf("%s was successfully %s favorites", $bot->display_name, $bot->is_favorite ? 'added to' : 'removed from'),
-                'data' => $bot->toArray(),
+                'message' => sprintf("%s was successfully %s favorites", $channel->display_name, $channel->is_favorite ? 'added to' : 'removed from'),
+                'data' => $channel->toArray(),
             ], 200);
         } catch (Exception $e) {
             return response()->jsonApi([
                 'type' => 'danger',
                 'title' => "Favorites list",
-                'message' => "Can't change status for Bots {$bot->display_name}",
+                'message' => "Can't change status for Channels {$channel->display_name}",
             ], 404);
         }
     }
