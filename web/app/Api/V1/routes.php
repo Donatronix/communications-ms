@@ -8,6 +8,20 @@ $router->group([
     'namespace' => '\App\Api\V1\Controllers',
 ], function ($router) {
     /**
+     * PUBLIC ACCESS
+     */
+
+    /**
+     * Messenger instance
+     */
+    $router->group([
+        'prefix' => 'messages',
+    ], function ($router) {
+        $router->post('/{messengerInstance}/webhook', 'MessagesController@handleWebhook');
+    });
+
+
+    /**
      * Internal access
      */
     $router->group([
@@ -22,18 +36,14 @@ $router->group([
             $router->get('/auth/{platform}', 'ChannelController');
         });
 
-        $router->get('/bot/{messengerInstance}/send-message', 'MessagesController@sendMessage');
-        $router->get('/bot/{messengerInstance}/webhook', 'MessagesController@handleWebhook');
-    });
-
-    /**
-     * Messenger instance
-     */
-    $router->group([
-        'prefix' => 'messages',
-    ], function ($router) {
-        $router->post('/{messengerInstance}/send-message', 'MessagesController@sendMessage');
-        $router->post('/{messengerInstance}/webhook', 'MessagesController@handleWebhook');
+        /**
+         * Messenger instance
+         */
+        $router->group([
+            'prefix' => 'messages',
+        ], function ($router) {
+            $router->post('/{messengerInstance}/send-message', 'MessagesController@sendMessage');
+        });
     });
 
 
