@@ -13,7 +13,7 @@ class MessagesController extends Controller
     /**
      * Send message.
      *
-     * @OA\Get(
+     * @OA\Post(
      *     path="/messages/{messengerInstance}/send-message",
      *     summary="Send message using messenger",
      *     description="Send message using messenger",
@@ -107,7 +107,7 @@ class MessagesController extends Controller
     /**
      * Handle webhook.
      *
-     * @OA\Get(
+     * @OA\Post(
      *     path="/messages/{messengerInstance}/webhook",
      *     summary="Handle webhook from messenger",
      *     description="Handle webhook from messenger",
