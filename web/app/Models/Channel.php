@@ -8,17 +8,17 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Sumra\SDK\Traits\UuidTrait;
 
 /**
- * Bot Scheme
+ * Channel Scheme
  *
  * @package App\Models
  *
  * @OA\Schema(
- *     schema="BotSchema",
+ *     schema="ChannelSchema",
  *
  *     @OA\Property(
  *         property="name",
  *         type="string",
- *         description="Name of Bot",
+ *         description="Name of Channel",
  *         minLength=2,
  *         maxLength=100,
  *         example="1"
@@ -26,13 +26,13 @@ use Sumra\SDK\Traits\UuidTrait;
  *     @OA\Property(
  *         property="uri",
  *         type="string",
- *         description="URI of bot (username)",
- *         example="@botname"
+ *         description="URI of channel (username)",
+ *         example="@channelname"
  *     ),
  *     @OA\Property(
  *         property="token",
  *         type="string",
- *         description="Acces token of Bot",
+ *         description="Acces token of Channel",
  *         example="1000000"
  *     ),
  *     @OA\Property(
@@ -56,7 +56,7 @@ class Channel extends Model
     use SoftDeletes;
 
     /**
-     * Bot status
+     * Channel status
      */
     const STATUS_INACTIVE = 0;
     const STATUS_ACTIVE = 1;
