@@ -22,7 +22,7 @@ $router->group([
 
 
     /**
-     * Internal access
+     * PRIVATE ACCESS
      */
     $router->group([
         'middleware' => 'checkUser',
