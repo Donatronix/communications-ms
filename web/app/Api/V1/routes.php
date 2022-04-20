@@ -32,8 +32,8 @@ $router->group([
     $router->group([
         'prefix' => 'messages',
     ], function ($router) {
-        $router->get('/{messengerInstance}/send-message', 'MessagesController@sendMessage');
-        $router->get('/{messengerInstance}/webhook', 'MessagesController@handleWebhook');
+        $router->post('/{messengerInstance}/send-message', 'MessagesController@sendMessage');
+        $router->post('/{messengerInstance}/webhook', 'MessagesController@handleWebhook');
     });
 
 
