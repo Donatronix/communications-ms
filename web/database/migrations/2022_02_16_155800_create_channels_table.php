@@ -1,10 +1,11 @@
 <?php
 
+use App\Models\Channel;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateBotsTable extends Migration
+class CreateChannelsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +14,13 @@ class CreateBotsTable extends Migration
      */
     public function up()
     {
-        Schema::create('bots', function (Blueprint $table) {
+        Schema::create('channels', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name', 100);
             $table->string('uri', 100);
             $table->string('token', 200)->unique();
-            $table->enum('type', \App\Models\Bot::$types);
-            $table->enum('platform', \App\Models\Bot::$platforms);
+            $table->enum('type', Channel::$types);
+            $table->enum('platform', Channel::$platforms);
             $table->boolean('status')->default(true);
 
             // 'webhook_url': f'url.{request.param[1]}',

@@ -2,17 +2,17 @@
 
 namespace Database\Factories;
 
-use App\Models\Bot;
+use App\Models\Channel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class BotFactory extends Factory
 {
-    protected $model = Bot::class;
+    protected $model = Channel::class;
 
     public function definition(): array
     {
-    	return [
-    	    //
-    	];
+        return [
+            //
+        ];
     }
 }

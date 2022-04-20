@@ -2,7 +2,7 @@
 
 namespace App\Api\V1\Controllers;
 
-use App\Models\Bot;
+use App\Models\Channel;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -73,7 +73,7 @@ class ChannelController extends Controller
                 'platform' => [
                     'required',
                     'string',
-                    Rule::in(Bot::$platforms),
+                    Rule::in(Channel::$platforms),
                 ],
             ]
         );
@@ -89,7 +89,7 @@ class ChannelController extends Controller
 
         // Try update bot model
         try {
-            $bots = Bot::where('platform', $platform)
+            $bots = Channel::where('platform', $platform)
                 ->where('status', true)
                 ->get();
 
