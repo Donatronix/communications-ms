@@ -10,19 +10,14 @@ $router->group([
     /**
      * PUBLIC ACCESS
      */
-
-    /**
-     * Messenger instance
-     */
     $router->group([
         'prefix' => 'messages',
     ], function ($router) {
         $router->post('/{messengerInstance}/webhook', 'MessagesController@handleWebhook');
     });
 
-
     /**
-     * Internal access
+     * PRIVATE ACCESS
      */
     $router->group([
         'middleware' => 'checkUser'
