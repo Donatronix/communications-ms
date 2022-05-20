@@ -39,7 +39,6 @@ $router->group([
             $router->post('/{messengerInstance}/webhook', 'MessagesController@handleWebhook');
         });
 
-
         /**
          * Messenger instance
          */
