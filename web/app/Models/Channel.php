@@ -105,7 +105,7 @@ class Channel extends Model
         7 => self::TYPE_NEXMO,
     ];
 
-    public static function validationRules()
+    public static function validationRules(): array
     {
         return [
             'name' => 'required|string|min:4',

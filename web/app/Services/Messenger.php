@@ -18,8 +18,12 @@ class Messenger
      */
     public static function getInstance($gateway): object
     {
+        $class = match ($gateway) {
+            'whatsapp' => '\App\Services\Messengers\WhatsAppManager',
+            'sms' => '\App\Services\Messengers\SMSManager',
+            default => '\App\Services\Messengers\\' . Str::ucfirst($gateway) . 'Manager',
+        };
 
-        $class = '\App\Services\Messengers\\' . Str::ucfirst($gateway) . 'Manager';
         $reflector = new ReflectionClass($class);
 
         if (!$reflector->isInstantiable()) {
