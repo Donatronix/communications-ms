@@ -12,10 +12,14 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
-$router->group([
-    'prefix' => env('APP_API_PREFIX', '')
-], function ($router) {
+$router->group(['prefix' => env('APP_API_PREFIX', '')], function ($router) {
     include base_path('app/Api/V1/routes.php');
+
+    //$router->get('/webhook', 'FaceBookController@verify_token');
+
+    //$router->post('/webhook', 'FaceBookController@handle_query');
+
+
 });
 
 /*-------------------------
