@@ -169,10 +169,11 @@ class ChannelController extends Controller
                         break;
 
                     case 'facebook':
-                        $access_token = env('FACEBOOK_BOT_PAGE_ACCESS_TOKEN');
+                        $access_token = env('FACEBOOK_MESSENGER_VERIFY_TOKEN');
+                        $url          = env('FACEBOOK_MESSENEGR_URL');
                         $result[$key] = array_merge($result[$key], [
-                            //'href' = "https://graph.facebook.com/v2.6/me/messages?access_token={$access_token}",
-                            'href' => $channel->uri,
+                            //'href' => $channel->uri,
+                            'href' => "{$url}{$access_token}",
                             'hrefMobile' => $channel->uri,
                         ]);
                         break;
