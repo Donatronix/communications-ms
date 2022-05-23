@@ -6,10 +6,10 @@
     "private": true,
     "require": {
         "php": "^8.0",
-        "bogdaan/viber-bot-php": "^0.0.14",
         "ext-fileinfo": "*",
         "ext-json": "*",
         "ext-openssl": "*",
+        "bogdaan/viber-bot-php": "^0.0.14",
         "irazasyed/telegram-bot-sdk": "~3",
         "laravel/lumen-framework": "~8",
         "linecorp/line-bot-sdk": "~7",
