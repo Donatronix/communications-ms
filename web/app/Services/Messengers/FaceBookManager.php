@@ -34,7 +34,8 @@ class FaceBookManager implements MessengerContract
      */
     public function __construct()
     {
-        $this->access_token = env('FACEBOOK_MESSENGER_VERIFY_TOKEN');
+        $this->verify_token = env('FACEBOOK_MESSENGER_APP_SECRET');
+
     }
 
     /**
@@ -81,11 +82,11 @@ class FaceBookManager implements MessengerContract
         $mode  = $request->get('hub_mode');
         $token = $request->get('hub_verify_token');
 
-        if ($mode === "subscribe" && $this->token and $token === $this->token) {
+        if ($mode === "subscribe" && $token === $this->verify_token) {
             return ($request->get('hub_challenge'));
         }
         // if ($request->input('hub_mode') == 'subscribe' &&
-        //         $request->input('hub_verify_token') == $this->access_token) {
+        //         $request->input('hub_verify_token') == $this->verify_token) {
                     //return $request->input('hub_challenge');
         //
         //     }//  return response('You are not authorized', 403);
@@ -105,7 +106,7 @@ class FaceBookManager implements MessengerContract
     public function sendMessage(string|array $message, string $recipient = null): Message
     {
 
-        $url = env('FACEBOOK_MESSENEGR_URL', '') . $this->access_token;
+        $url = env('FACEBOOK_MESSENEGR_URL', '');
 
         $data = json_encode([
             'message'   => ['text' => $message],
