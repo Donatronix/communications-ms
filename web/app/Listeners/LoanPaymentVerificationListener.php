@@ -8,8 +8,6 @@ use App\Services\Messenger;
 class LoanPaymentVerificationListener
 {
 
-    private const RECEIVER_LISTENER = 'LoanPaymentVerification';
-
     /**
      * Create the event listener.
      *
@@ -36,15 +34,7 @@ class LoanPaymentVerificationListener
 
             $response = $messenger->sendMessage($data->message, $data->to ?? null);
 
-            $message_id = $response->getMessageId();
-
-            \PubSub::transaction(function () {
-            })->publish(self::RECEIVER_LISTENER, [
-                'type' => 'success',
-                'title' => "Message sent",
-                'message_id' => $message_id,
-                'verification_id' => $data->verification_id
-            ], $data->replay_to);
+            Log::info($response);
             exit;
         } catch (\Exception $e) {
             Log::info($e->getMessage());
