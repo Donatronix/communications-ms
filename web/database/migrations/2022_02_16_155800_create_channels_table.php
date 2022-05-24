@@ -18,7 +18,10 @@ class CreateChannelsTable extends Migration
             $table->uuid('id')->primary();
             $table->string('name', 100);
             $table->string('uri', 100);
+            $table->string('sid', 100);
             $table->string('token', 200)->unique();
+            $table->string('secret', 200);
+            $table->string('number', 100);
             $table->enum('type', Channel::$types);
             $table->enum('platform', Channel::$platforms);
             $table->boolean('status')->default(true);

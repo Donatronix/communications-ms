@@ -3,6 +3,7 @@
 namespace App\Services\Messengers;
 
 use App\Contracts\MessengerContract;
+use App\Models\User;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -29,9 +30,10 @@ class WhatsAppManager implements MessengerContract
      */
     public function __construct()
     {
-        $this->twilioSid = env('TWILIO_ACCOUNT_SID');
-        $this->twilioAuthToken = env('TWILIO_AUTH_TOKEN');
-        $this->twilioWhatsappNumber = env('TWILIO_WHATSAPP_NUMBER');
+        $type = "twilio";
+        $this->twilioSid = env('TWILIO_ACCOUNT_SID', User::getChannelSid($type)->sid);
+        $this->twilioAuthToken = env('TWILIO_AUTH_TOKEN', User::getChannelAccessToken($type)->token);
+        $this->twilioWhatsappNumber = env('TWILIO_WHATSAPP_NUMBER', User::getChannelNumber($type)->number);
 
         $this->client = new Client($this->twilioSid, $this->twilioAuthToken);
     }

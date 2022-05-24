@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Contracts\MessengerContract;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Schema;
 
 class AppServiceProvider extends ServiceProvider
 {

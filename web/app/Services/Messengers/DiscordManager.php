@@ -3,6 +3,8 @@
 namespace App\Services\Messengers;
 
 use App\Contracts\MessengerContract;
+use App\Models\Channel;
+use App\Models\User;
 use Discord\Discord;
 use Discord\Exceptions\IntentException;
 use Discord\Parts\Channel\Message;
@@ -18,11 +20,19 @@ class DiscordManager implements MessengerContract
     private mixed $botToken;
 
     private mixed $webhookUrl;
+    
 
-    public function __construct()
+    // public function __construct()
+    // {
+    //     $this->botToken = env('DISCORD_BOT_TOKEN');
+    //     $this->webhookUrl = env('DISCORD_WEBHOOK_URL');
+    // }"
+
+     public function __construct()
     {
-        $this->botToken = env('DISCORD_BOT_TOKEN');
-        $this->webhookUrl = env('DISCORD_WEBHOOK_URL');
+        $type = "discord";
+        $this->botToken = User::getChannelAccessToken($type)->token;
+        $this->webhookUrl = User::getChannelUri($type)->uri;
     }
 
     /**
