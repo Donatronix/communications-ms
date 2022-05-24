@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Laravel\Lumen\Providers\EventServiceProvider as ServiceProvider;
+use App\Listeners\LoanPaymentVerificationListener;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -12,6 +13,9 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
+        'LoanPaymentVerification' => [
+            LoanPaymentVerificationListener::class,
+        ],
     ];
 
     /**
