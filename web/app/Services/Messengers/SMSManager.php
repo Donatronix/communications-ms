@@ -4,6 +4,7 @@
 namespace App\Services\Messengers;
 
 use App\Contracts\MessengerContract;
+use App\Models\Channel;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Twilio\Exceptions\ConfigurationException;
@@ -43,9 +44,9 @@ class SMSManager implements MessengerContract
     public function __construct()
     {
         $type = "twillio";
-        $this->twilioSid = User::getChannelSid($type)->sid;
-        $this->twilioAuthToken = User::getChannelAccessToken($type)->token;
-        $this->twilioNumber = User::getChannelNumber($type)->number;
+        $this->twilioSid = Channel::getChannelSid($type)->sid;
+        $this->twilioAuthToken = Channel::getChannelAccessToken($type)->token;
+        $this->twilioNumber = Channel::getChannelNumber($type)->number;
 
         $this->client = new Client($this->twilioSid, $this->twilioAuthToken);
     }
