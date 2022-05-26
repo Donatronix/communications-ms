@@ -5,7 +5,7 @@ namespace App\Listeners;
 use Illuminate\Support\Facades\Log;
 use App\Services\Messenger;
 
-class LoanPaymentVerificationListener
+class SendSMSListener
 {
 
     /**
@@ -21,7 +21,7 @@ class LoanPaymentVerificationListener
     /**
      * Handle the event.
      *
-     * @param  LoanPaymentVerificationEvent  $event
+     * @param  SendSMSEvent  $event
      * @return void
      */
     public function handle(array $inputData)
