@@ -14,6 +14,14 @@ use Twilio\Rest\Api\V2010\Account\MessageInstance;
 use Twilio\Rest\Client;
 use Twilio\TwiML\MessagingResponse;
 
+/**
+ * Class WhatsAppManager
+ *
+ * Sendbox and
+ * http://wa.me/+14155238886?text=join%20age-pipe
+ *
+ * @package App\Services\Messengers
+ */
 class WhatsAppManager implements MessengerContract
 {
     const STATUS_CHAT_STARTED = 1;

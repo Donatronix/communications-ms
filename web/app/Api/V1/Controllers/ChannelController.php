@@ -167,6 +167,16 @@ class ChannelController extends Controller
                             'href_send_sms' => "https://{$request->getHost()}/api/v1/sms/send-sms?channel_id={$channel->id}",
                         ]);
                         break;
+
+                    case 'facebook':
+                        $access_token = env('FACEBOOK_MESSENGER_VERIFY_TOKEN');
+                        $url          = env('FACEBOOK_MESSENEGR_URL');
+                        $result[$key] = array_merge($result[$key], [
+                            //'href' => $channel->uri,
+                            'href' => "{$url}{$access_token}",
+                            'hrefMobile' => $channel->uri,
+                        ]);
+                        break;
                     default:
                         break;
                 }
