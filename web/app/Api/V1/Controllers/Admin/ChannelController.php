@@ -135,7 +135,7 @@ class ChannelController extends Controller
     {
         try {
             // Get channels list
-            $channels = Channel::select('id', 'name', 'uri', 'token', 'type', 'status')
+            $channels = Channel::select('id', 'name', 'uri', 'token', 'sid', 'secret', 'number', 'type', 'status')
                 ->when($request->has('type'), function ($q) use ($request) {
                     return $q->where('type', $request->get('type'));
                 })

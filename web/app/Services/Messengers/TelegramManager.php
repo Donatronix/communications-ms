@@ -3,6 +3,7 @@
 namespace App\Services\Messengers;
 
 use App\Contracts\MessengerContract;
+use App\Models\Channel;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -30,8 +31,8 @@ class TelegramManager implements MessengerContract
     public function __construct()
     {
         $type = "telegram";
-        $this->chatId = env('TELEGRAM_CHAT_ID', User::getChannelSid($type)->sid);
-        $this->object = new Api(env('TELEGRAM_BOT_TOKEN', User::getChannelAccessToken($type)->token), true);
+        $this->chatId = env('TELEGRAM_CHAT_ID', Channel::getChannelSid($type)->sid);
+        $this->object = new Api(env('TELEGRAM_BOT_TOKEN', Channel::getChannelAccessToken($type)->token), true);
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace App\Services\Messengers;
 
 use App\Contracts\MessengerContract;
+use App\Models\Channel;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Monolog\Handler\StreamHandler;
@@ -74,8 +75,8 @@ class ViberManager implements MessengerContract
     public function __construct()
     {
         $type = "viber";
-        $this->apiKey = User::getChannelAccessToken($type)->token;
-        $this->webhookUrl = User::getChannelUri($type)->uri;
+        $this->apiKey = Channel::getChannelAccessToken($type)->token;
+        $this->webhookUrl = Channel::getChannelUri($type)->uri;
 
         $this->client = new Client(['token' => $this->apiKey]);
         $result = $this->client->setWebhook($this->webhookUrl, [

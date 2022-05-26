@@ -31,8 +31,8 @@ class DiscordManager implements MessengerContract
      public function __construct()
     {
         $type = "discord";
-        $this->botToken = User::getChannelAccessToken($type)->token;
-        $this->webhookUrl = User::getChannelUri($type)->uri;
+        $this->botToken = Channel::getChannelAccessToken($type)->token;
+        $this->webhookUrl = Channel::getChannelUri($type)->uri;
     }
 
     /**

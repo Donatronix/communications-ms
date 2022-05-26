@@ -3,6 +3,7 @@
 namespace App\Services\Messengers;
 
 use App\Contracts\MessengerContract;
+use App\Models\Channel;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -34,7 +35,8 @@ class FaceBookManager implements MessengerContract
      */
     public function __construct()
     {
-        $this->verify_token = env('FACEBOOK_MESSENGER_APP_SECRET');
+        $type = "facebook";
+        $this->verify_token = Channel::getChannelAccessToken($type)->token;
 
     }
 
