@@ -3,6 +3,7 @@
 namespace App\Services\Messengers;
 
 use App\Contracts\MessengerContract;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use LINE\LINEBot;
@@ -45,6 +46,7 @@ class LineManager implements MessengerContract
 
     public function __construct()
     {
+        $type = "line";
         $this->channelAccessToken = env('LINE_BOT_CHANNEL_ACCESS_TOKEN');
 
         $this->channelSecret = env('LINE_BOT_CHANNEL_SECRET');
@@ -54,9 +56,9 @@ class LineManager implements MessengerContract
         $this->bot = new LINEBot($this->httpClient, ['channelSecret' => $this->channelSecret]);
 
         /**/
-        $this->channelAccessToken = Setting::getChannelAccessToken();
+        $this->channelAccessToken = User::getChannelAccessToken($type)->token;
 
-        $this->channelSecret = Setting::getChannelSecret();
+        $this->channelSecret = User::getChannelSecret($type)->secret;
 
         $this->apiReply = Setting::getApiReply();
 

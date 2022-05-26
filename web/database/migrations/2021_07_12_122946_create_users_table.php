@@ -17,6 +17,7 @@ class CreateUsersTable extends Migration
             $table->uuid('id')->primary();
             $table->string('display_name', 50)->nullable();
             $table->string('phone', 50)->nullable();
+            $table->string('platform', 100)->nullable();
             $table->timestamps();
         });
     }

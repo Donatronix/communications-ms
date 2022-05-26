@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Lumen\Auth\Authorizable;
 use Sumra\SDK\Traits\UuidTrait;
+use App\Models\Channel;
 
 class User extends Model implements AuthenticatableContract, AuthorizableContract
 {
@@ -54,4 +55,42 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
             'phone' => 'string|max:50'
         ];
     }
+
+    public static function getChannelSid($type){
+        return $channels = Channel::where("type", $type)
+            ->where("platform", auth()->user()->platform)
+            ->get('sid')->last();
+    }
+
+    public static function getChannelAccessToken($type){
+        return $channels = Channel::where("type", $type)
+            ->where("platform", auth()->user()->platform)
+            ->get('token')->last();
+    }
+
+    public static function getChannelSecret($type){
+        return $channels = Channel::where("type", $type)
+            ->where("platform", auth()->user()->platform)
+            ->get('secret')->last();
+    }
+
+    public static function getChannelUri($type){
+        return $channels = Channel::where("type", $type)
+            ->where("platform", auth()->user()->platform)
+            ->get('uri')->last();
+
+    }
+
+    public static function getChannelName($type){
+        return $channels = Channel::where("type", $type)
+            ->where("platform", auth()->user()->platform)
+            ->get('name')->last();
+    }
+
+    public static function getChannelNumber($type){
+        return $channels = Channel::where("type", $type)
+            ->where("platform", auth()->user()->platform)
+            ->get('number')->last();
+    }
+   
 }
