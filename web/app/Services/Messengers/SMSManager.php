@@ -44,9 +44,9 @@ class SMSManager implements MessengerContract
     public function __construct()
     {
         $type = "twillio";
-        $this->twilioSid = Channel::getChannelSid($type)->sid;
-        $this->twilioAuthToken = Channel::getChannelAccessToken($type)->token;
-        $this->twilioNumber = Channel::getChannelNumber($type)->number;
+        $this->twilioSid = Channel::getChannelSettings($type)->sid;
+        $this->twilioAuthToken = Channel::getChannelSettings($type)->token;
+        $this->twilioNumber = Channel::getChannelSettings($type)->number;
 
         $this->client = new Client($this->twilioSid, $this->twilioAuthToken);
     }

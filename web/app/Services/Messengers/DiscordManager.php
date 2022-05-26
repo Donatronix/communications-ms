@@ -20,19 +20,12 @@ class DiscordManager implements MessengerContract
     private mixed $botToken;
 
     private mixed $webhookUrl;
-    
-
-    // public function __construct()
-    // {
-    //     $this->botToken = env('DISCORD_BOT_TOKEN');
-    //     $this->webhookUrl = env('DISCORD_WEBHOOK_URL');
-    // }"
 
      public function __construct()
     {
         $type = "discord";
-        $this->botToken = Channel::getChannelAccessToken($type)->token;
-        $this->webhookUrl = Channel::getChannelUri($type)->uri;
+        $this->botToken = Channel::getChannelSettings($type)->token;
+        $this->webhookUrl = Channel::getChannelSettings($type)->uri;
     }
 
     /**

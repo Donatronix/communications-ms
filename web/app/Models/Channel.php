@@ -46,7 +46,25 @@ use Sumra\SDK\Traits\UuidTrait;
  *         type="enum",
  *         description="Period in days",
  *         example="10"
- *     )
+ *     ),
+ *     @OA\Property(
+ *         property="sid",
+ *         type="string",
+ *         description="Channel SID",
+ *         example="1002000"
+ *     ),
+ *    @OA\Property(
+ *         property="number",
+ *         type="string",
+ *         description="Channel number",
+ *         example="+8056788888"
+ *     ),
+ *    @OA\Property(
+ *         property="secret",
+ *         type="string",
+ *         description="Channel access secret",
+ *         example="10-secret/access"
+ *     ),
  * )
  */
 class Channel extends Model
@@ -107,41 +125,10 @@ class Channel extends Model
         8 => self::TYPE_FACEBOOK,
     ];
 
-    public static function getChannelSid($type){
+    public static function getChannelSettings($type){
         return Channel::where("type", $type)
             ->where("platform", env('APP_PLATFORM'))
-            ->get('sid')->last();
-    }
-
-    public static function getChannelAccessToken($type){
-        return Channel::where("type", $type)
-            ->where("platform", env('APP_PLATFORM'))
-            ->get('token')->last();
-    }
-
-    public static function getChannelSecret($type){
-        return Channel::where("type", $type)
-            ->where("platform", env('APP_PLATFORM'))
-            ->get('secret')->last();
-    }
-
-    public static function getChannelUri($type){
-        return Channel::where("type", $type)
-            ->where("platform", env('APP_PLATFORM'))
-            ->get('uri')->last();
-
-    }
-
-    public static function getChannelName($type){
-        return Channel::where("type", $type)
-            ->where("platform", env('APP_PLATFORM'))
-            ->get('name')->last();
-    }
-
-    public static function getChannelNumber($type){
-        return Channel::where("type", $type)
-            ->where("platform", env('APP_PLATFORM'))
-            ->get('number')->last();
+            ->get()->last();
     }
 
     public static function validationRules(): array
