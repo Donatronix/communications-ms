@@ -64,14 +64,15 @@ class Channel extends Model
     /**
      *
      */
-    const TYPE_TELEGRAM = 'telegram';
-    const TYPE_VIBER = 'viber';
-    const TYPE_LINE = 'line';
-    const TYPE_DISCORD = 'discord';
-    const TYPE_SIGNAL = 'signal';
-    const TYPE_WHATSAPP = 'whatsapp';
-    const TYPE_TWILIO = 'twilio';
-    const TYPE_NEXMO = 'nexmo';
+    const TYPE_TELEGRAM     = 'telegram';
+    const TYPE_VIBER        = 'viber';
+    const TYPE_LINE         = 'line';
+    const TYPE_DISCORD      = 'discord';
+    const TYPE_SIGNAL       = 'signal';
+    const TYPE_WHATSAPP     = 'whatsapp';
+    const TYPE_TWILIO       = 'twilio';
+    const TYPE_NEXMO        = 'nexmo';
+    const TYPE_FACEBOOK     = 'facebook';
 
     /**
      *
@@ -103,6 +104,7 @@ class Channel extends Model
         5 => self::TYPE_WHATSAPP,
         6 => self::TYPE_TWILIO,
         7 => self::TYPE_NEXMO,
+        8 => self::TYPE_FACEBOOK,
     ];
 
     public static function validationRules(): array

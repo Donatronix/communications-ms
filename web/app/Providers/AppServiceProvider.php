@@ -17,5 +17,6 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->singleton(MessengerContract::class);
         Http::post('https://api.telegram.org/bot[' . env('TELEGRAM_BOT_TOKEN') . ']/setwebhook?url=' . env('APP_URL') . 'api/V1/messages/telegram/webhook');
+
     }
 }
