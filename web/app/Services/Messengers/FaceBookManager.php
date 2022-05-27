@@ -36,7 +36,7 @@ class FaceBookManager implements MessengerContract
     public function __construct()
     {
         $type = "facebook";
-        $this->verify_token = Channel::getChannelAccessToken($type)->token;
+        $this->verify_token = Channel::getChannelSettings($type)->token;
 
     }
 

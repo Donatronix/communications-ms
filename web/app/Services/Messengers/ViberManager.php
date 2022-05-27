@@ -75,8 +75,8 @@ class ViberManager implements MessengerContract
     public function __construct()
     {
         $type = "viber";
-        $this->apiKey = Channel::getChannelAccessToken($type)->token;
-        $this->webhookUrl = Channel::getChannelUri($type)->uri;
+        $this->apiKey = Channel::getChannelSettings($type)->token;
+        $this->webhookUrl = Channel::getChannelSettings($type)->uri;
 
         $this->client = new Client(['token' => $this->apiKey]);
         $result = $this->client->setWebhook($this->webhookUrl, [

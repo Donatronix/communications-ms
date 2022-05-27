@@ -31,8 +31,8 @@ class TelegramManager implements MessengerContract
     public function __construct()
     {
         $type = "telegram";
-        $this->chatId = env('TELEGRAM_CHAT_ID', Channel::getChannelSid($type)->sid);
-        $this->object = new Api(env('TELEGRAM_BOT_TOKEN', Channel::getChannelAccessToken($type)->token), true);
+        $this->chatId = env('TELEGRAM_CHAT_ID', Channel::getChannelSettings($type)->sid);
+        $this->object = new Api(env('TELEGRAM_BOT_TOKEN', Channel::getChannelSettings($type)->token), true);
     }
 
     /**
