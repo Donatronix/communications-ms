@@ -39,6 +39,7 @@ class FaceBookManager implements MessengerContract
         $type = "facebook";
         $this->verify_token = Channel::getChannelAccessToken($type)->token;
         $this->webHookUrl   = env('FACEBOOK_MESSENEGR_URL');
+        $this->accessToken  = env('FACEBOOK_MESSENGER_ACCESS_TOKEN');
 
     }
 
@@ -85,7 +86,7 @@ class FaceBookManager implements MessengerContract
     public function sendMessage(string|array $message, string $recipient = null): Message
     {
 
-        $url = $this->webHookUrl;
+        $url = $this->webHookUrl . $this->accessToken;
 
         $data = json_encode([
             'message'   => ['text' => $message],
