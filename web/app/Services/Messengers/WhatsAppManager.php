@@ -40,9 +40,9 @@ class WhatsAppManager implements MessengerContract
     public function __construct()
     {
         $type = "twilio";
-        $this->twilioSid = env('TWILIO_ACCOUNT_SID', Channel::getChannelSid($type)->sid);
-        $this->twilioAuthToken = env('TWILIO_AUTH_TOKEN', Channel::getChannelAccessToken($type)->token);
-        $this->twilioWhatsappNumber = env('TWILIO_WHATSAPP_NUMBER', Channel::getChannelNumber($type)->number);
+        $this->twilioSid = env('TWILIO_ACCOUNT_SID', Channel::getChannelSettings($type)->sid);
+        $this->twilioAuthToken = env('TWILIO_AUTH_TOKEN', Channel::getChannelSettings($type)->token);
+        $this->twilioWhatsappNumber = env('TWILIO_WHATSAPP_NUMBER', Channel::getChannelSettings($type)->number);
 
         $this->client = new Client($this->twilioSid, $this->twilioAuthToken);
     }

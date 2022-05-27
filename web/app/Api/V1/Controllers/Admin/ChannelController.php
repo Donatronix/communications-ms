@@ -169,7 +169,7 @@ class ChannelController extends Controller
      * @OA\Post(
      *     path="/admin/channels",
      *     summary="Create a new channel",
-     *     description="NOTICE. Channel type can be only: 'telegram', 'viber', 'line', 'discord', 'signal', 'whatsapp', 'twilio', 'nexmo'. Channel platform can be only: 'sumra', 'ultainfinity'.",
+     *     description="NOTICE. Channel type can be only: 'telegram', 'viber', 'line', 'discord', 'signal', 'whatsapp', 'twilio', 'nexmo', 'facebook'. Channel platform can be only: 'sumra', 'ultainfinity'.",
      *     tags={"Admin / Channels"},
      *
      *     security={{
@@ -239,6 +239,9 @@ class ChannelController extends Controller
                 'token',
                 'platform',
                 'type',
+                'number',
+                'sid',
+                'secret',
             ]);
 
             return response()->jsonApi([

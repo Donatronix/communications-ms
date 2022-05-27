@@ -32,9 +32,7 @@ $router->group([
     $router->get('platform-channel-test', function () {
         $type = "line";
         $channel = [
-            "Uri" => App\Models\Channel::getChannelUri($type)->uri,
-            "Access Token" => App\Models\Channel::getChannelAccessToken($type)->token,
-            "Secret" => App\Models\Channel::getChannelSecret($type)->secret,
+            "Channels Settings" => App\Models\Channel::getChannelSettings($type),
         ];
         echo json_encode($channel);  
     });
