@@ -6,6 +6,7 @@ use App\Contracts\MessengerContract;
 use App\Models\Channel;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use GuzzleHTTP\Client;
 
 
 class FaceBookManager implements MessengerContract
@@ -36,8 +37,11 @@ class FaceBookManager implements MessengerContract
     public function __construct()
     {
         $type = "facebook";
-        $this->verify_token = Channel::getChannelSettings($type)->token;
+//        $this->verify_token = Channel::getChannelAccessToken($type)->token;
+//        $this->webHookUrl   = env('FACEBOOK_MESSENEGR_URL');
+//        $this->accessToken  = env('FACEBOOK_MESSENGER_ACCESS_TOKEN');
 
+        $this->verify_token = Channel::getChannelSettings($type)->token;
     }
 
     /**
@@ -74,31 +78,6 @@ class FaceBookManager implements MessengerContract
 
 
     /**
-     * Verify the token from Messenger. This helps verify your bot.
-     *
-     * @param  Request $request
-     * @return \Illuminate\Http\Response|\Laravel\Lumen\Http\ResponseFactory
-     */
-    public function verify_token($request)
-    {
-        $mode  = $request->get('hub_mode');
-        $token = $request->get('hub_verify_token');
-
-        if ($mode === "subscribe" && $token === $this->verify_token) {
-            return ($request->get('hub_challenge'));
-        }
-        // if ($request->input('hub_mode') == 'subscribe' &&
-        //         $request->input('hub_verify_token') == $this->verify_token) {
-                    //return $request->input('hub_challenge');
-        //
-        //     }//  return response('You are not authorized', 403);
-
-
-        return false;
-    }
-
-
-    /**
      * @param string|array $message
      * @param string|null  $recipient
      *
@@ -108,21 +87,19 @@ class FaceBookManager implements MessengerContract
     public function sendMessage(string|array $message, string $recipient = null): Message
     {
 
-        $url = env('FACEBOOK_MESSENEGR_URL', '');
+        $url = $this->webHookUrl . $this->accessToken;
 
         $data = json_encode([
             'message'   => ['text' => $message],
             'recipient' => ['id' => $recipient],
         ]);
 
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-        $result = curl_exec($ch);
-        curl_close($ch);
+        $client = new Client(['base_uri'=>$url, 'timeout' => 5.0]);
+        $response = $client->request('POST', $data);
+        //$request  = $client->post($url,  $data);
+        //$response = $request->send();
 
-        return $result;
+        return $response;
 
     }
 
