@@ -26,11 +26,8 @@ class WhatsAppManager implements MessengerContract
 {
     const STATUS_CHAT_STARTED = 1;
 
-    private mixed $twilioSid;
 
-    private mixed $twilioAuthToken;
-
-    private mixed $twilioWhatsappNumber;
+    private mixed $settings;
 
     private Client $client;
 
@@ -39,12 +36,9 @@ class WhatsAppManager implements MessengerContract
      */
     public function __construct()
     {
-        $type = "twilio";
-        $this->twilioSid = env('TWILIO_ACCOUNT_SID', Channel::getChannelSettings($type)->sid);
-        $this->twilioAuthToken = env('TWILIO_AUTH_TOKEN', Channel::getChannelSettings($type)->token);
-        $this->twilioWhatsappNumber = env('TWILIO_WHATSAPP_NUMBER', Channel::getChannelSettings($type)->number);
+        $this->settings = Channel::getChannelSettings('twilio');
 
-        $this->client = new Client($this->twilioSid, $this->twilioAuthToken);
+        $this->client = new Client($this->settings->sid, $this->settings->token);
     }
 
     /**
@@ -87,7 +81,7 @@ class WhatsAppManager implements MessengerContract
      */
     public function handlerWebhookInvoice(Request $request): ?MessagingResponse
     {
-        $from = $request->input('from', $this->twilioWhatsappNumber);
+        $from = $request->input('from', $this->settings->number);
 
         try {
             // Get number of images in the request
@@ -122,6 +116,9 @@ class WhatsAppManager implements MessengerContract
      */
     public function sendMessage(string|array $message, string $recipient = null): MessageInstance
     {
-        return $this->client->messages->create("whatsapp:$recipient", ['from' => "whatsapp:$this->twilioWhatsappNumber", 'body' => $message]);
+        return $this->client->messages->create("whatsapp:$recipient", [
+            'from' => "whatsapp:{$this->settings->number}",
+            'body' => $message
+        ]);
     }
 }

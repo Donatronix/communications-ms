@@ -31,11 +31,13 @@ $router->group([
         }
     });
 
-    $router->get('platform-channel-test', function () {
+    $router->get('channel-test', function () {
         $type = "line";
+
         $channel = [
             "Channels Settings" => App\Models\Channel::getChannelSettings($type),
         ];
+
         echo json_encode($channel);
     });
 });

@@ -9,6 +9,7 @@
         "ext-fileinfo": "*",
         "ext-json": "*",
         "ext-openssl": "*",
+        "ext-zlib": "*",
         "bogdaan/viber-bot-php": "^0.0.14",
         "irazasyed/telegram-bot-sdk": "~3",
         "laravel/lumen-framework": "~8",

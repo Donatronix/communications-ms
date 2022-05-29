@@ -47,10 +47,10 @@ class LineManager implements MessengerContract
 
     public function __construct()
     {
-        $type = "line";
-        $this->channelAccessToken = Channel::getChannelSettings($type)->token;
+        $settings = Channel::getChannelSettings('line');
 
-        $this->channelSecret = Channel::getChannelSettings($type)->secret;
+        $this->channelAccessToken = $settings->token;
+        $this->channelSecret = $settings->secret;
 
         $this->httpClient = new CurlHTTPClient($this->channelAccessToken);
 
@@ -158,7 +158,7 @@ class LineManager implements MessengerContract
 
     /**
      * @param string|array $message
-     * @param string|null  $recipient
+     * @param string|null $recipient
      *
      * @return array
      */
@@ -178,7 +178,6 @@ class LineManager implements MessengerContract
             'message' => $response->getHTTPStatus() . ' ' . $response->getRawBody(),
         ];
     }
-
 
     public function index(Response $response)
     {
@@ -200,8 +199,9 @@ class LineManager implements MessengerContract
         }*/
 
         // init bot
-        $httpClient = new CurlHTTPClient(env('LINE_BOT_CHANNEL_ACCESS_TOKEN'));
-        $bot = new LINEBot($httpClient, ['channelSecret' => env('LINE_BOT_CHANNEL_SECRET')]);
+        $httpClient = new CurlHTTPClient($this->channelAccessToken);
+        $bot = new LINEBot($httpClient, ['channelSecret' => $this->channelSecret]);
+
         $data = json_decode($body, true);
 
         foreach ($data['events'] as $event) {

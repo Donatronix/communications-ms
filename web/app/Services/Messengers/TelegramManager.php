@@ -30,9 +30,10 @@ class TelegramManager implements MessengerContract
      */
     public function __construct()
     {
-        $type = "telegram";
-        $this->chatId = env('TELEGRAM_CHAT_ID', Channel::getChannelSettings($type)->sid);
-        $this->object = new Api(env('TELEGRAM_BOT_TOKEN', Channel::getChannelSettings($type)->token), true);
+        $settings = Channel::getChannelSettings('telegram');
+
+        $this->chatId = $settings->sid;
+        $this->object = new Api($settings->token, true);
     }
 
     /**
@@ -76,7 +77,6 @@ class TelegramManager implements MessengerContract
      */
     public function sendMessage(string|array $message, string $recipient = null): Message
     {
-
         if (request()->hasFile('file')) {
             $file = request()->file('file');
             $path = $file->getPath();

@@ -19,7 +19,9 @@ class CreateChannelsTable extends Migration
             $table->string('name', 100);
             $table->string('uri', 100);
             $table->string('sid', 100)->nullable();
-            $table->string('token', 200)->unique();
+
+            $table->string('token', 200); //->unique();
+
             $table->string('secret', 200)->nullable();
             $table->string('number', 100)->nullable();
             $table->enum('type', Channel::$types);

@@ -21,11 +21,12 @@ class DiscordManager implements MessengerContract
 
     private mixed $webhookUrl;
 
-     public function __construct()
+    public function __construct()
     {
-        $type = "discord";
-        $this->botToken = Channel::getChannelSettings($type)->token;
-        $this->webhookUrl = Channel::getChannelSettings($type)->uri;
+        $settings = Channel::getChannelSettings('discord');
+
+        $this->botToken = $settings->token;
+        $this->webhookUrl = $settings->uri;
     }
 
     /**
@@ -87,7 +88,7 @@ class DiscordManager implements MessengerContract
 
     /**
      * @param string|array $message
-     * @param string|null  $recipient
+     * @param string|null $recipient
      *
      * @return Response
      */

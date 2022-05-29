@@ -40,5 +40,4 @@ interface MessengerContract
      * @return mixed
      */
     public function sendMessage(string|array $message, string $recipient = null): mixed;
-
 }

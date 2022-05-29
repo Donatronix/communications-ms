@@ -11,7 +11,6 @@ use GuzzleHTTP\Client;
 
 class FaceBookManager implements MessengerContract
 {
-
     const STATUS_CHAT_STARTED = 1;
 
     /**
@@ -36,12 +35,12 @@ class FaceBookManager implements MessengerContract
      */
     public function __construct()
     {
-        $type = "facebook";
-//        $this->verify_token = Channel::getChannelAccessToken($type)->token;
+        $settings = Channel::getChannelSettings('facebook');
+
 //        $this->webHookUrl   = env('FACEBOOK_MESSENEGR_URL');
 //        $this->accessToken  = env('FACEBOOK_MESSENGER_ACCESS_TOKEN');
 
-        $this->verify_token = Channel::getChannelSettings($type)->token;
+        $this->verify_token = $settings->token;
     }
 
     /**
@@ -76,7 +75,6 @@ class FaceBookManager implements MessengerContract
         return self::STATUS_CHAT_STARTED;
     }
 
-
     /**
      * @param string|array $message
      * @param string|null  $recipient
@@ -86,7 +84,6 @@ class FaceBookManager implements MessengerContract
      */
     public function sendMessage(string|array $message, string $recipient = null): Message
     {
-
         $url = $this->webHookUrl . $this->accessToken;
 
         $data = json_encode([
@@ -100,10 +97,7 @@ class FaceBookManager implements MessengerContract
         //$response = $request->send();
 
         return $response;
-
     }
-
-
 
     /**
      * @param Request $request
@@ -140,9 +134,5 @@ class FaceBookManager implements MessengerContract
         }catch(\Throwable $e){
             return response($e, 500);
         }
-
     }
-
-
-
 }

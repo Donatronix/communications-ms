@@ -16,6 +16,30 @@ class ChannelsTableSeeder extends Seeder
     {
         $list = [
             [
+                'id' => 'e3276487-349a-4959-a616-3ac69b45f478',
+                'name' => 'WhatsApp Bot',
+                'uri' => '',
+                'sid' => 'ACd41c7867838093709600bb6542863769',
+                'token' => '4a2ead7900e376b2e12c3a46dca6d0db',
+                'secret' => '',
+                'number' => '+14155238886',
+                'type' => 'whatsapp',
+                'platform' => 'ULTAINFINITY',
+                'status' => 1,
+            ],
+            [
+                'id' => 'e3276487-349a-4959-a616-3ac69b45aadd',
+                'name' => 'SMS by Twilio',
+                'uri' => '',
+                'sid' => 'ACd41c7867838093709600bb6542863769',
+                'token' => '4a2ead7900e376b2e12c3a46dca6d0db',
+                'secret' => '',
+                'number' => '+19207827608',
+                'type' => 'twilio',
+                'platform' => 'ULTAINFINITY',
+                'status' => 1,
+            ],
+            [
                 'id' => 'e3276487-349a-4959-a616-3ac69b45f253',
                 'name' => 'OneStepID by Sumra',
                 'uri' => '@OneStepID_Sumra_Bot',

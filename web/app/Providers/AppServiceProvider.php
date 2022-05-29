@@ -18,8 +18,8 @@ class AppServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->singleton(MessengerContract::class);
-        $type = "telegram";
-        Http::post('https://api.telegram.org/bot[' . Channel::getChannelSettings($type)->token . ']/setwebhook?url=' . Channel::getChannelSettings($type)->uri . 'api/V1/messages/telegram/webhook');
 
+//        $type = "telegram";
+//        Http::post('https://api.telegram.org/bot[' . Channel::getChannelSettings($type)->token . ']/setwebhook?url=' . Channel::getChannelSettings($type)->uri . 'api/V1/messages/telegram/webhook');
     }
 }

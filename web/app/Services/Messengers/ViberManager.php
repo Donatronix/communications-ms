@@ -74,11 +74,15 @@ class ViberManager implements MessengerContract
      */
     public function __construct()
     {
-        $type = "viber";
-        $this->apiKey = Channel::getChannelSettings($type)->token;
-        $this->webhookUrl = Channel::getChannelSettings($type)->uri;
+        $settings = Channel::getChannelSettings('viber');
 
-        $this->client = new Client(['token' => $this->apiKey]);
+        $this->apiKey = $settings->token;
+        $this->webhookUrl = $settings->uri;
+
+        $this->client = new Client([
+            'token' => $this->apiKey
+        ]);
+
         $result = $this->client->setWebhook($this->webhookUrl, [
             Type::DELIVERED,  // if message delivered to device
             Type::SEEN,       // if message is seen device
@@ -135,7 +139,7 @@ class ViberManager implements MessengerContract
 
     /**
      * @param string|array $message
-     * @param string|null  $recipient
+     * @param string|null $recipient
      *
      * @return Response
      */
@@ -232,9 +236,7 @@ class ViberManager implements MessengerContract
         } catch (Throwable $th) {
             $log->error($th->getMessage());
         }
+
         return [];
-
     }
-
-
 }

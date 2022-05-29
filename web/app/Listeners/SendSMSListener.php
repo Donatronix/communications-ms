@@ -7,7 +7,6 @@ use App\Services\Messenger;
 
 class SendSMSListener
 {
-
     /**
      * Create the event listener.
      *
@@ -27,7 +26,6 @@ class SendSMSListener
     public function handle(array $inputData)
     {
         try {
-
             $data = (object) $inputData;
 
             $messenger = Messenger::getInstance(strtolower($data->instance));
