@@ -15,6 +15,14 @@ $router->group([
     ], function ($router) {
         $router->post('/{messengerInstance}/webhook', 'MessagesController@handleWebhook');
     });
+    
+    // Send mails
+    $router->group(
+        ['prefix' => 'mail'],
+        function($router){
+            $router->post('/', '\App\Api\V1\Controllers\SendEmailController');
+        }
+    );
 
     /**
      * PRIVATE ACCESS
