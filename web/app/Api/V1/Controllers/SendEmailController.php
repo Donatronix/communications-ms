@@ -13,20 +13,11 @@ class SendEmailController extends Controller
      * Send message to one or group recipients
      *
      * @OA\Post(
-     *     path="/api/v1/mail",
+     *     path="/mail",
      *     summary="Send message to one or group recipients",
      *     description="Send message to one or group recipients",
      *     tags={"Mailer"},
-     *
-     *     @OA\Parameter(
-     *         name="user-id",
-     *         description="User ID",
-     *         in="header",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="number"
-     *         )
-     *     ),
+     * 
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
@@ -109,7 +100,7 @@ class SendEmailController extends Controller
 
             // Add job to queue
             try {
-                PubSub::publish('mailer', $mailData, 'workMailerQueue');
+                PubSub::publish('mailer', $mailData, 'CommunicationsMS');
             } catch (Exception $e) {
                 $message->status = Message::STATUS_QUEUE_FAIL;
                 $message->note = $e->getMessage();
