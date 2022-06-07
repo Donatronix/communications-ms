@@ -18,7 +18,7 @@ class ChannelsTableSeeder extends Seeder
             [
                 'id' => 'e3276487-349a-4959-a616-e3276487f478',
                 'name' => 'WhatsApp Bot',
-                'uri' => '',
+                'uri' => 'https://wa.me/+447787572622?text=join',
                 'sid' => 'ACf3a58e9402a2833cea9a69115f66d2ec',
                 'token' => '8ce1f68bbbc6dc0725310d633b1ca498',
                 'secret' => '',
@@ -30,7 +30,7 @@ class ChannelsTableSeeder extends Seeder
             [
                 'id' => '3ac69b47-349a-4959-a616-3ac69b45f478',
                 'name' => 'WhatsApp Bot (Testing)',
-                'uri' => '',
+                'uri' => 'https://wa.me/+14155238886?text=join%20putting-itself',
                 'sid' => 'ACd41c7867838093709600bb6542863769',
                 'token' => '4a2ead7900e376b2e12c3a46dca6d0db',
                 'secret' => '',
