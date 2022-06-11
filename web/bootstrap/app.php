@@ -92,6 +92,11 @@ $app->routeMiddleware([
 |
 */
 
+// Added laravel-messenger package
+$app->configure('messenger');
+$app->register('Cmgmyr\Messenger\MessengerServiceProvider');
+$app->register('Irazasyed\Larasupport\Providers\ArtisanServiceProvider');
+
 $app->register(App\Providers\AppServiceProvider::class);
 $app->register(App\Providers\AuthServiceProvider::class);
 $app->register(App\Providers\EventServiceProvider::class);

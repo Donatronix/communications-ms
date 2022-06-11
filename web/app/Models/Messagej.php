@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Sumra\SDK\Traits\UuidTrait;
 
-class Message extends Model
+class Messagej extends Model
 {
     use HasFactory;
     use UuidTrait;
