@@ -101,6 +101,8 @@ $app->register(Telegram\Bot\Laravel\TelegramServiceProvider::class);
 $app->configure('messenger');
 $app->register('Cmgmyr\Messenger\MessengerServiceProvider');
 $app->register('Irazasyed\Larasupport\Providers\ArtisanServiceProvider');
+$app->register(Nahid\Talk\TalkServiceProvider::class);
+class_alias(Nahid\Talk\Facades\Talk::class, 'Talk');
 
 /**
  * Pubsub - RabbitMQ
