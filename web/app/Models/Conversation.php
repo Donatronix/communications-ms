@@ -7,13 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Sumra\SDK\Traits\UuidTrait;
 
-class Message extends Model
+class User extends Model
 {
     use HasFactory;
     use UuidTrait;
     use SoftDeletes;
 
     protected $fillable = [
-        'sender_user_id', 'subject', 'body', 'recipient_email',
+        'first_user_id', 'second_user_id', 'status',
     ];
- }
+}
