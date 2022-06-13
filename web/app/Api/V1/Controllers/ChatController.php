@@ -34,7 +34,7 @@ class ChatController extends Controller
      * Display a listing of the resource.
      *
      * @OA\Get(
-     *     path="/chats",
+     *     path="/chats/{conversation_id}",
      *     summary="Load chats list",
      *     description="Load chats list",
      *     tags={"Chats"},
@@ -54,6 +54,14 @@ class ChatController extends Controller
      *             "optional": "false"
      *         }
      *     },
+     *     @OA\Parameter(
+     *         name="conversation_id",
+     *         in="query",
+     *         description="Conversation Id",
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
      *     @OA\Parameter(
      *         name="limit",
      *         in="query",
@@ -121,13 +129,12 @@ class ChatController extends Controller
      *     )
      * )
      */
-    public function index(Request $request)
+    public function index(Request $request, $id)
     {
         try {
             // Get chats list
             $chats = $this->model
-            ->where('first_user_id', $this->user_id)
-            ->orWhere('second_user_id', $this->user_id)
+            ->where('conversation_id', $id)
             ->orderBy($request->get('sort-by', 'created_at'), $request->get('sort-order', 'desc'))
             ->paginate($request->get('limit', 20));
 
