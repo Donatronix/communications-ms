@@ -19,6 +19,7 @@ class CreateConversationsTable extends Migration
             $table->foreignUuid('second_user_id');
             $table->boolean('status');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

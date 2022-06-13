@@ -23,6 +23,7 @@ class CreateChatsTable extends Migration
             $table->foreignUuid('user_id');
             $table->foreignUuid('conversation_id')->references('id')->on('conversations')->constrained();;
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

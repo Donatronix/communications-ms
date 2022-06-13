@@ -9,5 +9,11 @@ use Sumra\SDK\Traits\UuidTrait;
 
 class User extends Model
 {
-    //
+    use HasFactory;
+    use UuidTrait;
+    use SoftDeletes;
+
+    protected $fillable = [
+        'first_user_id', 'second_user_id', 'status',
+    ];
 }
