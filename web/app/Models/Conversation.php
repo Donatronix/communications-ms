@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Sumra\SDK\Traits\UuidTrait;
 
-class User extends Model
+class Conversation extends Model
 {
     use HasFactory;
     use UuidTrait;
@@ -16,4 +16,11 @@ class User extends Model
     protected $fillable = [
         'first_user_id', 'second_user_id', 'status',
     ];
+
+    public static function validationRules(): array
+    {
+        return [
+            'second_user_id' => 'required|string',
+        ];
+    }
 }

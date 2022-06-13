@@ -17,7 +17,7 @@ class CreateConversationsTable extends Migration
             $table->uuid('id')->primary();
             $table->foreignUuid('first_user_id');
             $table->foreignUuid('second_user_id');
-            $table->boolean('status');
+            $table->boolean('status')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
