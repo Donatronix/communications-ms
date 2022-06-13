@@ -50,6 +50,16 @@ $router->group([
         ], function ($router) {
             $router->post('/{messengerInstance}/send-message', 'MessagesController@sendMessage');
         });
+
+        /**
+         * Conversations
+         */
+        $router->group([
+            'prefix' => 'conversations',
+        ], function ($router) {
+            $router->get('/', 'ConversationController@index');
+            $router->post('/start', 'ConversationController@store');
+        });
     });
 
     /**

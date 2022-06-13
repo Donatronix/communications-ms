@@ -156,9 +156,9 @@ class ConversationController extends Controller
      * Save a new conversation data
      *
      * @OA\Post(
-     *     path="/start-conversation",
-     *     summary="Save a new conversation data",
-     *     description="Save a new conversation data",
+     *     path="/conversations/start",
+     *     summary="Start a new conversation",
+     *     description="Start a new conversation",
      *     tags={"Conversations"},
      *
      *     security={{
@@ -238,9 +238,8 @@ class ConversationController extends Controller
                 $request->merge([
                     'first_user_id' => $this->user_id
                 ]);
-
             // Create new
-            $conversation = $this->model->create([$request->all()]);
+            $conversation = $this->model->create($request->all());
 
             // create chat 
             $chat = $this->chat->create([
