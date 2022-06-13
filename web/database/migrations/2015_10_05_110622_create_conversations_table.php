@@ -14,9 +14,9 @@ class CreateConversationsTable extends Migration
     public function up()
     {
         Schema::create('conversations', function (Blueprint $table) {
-            $table->increments('id');
-            $table->integer('user_one');
-            $table->integer('user_two');
+            $table->uuid('id')->primary();
+            $table->foreignUuid('first_user_id');
+            $table->foreignUuid('second_user_id');
             $table->boolean('status');
             $table->timestamps();
         });

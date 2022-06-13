@@ -97,13 +97,6 @@ $app->register(App\Providers\AuthServiceProvider::class);
 $app->register(App\Providers\EventServiceProvider::class);
 $app->register(Telegram\Bot\Laravel\TelegramServiceProvider::class);
 
-// Added laravel-messenger package
-$app->configure('messenger');
-$app->register('Cmgmyr\Messenger\MessengerServiceProvider');
-$app->register('Irazasyed\Larasupport\Providers\ArtisanServiceProvider');
-$app->register(Nahid\Talk\TalkServiceProvider::class);
-class_alias(Nahid\Talk\Facades\Talk::class, 'Talk');
-
 /**
  * Pubsub - RabbitMQ
  */
