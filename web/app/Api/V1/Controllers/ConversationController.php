@@ -269,4 +269,49 @@ class ConversationController extends Controller
             ], 400);
         }
     }
+
+    public function destroy(Request $request)
+    {
+        // Validate input
+        $validator = Validator::make($request->all(), [
+            'second_user_id' => 'required|string',
+            'message' => 'required|string',
+        ]);
+        if ($validator->fails()){
+            throw new Exception($validator->errors()->first());
+        }
+
+        // Try to add new conversation
+        try {
+
+            // transform the request object to include first user id
+                $request->merge([
+                    'first_user_id' => $this->user_id
+                ]);
+            // Create new
+            $conversation = $this->model->create($request->all());
+
+            // create chat 
+            $chat = $this->chat->create([
+                'user_id' => $this->user_id,
+                'conversation_id' => $conversation->id,
+                'message' => $request->get('message')
+            ]);
+
+            // Return response to client
+            return response()->jsonApi([
+                'type' => 'success',
+                'title' => 'New conversation registration',
+                'message' => "Conversation successfully added",
+                'data' => $conversation->toArray()
+            ], 200);
+        } catch (Exception $e) {
+            return response()->jsonApi([
+                'type' => 'danger',
+                'title' => 'New conversation registration',
+                'message' => $e->getMessage(),
+                'data' => null
+            ], 400);
+        }
+    }
 }
