@@ -154,4 +154,30 @@ class ChatController extends Controller
             ], 400);
         }
     }
+
+    public function store(Request $request, $id)
+    {
+        try {
+            // Get chats list
+            $chats = $this->model
+            ->where('conversation_id', $id)
+            ->orderBy($request->get('sort-by', 'created_at'), $request->get('sort-order', 'desc'))
+            ->paginate($request->get('limit', 20));
+
+            // Return response
+            return response()->jsonApi([
+                'type' => 'success',
+                'title' => "chats list",
+                'message' => 'List of chats successfully received',
+                'data' => $chats->toArray()
+            ], 200);
+        } catch (Exception $e) {
+            return response()->jsonApi([
+                'type' => 'danger',
+                'title' => "chats list",
+                'message' => $e->getMessage(),
+                'data' => null
+            ], 400);
+        }
+    }
 }
