@@ -5,6 +5,7 @@ namespace App\Api\V1\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Models\Chat;
+use Illuminate\Support\Facades\Validator;
 use Exception;
 
 /**
@@ -54,14 +55,6 @@ class ChatController extends Controller
      *             "optional": "false"
      *         }
      *     },
-     *     @OA\Parameter(
-     *         name="conversation_id",
-     *         in="query",
-     *         description="Conversation Id",
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
      *     @OA\Parameter(
      *         name="limit",
      *         in="query",
@@ -129,12 +122,12 @@ class ChatController extends Controller
      *     )
      * )
      */
-    public function index(Request $request, $id)
+    public function index(Request $request, $conversation_id)
     {
         try {
             // Get chats list
             $chats = $this->model
-            ->where('conversation_id', $id)
+            ->where('conversation_id', $conversation_id)
             ->orderBy($request->get('sort-by', 'created_at'), $request->get('sort-order', 'desc'))
             ->paginate($request->get('limit', 20));
 
@@ -155,26 +148,37 @@ class ChatController extends Controller
         }
     }
 
-    public function store(Request $request, $id)
+    public function store(Request $request, $conversation_id)
     {
-        try {
-            // Get chats list
-            $chats = $this->model
-            ->where('conversation_id', $id)
-            ->orderBy($request->get('sort-by', 'created_at'), $request->get('sort-order', 'desc'))
-            ->paginate($request->get('limit', 20));
+        // Validate input
+        $validator = Validator::make($request->all(), [
+            'message' => 'required|string',
+        ]);
+        if ($validator->fails()){
+            throw new Exception($validator->errors()->first());
+        }
 
-            // Return response
+        // Try to add new chat
+        try {
+
+            // create new chat 
+            $chat = $this->model->create([
+                'user_id' => $this->user_id,
+                'conversation_id' => $conversation_id,
+                'message' => $request->get('message')
+            ]);
+
+            // Return response to client
             return response()->jsonApi([
                 'type' => 'success',
-                'title' => "chats list",
-                'message' => 'List of chats successfully received',
-                'data' => $chats->toArray()
+                'title' => 'New conversation registration',
+                'message' => "Conversation successfully added",
+                'data' => $chat->toArray()
             ], 200);
         } catch (Exception $e) {
             return response()->jsonApi([
                 'type' => 'danger',
-                'title' => "chats list",
+                'title' => 'New chat registration',
                 'message' => $e->getMessage(),
                 'data' => null
             ], 400);

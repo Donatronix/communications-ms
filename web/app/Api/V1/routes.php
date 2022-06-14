@@ -67,7 +67,8 @@ $router->group([
         $router->group([
             'prefix' => 'chats',
         ], function ($router) {
-            $router->get('/{id:[a-fA-F0-9\-]{36}}', 'ChatController@index');
+            $router->get('/{conversation_id:[a-fA-F0-9\-]{36}}', 'ChatController@index');
+            $router->post('/{conversation_id:[a-fA-F0-9\-]{36}}', 'ChatController@store');
         });
     });
 
