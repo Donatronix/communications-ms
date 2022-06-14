@@ -184,6 +184,11 @@ class ConversationController extends Controller
      *                  type="string",
      *                  default="96541e14-45be-4df8-ba8c-c742d1ac1c2c"
      *              ),
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string",
+     *                  default="Hello"
+     *              ),
      *          )
      *     ),
      *     @OA\Response(

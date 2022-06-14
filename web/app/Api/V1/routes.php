@@ -69,6 +69,7 @@ $router->group([
         ], function ($router) {
             $router->get('/{conversation_id:[a-fA-F0-9\-]{36}}', 'ChatController@index');
             $router->post('/{conversation_id:[a-fA-F0-9\-]{36}}', 'ChatController@store');
+            $router->put('/{id:[a-fA-F0-9\-]{36}}', 'ChatController@update');
         });
     });
 

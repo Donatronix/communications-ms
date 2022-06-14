@@ -2,11 +2,12 @@
 
 namespace App\Api\V1\Controllers;
 
-use Illuminate\Http\JsonResponse;
+use Sumra\SDK\JsonApiResponse;
 use Illuminate\Http\Request;
 use App\Models\Chat;
 use Illuminate\Support\Facades\Validator;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 /**
  * Class ChatController
@@ -127,9 +128,9 @@ class ChatController extends Controller
         try {
             // Get chats list
             $chats = $this->model
-            ->where('conversation_id', $conversation_id)
-            ->orderBy($request->get('sort-by', 'created_at'), $request->get('sort-order', 'desc'))
-            ->paginate($request->get('limit', 20));
+                ->where('conversation_id', $conversation_id)
+                ->orderBy($request->get('sort-by', 'created_at'), $request->get('sort-order', 'desc'))
+                ->paginate($request->get('limit', 20));
 
             // Return response
             return response()->jsonApi([
@@ -148,13 +149,82 @@ class ChatController extends Controller
         }
     }
 
+
+    /**
+     * Save a new chat data
+     *
+     * @OA\Post(
+     *     path="/chats/{conversation_id}",
+     *     summary="Start a new chat",
+     *     description="Start a new chat",
+     *     tags={"Chats"},
+     *
+     *     security={{
+     *         "default": {
+     *             "ManagerRead",
+     *             "User",
+     *             "ManagerWrite"
+     *         }
+     *     }},
+     *     x={
+     *         "auth-type": "Application & Application User",
+     *         "throttling-tier": "Unlimited",
+     *         "wso2-application-security": {
+     *             "security-types": {"oauth2"},
+     *             "optional": "false"
+     *         }
+     *     },
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string",
+     *                  default="Hello"
+     *              ),
+     *          )
+     *     ),
+     *     @OA\Response(
+     *         response="200",
+     *         description="Successfully save"
+     *     ),
+     *     @OA\Response(
+     *         response="201",
+     *         description="Chat created"
+     *     ),
+     *     @OA\Response(
+     *         response="400",
+     *         description="Invalid request"
+     *     ),
+     *     @OA\Response(
+     *         response="401",
+     *         description="Unauthorized"
+     *     ),
+     *     @OA\Response(
+     *         response="403",
+     *         description="Forbidden"
+     *     ),
+     *     @OA\Response(
+     *         response="404",
+     *         description="Not found"
+     *     ),
+     *     @OA\Response(
+     *         response="422",
+     *         description="Validation failed"
+     *     ),
+     *     @OA\Response(
+     *         response="500",
+     *         description="Internal server error"
+     *     )
+     * )
+     */
     public function store(Request $request, $conversation_id)
     {
         // Validate input
         $validator = Validator::make($request->all(), [
             'message' => 'required|string',
         ]);
-        if ($validator->fails()){
+        if ($validator->fails()) {
             throw new Exception($validator->errors()->first());
         }
 
@@ -172,7 +242,7 @@ class ChatController extends Controller
             return response()->jsonApi([
                 'type' => 'success',
                 'title' => 'New conversation registration',
-                'message' => "Conversation successfully added",
+                'message' => "Chat successfully added",
                 'data' => $chat->toArray()
             ], 200);
         } catch (Exception $e) {
@@ -182,6 +252,154 @@ class ChatController extends Controller
                 'message' => $e->getMessage(),
                 'data' => null
             ], 400);
+        }
+    }
+
+
+    /**
+     * Update a chat
+     *
+     * @OA\Put(
+     *     path="/chats/{id}",
+     *     summary="Update a chat",
+     *     description="Update a chat",
+     *     tags={"Chats"},
+     *
+     *     security={{
+     *         "default": {
+     *             "ManagerRead",
+     *             "User",
+     *             "ManagerWrite"
+     *         }
+     *     }},
+     *     x={
+     *         "auth-type": "Application & Application User",
+     *         "throttling-tier": "Unlimited",
+     *         "wso2-application-security": {
+     *             "security-types": {"oauth2"},
+     *             "optional": "false"
+     *         }
+     *     },
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *              @OA\Property(
+     *                  property="status",
+     *                  type="string",
+     *                  default="delivered",
+     *                  description="Could be delivered/seen/deleted"
+     *              ),
+     *          )
+     *     ),
+     *     @OA\Response(
+     *         response="200",
+     *         description="Successfully save"
+     *     ),
+     *     @OA\Response(
+     *         response="201",
+     *         description="Chat created"
+     *     ),
+     *     @OA\Response(
+     *         response="400",
+     *         description="Invalid request"
+     *     ),
+     *     @OA\Response(
+     *         response="401",
+     *         description="Unauthorized"
+     *     ),
+     *     @OA\Response(
+     *         response="403",
+     *         description="Forbidden"
+     *     ),
+     *     @OA\Response(
+     *         response="404",
+     *         description="Not found"
+     *     ),
+     *     @OA\Response(
+     *         response="422",
+     *         description="Validation failed"
+     *     ),
+     *     @OA\Response(
+     *         response="500",
+     *         description="Internal server error"
+     *     )
+     * )
+     */
+    public function update(Request $request, $id)
+    {
+        // Validate input
+        $validator = Validator::make($request->all(), [
+            'status' => 'required|string|in:delivered,seen,deleted',
+        ]);
+        if ($validator->fails()) {
+            throw new Exception($validator->errors()->first());
+        }
+
+        // Try to update chat
+        try {
+
+            // find chat with id
+            $chat = $this->getObject($id);
+
+            if ($chat instanceof JsonApiResponse) {
+                return $chat;
+            }
+
+                $status = $request->get('status');
+                if ($status == "delivered") {
+                    $chat->update([
+                        'is_delivered' => 1,
+                    ]);
+                } else if ($status == "seen") {
+                    $chat->update([
+                        'is_seen' => 1,
+                    ]);
+                } else if ($status == "deleted") {
+                    if ($chat->user_id == $this->user_id) {
+                        $chat->update([
+                            'deleted_from_sender' => 1
+                        ]);
+                    } else {
+                        $chat->update([
+                            'deleted_from_receiver' => 1
+                        ]);
+                    }
+                }
+
+            // Return response to client
+            return response()->jsonApi([
+                'type' => 'success',
+                'title' => 'Chat updation',
+                'message' => "Chat successfully updated",
+                'data' => $chat->toArray()
+            ], 200);
+        } catch (Exception $e) {
+            return response()->jsonApi([
+                'type' => 'danger',
+                'title' => 'Chat updation',
+                'message' => $e->getMessage(),
+                'data' => null
+            ], 400);
+        }
+    }
+
+    /**
+     * Get chat object
+     *
+     * @param $id
+     * @return mixed
+     */
+    private function getObject($id): mixed
+    {
+        try {
+            return $this->model::findOrFail($id);
+        } catch (ModelNotFoundException $e) {
+            return response()->jsonApi([
+                'type' => 'danger',
+                'title' => "Get chat",
+                'message' => "Chat with id #{$id} not found: {$e->getMessage()}",
+                'data' => ''
+            ], 404);
         }
     }
 }
