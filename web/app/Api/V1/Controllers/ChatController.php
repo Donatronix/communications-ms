@@ -57,6 +57,16 @@ class ChatController extends Controller
      *         }
      *     },
      *     @OA\Parameter(
+     *         name="conversation_id",
+     *         in="path",
+     *         description="conversation Id",
+     *         example="0aa06e6b-35de-3235-b925-b0c43f8f7c75",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
      *         name="limit",
      *         in="query",
      *         description="Limit chats",
@@ -174,6 +184,16 @@ class ChatController extends Controller
      *             "optional": "false"
      *         }
      *     },
+     *     @OA\Parameter(
+     *         name="conversation_id",
+     *         in="path",
+     *         description="conversation Id",
+     *         example="0aa06e6b-35de-3235-b925-b0c43f8f7c75",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
@@ -280,6 +300,16 @@ class ChatController extends Controller
      *             "optional": "false"
      *         }
      *     },
+     *     @OA\Parameter(
+     *         name="chat_id",
+     *         in="path",
+     *         description="chat Id",
+     *         example="0aa06e6b-35de-3235-b925-b0c43f8f7c75",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(

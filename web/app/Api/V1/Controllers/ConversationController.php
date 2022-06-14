@@ -2,12 +2,13 @@
 
 namespace App\Api\V1\Controllers;
 
-use Illuminate\Http\JsonResponse;
+use Sumra\SDK\JsonApiResponse;
 use Illuminate\Http\Request;
 use App\Models\Conversation;
 use App\Models\Chat;
 use Illuminate\Support\Facades\Validator;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 /**
  * Class ConversationController
@@ -270,48 +271,112 @@ class ConversationController extends Controller
         }
     }
 
-    public function destroy(Request $request)
+
+    /**
+     * Delete conversation from storage
+     *
+     * @OA\Delete(
+     *     path="/conversations/{id}",
+     *     summary="Delete conversation",
+     *     description="Delete conversation",
+     *     tags={"Conversations"},
+     *
+     *     security={{
+     *         "default": {
+     *             "ManagerRead",
+     *             "User",
+     *             "ManagerWrite"
+     *         }
+     *     }},
+     *     x={
+     *         "auth-type": "Application & Application User",
+     *         "throttling-tier": "Unlimited",
+     *         "wso2-application-security": {
+     *             "security-types": {"oauth2"},
+     *             "optional": "false"
+     *         }
+     *     },
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="conversation Id",
+     *         example="0aa06e6b-35de-3235-b925-b0c43f8f7c75",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response="200",
+     *         description="Successfully delete"
+     *     ),
+     *     @OA\Response(
+     *         response="400",
+     *         description="Invalid request"
+     *     ),
+     *     @OA\Response(
+     *         response="401",
+     *         description="Unauthorized"
+     *     ),
+     *     @OA\Response(
+     *         response="403",
+     *         description="Forbidden"
+     *     ),
+     *     @OA\Response(
+     *         response="404",
+     *         description="Not found"
+     *     ),
+     *     @OA\Response(
+     *         response="500",
+     *         description="Internal server error"
+     *     )
+     * )
+     */
+    public function destroy($id)
     {
-        // Validate input
-        $validator = Validator::make($request->all(), [
-            'second_user_id' => 'required|string',
-            'message' => 'required|string',
-        ]);
-        if ($validator->fails()){
-            throw new Exception($validator->errors()->first());
+        // Read conversation model
+        $conversation = $this->getObject($id);
+        if ($conversation instanceof JsonApiResponse) {
+            return $conversation;
         }
 
-        // Try to add new conversation
+        // Try to delete conversation
         try {
+            $conversation->delete();
 
-            // transform the request object to include first user id
-                $request->merge([
-                    'first_user_id' => $this->user_id
-                ]);
-            // Create new
-            $conversation = $this->model->create($request->all());
-
-            // create chat 
-            $chat = $this->chat->create([
-                'user_id' => $this->user_id,
-                'conversation_id' => $conversation->id,
-                'message' => $request->get('message')
-            ]);
-
-            // Return response to client
             return response()->jsonApi([
                 'type' => 'success',
-                'title' => 'New conversation registration',
-                'message' => "Conversation successfully added",
-                'data' => $conversation->toArray()
+                'title' => "Delete conversation",
+                'message' => 'conversation is successfully deleted',
+                'data' => null
             ], 200);
         } catch (Exception $e) {
             return response()->jsonApi([
                 'type' => 'danger',
-                'title' => 'New conversation registration',
+                'title' => "Delete of conversation",
                 'message' => $e->getMessage(),
                 'data' => null
             ], 400);
+        }
+    }
+
+    /**
+     * Get conversation object
+     *
+     * @param $id
+     * @return mixed
+     */
+    private function getObject($id): mixed
+    {
+        try {
+            return $this->model::findOrFail($id);
+        } catch (ModelNotFoundException $e) {
+            return response()->jsonApi([
+                'type' => 'danger',
+                'title' => "Get chat",
+                'message' => "Chat with id #{$id} not found: {$e->getMessage()}",
+                'data' => ''
+            ], 404);
         }
     }
 }

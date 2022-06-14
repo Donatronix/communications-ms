@@ -59,6 +59,7 @@ $router->group([
         ], function ($router) {
             $router->get('/', 'ConversationController@index');
             $router->post('/start', 'ConversationController@store');
+            $router->delete('/{id:[a-fA-F0-9\-]{36}}', 'ConversationController@destroy');
         });
 
         /**
