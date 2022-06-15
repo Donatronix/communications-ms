@@ -8,6 +8,7 @@ use App\Models\Chat;
 use Illuminate\Support\Facades\Validator;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Events\MessageSent;
 
 /**
  * Class ChatController
@@ -257,6 +258,8 @@ class ChatController extends Controller
                 'conversation_id' => $conversation_id,
                 'message' => $request->get('message')
             ]);
+
+            broadcast(new MessageSent($chat))->toOthers();
 
             // Return response to client
             return response()->jsonApi([
