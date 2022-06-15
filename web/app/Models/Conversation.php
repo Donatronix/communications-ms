@@ -17,10 +17,31 @@ class Conversation extends Model
         'first_user_id', 'second_user_id', 'status',
     ];
 
+    /**
+     * The attributes excluded from the model's JSON form.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+        'deleted_at'
+    ];
+
     public static function validationRules(): array
     {
         return [
             'second_user_id' => 'required|string',
         ];
+    }
+
+    /**
+     * One Conversation has many Chats
+     *
+     * @return HasMany
+     */
+    public function chats(): HasMany
+    {
+        return $this->hasMany(Chat::class);
     }
 }
