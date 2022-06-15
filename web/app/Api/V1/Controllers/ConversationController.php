@@ -251,6 +251,7 @@ class ConversationController extends Controller
             $chat = $this->chat->create([
                 'user_id' => $this->user_id,
                 'conversation_id' => $conversation->id,
+                'receiver_id' => $request->get('second_user_id'),
                 'message' => $request->get('message')
             ]);
 

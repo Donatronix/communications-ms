@@ -166,8 +166,8 @@ class ChatController extends Controller
      *
      * @OA\Post(
      *     path="/chats/{conversation_id}",
-     *     summary="Start a new chat",
-     *     description="Start a new chat",
+     *     summary="Reply to a chat",
+     *     description="Reply to a chat",
      *     tags={"Chats"},
      *
      *     security={{
@@ -198,6 +198,11 @@ class ChatController extends Controller
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
+     *              @OA\Property(
+     *                  property="receiver_id",
+     *                  type="string",
+     *                  default="96541e14-45be-4df8-ba8c-c742d1ac1c2c"
+     *              ),
      *              @OA\Property(
      *                  property="message",
      *                  type="string",
@@ -256,6 +261,7 @@ class ChatController extends Controller
             $chat = $this->model->create([
                 'user_id' => $this->user_id,
                 'conversation_id' => $conversation_id,
+                'receiver_id' => $request->get('receiver_id'),
                 'message' => $request->get('message')
             ]);
 

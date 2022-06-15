@@ -20,6 +20,7 @@ class CreateChatsTable extends Migration
             $table->boolean('is_seen')->default(0);
             $table->boolean('deleted_from_sender')->default(0);
             $table->boolean('deleted_from_receiver')->default(0);
+            $table->foreignUuid('receiver_id');
             $table->foreignUuid('user_id');
             $table->foreignUuid('conversation_id')->references('id')->on('conversations')->constrained();;
             $table->timestamps();

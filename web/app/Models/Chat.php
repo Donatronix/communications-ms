@@ -14,7 +14,7 @@ class Chat extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'message', 'is_delivered', 'is_seen', 'deleted_from_sender', 'deleted_from_receiver', 'user_id', 'conversation_id',
+        'message', 'is_delivered', 'is_seen', 'deleted_from_sender', 'deleted_from_receiver', 'user_id', 'receiver_id', 'conversation_id',
     ];
 
     /**
