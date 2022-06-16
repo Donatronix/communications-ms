@@ -81,7 +81,7 @@ $router->group([
         ], function ($router) {
             $router->get('/', 'BotDetailController@index');
             $router->post('/', 'BotDetailController@store');
-            $router->get('/{id:[a-fA-F0-9\-]{36}}', 'BotDetailController@index');
+            $router->get('/{id:[a-fA-F0-9\-]{36}}', 'BotDetailController@show');
             $router->put('/{id:[a-fA-F0-9\-]{36}}', 'BotDetailController@update');
             $router->delete('/{id:[a-fA-F0-9\-]{36}}', 'BotDetailController@destroy');
         });

@@ -477,6 +477,72 @@ class BotDetailController extends Controller
     }
 
     /**
+     * Getting bot detail
+     *
+     * @OA\Get(
+     *     path="/bot-details/{id}",
+     *     summary="Getting bot details",
+     *     description="Getting bot details",
+     *     tags={"Bot Details"},
+     *
+     *     security={{
+     *         "default": {
+     *             "ManagerRead",
+     *             "User",
+     *             "ManagerWrite"
+     *         }
+     *     }},
+     *     x={
+     *         "auth-type": "Application & Application User",
+     *         "throttling-tier": "Unlimited",
+     *         "wso2-application-security": {
+     *             "security-types": {"oauth2"},
+     *             "optional": "false"
+     *         }
+     *     },
+     *
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Bot detail Id",
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *          response="200",
+     *          description="ok"
+     *     )
+     * )
+     * @param $id
+     */
+    public function show($id)
+    {
+        // Read botdetail model
+        $botdetail = $this->getObject($id);
+        if ($botdetail instanceof JsonApiResponse) {
+            return $botdetail;
+        }
+
+        try {
+
+            return response()->jsonApi([
+                'type' => 'success',
+                'title' => 'Bot detail',
+                'message' => "Bot detail been received",
+                'data' => $botdetail->toArray()
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->jsonApi([
+                'type' => 'danger',
+                'title' => 'Bot detail',
+                'message' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
+    /**
      * Get botdetail object
      *
      * @param $id
