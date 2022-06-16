@@ -34,13 +34,129 @@ class BotDetailController extends Controller
 
 
     /**
+     * Display a listing of the resource.
+     *
+     * @OA\Get(
+     *     path="/bot-details",
+     *     summary="Load bot details list",
+     *     description="Load bot details list",
+     *     tags={"Bot Details"},
+     *
+     *     security={{
+     *         "default": {
+     *             "ManagerRead",
+     *             "User",
+     *             "ManagerWrite"
+     *         }
+     *     }},
+     *     x={
+     *         "auth-type": "Application & Application User",
+     *         "throttling-tier": "Unlimited",
+     *         "wso2-application-security": {
+     *             "security-types": {"oauth2"},
+     *             "optional": "false"
+     *         }
+     *     },
+     *     @OA\Parameter(
+     *         name="limit",
+     *         in="query",
+     *         description="Limit botdetails",
+     *         @OA\Schema(
+     *             type="number"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="Count botdetails",
+     *         @OA\Schema(
+     *             type="number"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="search",
+     *         in="query",
+     *         description="Search keywords",
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="sort-by",
+     *         in="query",
+     *         description="Sort by field ()",
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="sort-order",
+     *         in="query",
+     *         description="Sort order (asc, desc)",
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response="200",
+     *         description="Success send data"
+     *     ),
+     *     @OA\Response(
+     *         response="401",
+     *         description="Unauthorized"
+     *     ),
+     *     @OA\Response(
+     *         response="400",
+     *         description="Invalid request"
+     *     ),
+     *     @OA\Response(
+     *         response="403",
+     *         description="Forbidden"
+     *     ),
+     *     @OA\Response(
+     *         response="404",
+     *         description="Not found"
+     *     ),
+     *     @OA\Response(
+     *         response="500",
+     *         description="Internal server error"
+     *     )
+     * )
+     */
+    public function index()
+    {
+        try {
+            // Get botdetails list
+            $botdetails = $this->botdetail
+            ->where('user_id', $this->user_id)
+            ->get();
+
+            // Return response
+            return response()->jsonApi([
+                'type' => 'success',
+                'title' => "botdetails list",
+                'message' => 'List of botdetails successfully received',
+                'data' => $botdetails->toArray()
+            ], 200);
+        } catch (Exception $e) {
+            return response()->jsonApi([
+                'type' => 'danger',
+                'title' => "bot details list",
+                'message' => $e->getMessage(),
+                'data' => null
+            ], 400);
+        }
+    }
+
+    /**
      * Save influential bot detail
      *
      * @OA\Post(
      *     path="/bot-details",
      *     summary="Save influential bot detail",
      *     description="Save influential bot detail",
-     *     tags={"Bots"},
+     *     tags={"Bot Details"},
      *
      *     security={{
      *         "default": {
@@ -99,7 +215,7 @@ class BotDetailController extends Controller
     {
         // Validate input
         $validator = Validator::make($request->all(), [
-            'type' => ["required","string", Rule::in(Channel::$types)],
+            'type' => ["required", "string", Rule::in(Channel::$types)],
             'token' => 'required|string',
             'name' => 'required|string',
         ]);
@@ -140,10 +256,10 @@ class BotDetailController extends Controller
      * Update a botdetail
      *
      * @OA\Put(
-     *     path="/botdetails/{id}",
-     *     summary="Update a botdetail",
-     *     description="Update a botdetail",
-     *     tags={"Bot details"},
+     *     path="/bot-details/{id}",
+     *     summary="Update a bot detail",
+     *     description="Update a bot detail",
+     *     tags={"Bot Details"},
      *
      *     security={{
      *         "default": {
@@ -173,12 +289,24 @@ class BotDetailController extends Controller
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *              @OA\Property(
-     *                  property="status",
-     *                  type="string",
-     *                  default="delivered",
-     *                  description="Could be delivered/seen/deleted"
-     *              ),
+     *     @OA\Property(
+     *         property="name",
+     *         type="string",
+     *         description="Name of bot",
+     *         example="MyBot"
+     *     ),
+     *     @OA\Property(
+     *         property="username",
+     *         type="string",
+     *         description="Username of bot",
+     *         example="my_bot"
+     *     ),
+     *     @OA\Property(
+     *         property="token",
+     *         type="string",
+     *         description="Access token for bot",
+     *         example="36374819605:GSF4oK7H50GFSg4*uTPT9puKrAd6TKBFF6Ks"
+     *     ),
      *          )
      *     ),
      *     @OA\Response(
@@ -219,7 +347,8 @@ class BotDetailController extends Controller
     {
         // Validate input
         $validator = Validator::make($request->all(), [
-            'status' => 'required|string|in:delivered,seen,deleted',
+            'token' => 'required|string',
+            'name' => 'required|string',
         ]);
         if ($validator->fails()) {
             throw new Exception($validator->errors()->first());
@@ -235,26 +364,11 @@ class BotDetailController extends Controller
                 return $botdetail;
             }
 
-                $status = $request->get('status');
-                if ($status == "delivered") {
-                    $botdetail->update([
-                        'is_delivered' => 1,
-                    ]);
-                } else if ($status == "seen") {
-                    $botdetail->update([
-                        'is_seen' => 1,
-                    ]);
-                } else if ($status == "deleted") {
-                    if ($botdetail->user_id == $this->user_id) {
-                        $botdetail->update([
-                            'deleted_from_sender' => 1
-                        ]);
-                    } else {
-                        $botdetail->update([
-                            'deleted_from_receiver' => 1
-                        ]);
-                    }
-                }
+                $botdetail->update([
+                    'username' => $request->get('username'),
+                    'token' => $request->get('token'),
+                    'name' => $request->get('name')
+                ]);
 
             // Return response to client
             return response()->jsonApi([
