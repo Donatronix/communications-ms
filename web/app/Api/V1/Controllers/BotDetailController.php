@@ -129,8 +129,8 @@ class BotDetailController extends Controller
         try {
             // Get botdetails list
             $botdetails = $this->botdetail
-            ->where('user_id', $this->user_id)
-            ->get();
+                ->where('user_id', $this->user_id)
+                ->get();
 
             // Return response
             return response()->jsonApi([
@@ -225,6 +225,17 @@ class BotDetailController extends Controller
 
         // Try to add new botdetail
         try {
+            // check if same bot detail has already been created
+            $botdetail = $this->botdetail->where(['user_id' => $this->user_id, 'type' => $request->get('type')])->first();
+
+            if ($botdetail) {
+                return response()->jsonApi([
+                    'type' => 'danger',
+                    'title' => 'New botdetail registration',
+                    'message' => "User already created a {$request->get('type')} bot. Try update it instead",
+                    'data' => null
+                ], 400);
+            }
 
             // create new botdetail 
             $botdetail = $this->botdetail->create([
@@ -364,11 +375,11 @@ class BotDetailController extends Controller
                 return $botdetail;
             }
 
-                $botdetail->update([
-                    'username' => $request->get('username'),
-                    'token' => $request->get('token'),
-                    'name' => $request->get('name')
-                ]);
+            $botdetail->update([
+                'username' => $request->get('username'),
+                'token' => $request->get('token'),
+                'name' => $request->get('name')
+            ]);
 
             // Return response to client
             return response()->jsonApi([
