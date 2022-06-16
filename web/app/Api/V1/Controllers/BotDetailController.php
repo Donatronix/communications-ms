@@ -387,6 +387,95 @@ class BotDetailController extends Controller
         }
     }
 
+
+    /**
+     * Delete botdetail from storage
+     *
+     * @OA\Delete(
+     *     path="/bot-details/{id}",
+     *     summary="Delete botdetail",
+     *     description="Delete botdetail",
+     *     tags={"Bot Details"},
+     *
+     *     security={{
+     *         "default": {
+     *             "ManagerRead",
+     *             "User",
+     *             "ManagerWrite"
+     *         }
+     *     }},
+     *     x={
+     *         "auth-type": "Application & Application User",
+     *         "throttling-tier": "Unlimited",
+     *         "wso2-application-security": {
+     *             "security-types": {"oauth2"},
+     *             "optional": "false"
+     *         }
+     *     },
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="bot detail Id",
+     *         example="0aa06e6b-35de-3235-b925-b0c43f8f7c75",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response="200",
+     *         description="Successfully delete"
+     *     ),
+     *     @OA\Response(
+     *         response="400",
+     *         description="Invalid request"
+     *     ),
+     *     @OA\Response(
+     *         response="401",
+     *         description="Unauthorized"
+     *     ),
+     *     @OA\Response(
+     *         response="403",
+     *         description="Forbidden"
+     *     ),
+     *     @OA\Response(
+     *         response="404",
+     *         description="Not found"
+     *     ),
+     *     @OA\Response(
+     *         response="500",
+     *         description="Internal server error"
+     *     )
+     * )
+     */
+    public function destroy($id)
+    {
+        // Read botdetail model
+        $botdetail = $this->getObject($id);
+        if ($botdetail instanceof JsonApiResponse) {
+            return $botdetail;
+        }
+
+        // Try to delete botdetail
+        try {
+            $botdetail->delete();
+
+            return response()->jsonApi([
+                'type' => 'success',
+                'title' => "Delete botdetail",
+                'message' => 'botdetail is successfully deleted',
+                'data' => null
+            ], 200);
+        } catch (Exception $e) {
+            return response()->jsonApi([
+                'type' => 'danger',
+                'title' => "Delete of botdetail",
+                'message' => $e->getMessage(),
+                'data' => null
+            ], 400);
+        }
+    }
+
     /**
      * Get botdetail object
      *
