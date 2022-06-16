@@ -72,6 +72,18 @@ $router->group([
             $router->post('/{conversation_id:[a-fA-F0-9\-]{36}}', 'ChatController@store');
             $router->put('/{id:[a-fA-F0-9\-]{36}}', 'ChatController@update');
         });
+
+        /**
+         * Bots
+         */
+        $router->group([
+            'prefix' => 'bot-details',
+        ], function ($router) {
+            $router->get('/', 'BotDetailController@index');
+            $router->post('/', 'BotDetailController@store');
+            $router->get('/{id:[a-fA-F0-9\-]{36}}', 'BotDetailController@index');
+            $router->put('/{id:[a-fA-F0-9\-]{36}}', 'BotDetailController@update');
+        });
     });
 
     /**

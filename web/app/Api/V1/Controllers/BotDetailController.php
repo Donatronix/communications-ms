@@ -12,21 +12,19 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\Rule;
 
 /**
- * Class ChatController
+ * Class BotDetailController
  *
- * @package App\Api\V1\Controllers
+ * @package App\Api\V1\Controllers 
  */
-class ChatBotController extends Controller
+class BotDetailController extends Controller
 {
-    /**
-     * @param Chat $botdetail
-     */
+
     private BotDetail $botdetail;
 
     /**
-     * ChatController constructor.
+     * BotDetailController constructor.
      *
-     * @param Chat $botdetail
+     * @param BotDetail $botdetail
      */
     public function __construct(BotDetail $botdetail)
     {
@@ -69,7 +67,7 @@ class ChatBotController extends Controller
      *     ),
      *     @OA\Response(
      *         response="201",
-     *         description="Chat created"
+     *         description="Bot detail created"
      *     ),
      *     @OA\Response(
      *         response="400",
@@ -101,19 +99,19 @@ class ChatBotController extends Controller
     {
         // Validate input
         $validator = Validator::make($request->all(), [
-            'name' => ["required","string", Rule::in(Channel::$platforms)],
+            'type' => ["required","string", Rule::in(Channel::$types)],
             'token' => 'required|string',
-            'type' => 'required|string',
+            'name' => 'required|string',
         ]);
         if ($validator->fails()) {
             throw new Exception($validator->errors()->first());
         }
 
-        // Try to add new chat
+        // Try to add new botdetail
         try {
 
-            // create new chat 
-            $chat = $this->botdetail->create([
+            // create new botdetail 
+            $botdetail = $this->botdetail->create([
                 'user_id' => $this->user_id,
                 'type' => $request->get('type'),
                 'token' => $request->get('token'),
@@ -124,13 +122,13 @@ class ChatBotController extends Controller
             return response()->jsonApi([
                 'type' => 'success',
                 'title' => 'New bot detail created registration',
-                'message' => "Chat successfully added",
-                'data' => $chat->toArray()
+                'message' => "Bot detail successfully added",
+                'data' => $botdetail->toArray()
             ], 200);
         } catch (Exception $e) {
             return response()->jsonApi([
                 'type' => 'danger',
-                'title' => 'New chat registration',
+                'title' => 'New botdetail registration',
                 'message' => $e->getMessage(),
                 'data' => null
             ], 400);
@@ -139,13 +137,13 @@ class ChatBotController extends Controller
 
 
     /**
-     * Update a chat
+     * Update a botdetail
      *
      * @OA\Put(
-     *     path="/chats/{id}",
-     *     summary="Update a chat",
-     *     description="Update a chat",
-     *     tags={"Chats"},
+     *     path="/botdetails/{id}",
+     *     summary="Update a botdetail",
+     *     description="Update a botdetail",
+     *     tags={"Bot details"},
      *
      *     security={{
      *         "default": {
@@ -163,9 +161,9 @@ class ChatBotController extends Controller
      *         }
      *     },
      *     @OA\Parameter(
-     *         name="chat_id",
+     *         name="botdetail_id",
      *         in="path",
-     *         description="chat Id",
+     *         description="botdetail Id",
      *         example="0aa06e6b-35de-3235-b925-b0c43f8f7c75",
      *         required=true,
      *         @OA\Schema(
@@ -189,7 +187,7 @@ class ChatBotController extends Controller
      *     ),
      *     @OA\Response(
      *         response="201",
-     *         description="Chat created"
+     *         description="Bot detail created"
      *     ),
      *     @OA\Response(
      *         response="400",
@@ -227,32 +225,32 @@ class ChatBotController extends Controller
             throw new Exception($validator->errors()->first());
         }
 
-        // Try to update chat
+        // Try to update botdetail
         try {
 
-            // find chat with id
-            $chat = $this->getObject($id);
+            // find botdetail with id
+            $botdetail = $this->getObject($id);
 
-            if ($chat instanceof JsonApiResponse) {
-                return $chat;
+            if ($botdetail instanceof JsonApiResponse) {
+                return $botdetail;
             }
 
                 $status = $request->get('status');
                 if ($status == "delivered") {
-                    $chat->update([
+                    $botdetail->update([
                         'is_delivered' => 1,
                     ]);
                 } else if ($status == "seen") {
-                    $chat->update([
+                    $botdetail->update([
                         'is_seen' => 1,
                     ]);
                 } else if ($status == "deleted") {
-                    if ($chat->user_id == $this->user_id) {
-                        $chat->update([
+                    if ($botdetail->user_id == $this->user_id) {
+                        $botdetail->update([
                             'deleted_from_sender' => 1
                         ]);
                     } else {
-                        $chat->update([
+                        $botdetail->update([
                             'deleted_from_receiver' => 1
                         ]);
                     }
@@ -261,14 +259,14 @@ class ChatBotController extends Controller
             // Return response to client
             return response()->jsonApi([
                 'type' => 'success',
-                'title' => 'Chat updation',
-                'message' => "Chat successfully updated",
-                'data' => $chat->toArray()
+                'title' => 'Bot detail updation',
+                'message' => "Bot detail successfully updated",
+                'data' => $botdetail->toArray()
             ], 200);
         } catch (Exception $e) {
             return response()->jsonApi([
                 'type' => 'danger',
-                'title' => 'Chat updation',
+                'title' => 'Bot detail updation',
                 'message' => $e->getMessage(),
                 'data' => null
             ], 400);
@@ -276,7 +274,7 @@ class ChatBotController extends Controller
     }
 
     /**
-     * Get chat object
+     * Get botdetail object
      *
      * @param $id
      * @return mixed
@@ -288,8 +286,8 @@ class ChatBotController extends Controller
         } catch (ModelNotFoundException $e) {
             return response()->jsonApi([
                 'type' => 'danger',
-                'title' => "Get chat",
-                'message' => "Chat with id #{$id} not found: {$e->getMessage()}",
+                'title' => "Get botdetail",
+                'message' => "Bot detail with id #{$id} not found: {$e->getMessage()}",
                 'data' => ''
             ], 404);
         }
