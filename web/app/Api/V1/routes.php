@@ -99,7 +99,7 @@ $router->group([
         /**
          * Set Webhook url
          */
-        $router->post('/getUpdates/{type}/{token}', 'BotMessageController@saveUpdates');
+        $router->post('/saveUpdates/{type}/{token}', 'BotMessageController@saveUpdates');
     });
 
     /**

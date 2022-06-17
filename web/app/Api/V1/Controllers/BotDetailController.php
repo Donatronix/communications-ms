@@ -249,7 +249,7 @@ class BotDetailController extends Controller
             // setwebhook for bot
             if ($request->get('type') == "telegram"){
                 $client = new \GuzzleHttp\Client();
-                $response = $client->request('POST', "https://api.telegram.org/bot{$request->get('token')}/setWebhook?url={$app_url}/getUpdates/{$request->get('type')}/{$request->get('token')}");
+                $response = $client->request('POST', "https://api.telegram.org/bot{$request->get('token')}/setWebhook?url={$app_url}/saveUpdates/{$request->get('type')}/{$request->get('token')}");
             }
 
             // Return response to client
