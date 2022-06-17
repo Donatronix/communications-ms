@@ -142,12 +142,12 @@ class BotMessageController extends Controller
                         'text' => $request->get('text'),
                     ]
                 ]);
-            }
 
-            $data = json_decode($response->getBody(), true);
-            if ($data['ok'] == true){
-                // save bot chat and conversation
-                $this->saveBotChats($data['result']);
+                $data = json_decode($response->getBody(), true);
+                if ($data['ok'] == true) {
+                    // save bot chat and conversation
+                    $this->saveBotChats($data['result'], $this->user_id);
+                }
             }
 
             // Return response
@@ -167,11 +167,37 @@ class BotMessageController extends Controller
         }
     }
 
-    public function saveUpdates(Request $request, $type, $token){
-        
+    public function saveUpdates(Request $request, $type, $token)
+    {
+        // Try to save updates sent from bot
+        try {
+
+            if ($type == "telegram") {
+                // call telegram bot api 
+                if ($request->has('update_id')) {
+                    // save bot chat and conversation
+                    $data = $request->get('message');
+                    $data->merge([
+                        'token' => $token
+                    ]);
+                    $this->saveBotChats($request->get('message'));
+                }
+            }
+
+            \Log::info("Update has been saved");
+
+        } catch (Exception $e) {
+            return response()->jsonApi([
+                'type' => 'danger',
+                'title' => "send message",
+                'message' => $e->getMessage(),
+                'data' => null
+            ], 400);
+        }
     }
 
-    public function saveBotChats($data){
+    public function saveBotChats($data, $user_id = null)
+    {
         $bot_username = $data['from']['username'];
         $chat_id = $data['chat']['id'];
 
@@ -179,8 +205,12 @@ class BotMessageController extends Controller
 
         // if botconversation does not exist, create it
         if (!$botconversation) {
+            // if user_id is null, get it using the token
+            if (!$user_id){
+                $user_id = $this->botdetail->where('token', $data['token'])->first()->user_id;
+            }
             $botconversation = $this->botconversation->create([
-                'user_id' => $this->user_id,
+                'user_id' => $user_id,
                 'bot_name' => $data['from']['first_name'],
                 'bot_username' => $data['from']['username'],
                 'chat_id' => $chat_id,
@@ -190,9 +220,9 @@ class BotMessageController extends Controller
         }
 
         // check whether message is replying to another message
-        if($data['reply_to_message']){
-        $replied_to_message_id = $data['reply_to_message'];
-        }else{
+        if ($data['reply_to_message']) {
+            $replied_to_message_id = $data['reply_to_message'];
+        } else {
             $replied_to_message_id = null;
         }
 
