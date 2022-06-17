@@ -2,6 +2,8 @@
 
 namespace App\Api\V1\Controllers;
 
+use App\Models\BotConversation;
+use App\Models\BotChat;
 use Sumra\SDK\JsonApiResponse;
 use Illuminate\Http\Request;
 use App\Models\BotDetail;
@@ -20,15 +22,19 @@ class BotMessageController extends Controller
 {
 
     private BotDetail $botdetail;
+    private BotConversation $botconversation;
+    private BotChat $botchat;
 
     /**
      * BotMessageController constructor.
      *
      * @param BotDetail $botdetail
      */
-    public function __construct(BotDetail $botdetail)
+    public function __construct(BotDetail $botdetail, BotConversation $botconversation, BotChat $botchat)
     {
         $this->botdetail = $botdetail;
+        $this->botconversation = $botconversation;
+        $this->botchat = $botchat;
         $this->user_id = auth()->user()->getAuthIdentifier();
     }
 
@@ -138,12 +144,18 @@ class BotMessageController extends Controller
                 ]);
             }
 
+            $data = json_decode($response->getBody(), true);
+            if ($data['ok'] == true){
+                // save bot chat and conversation
+                $this->saveBotChats($data['result']);
+            }
+
             // Return response
             return response()->jsonApi([
                 'type' => 'success',
                 'title' => "send message",
                 'message' => 'Your message has been sent',
-                'data' => $response
+                'data' => $data
             ], 200);
         } catch (Exception $e) {
             return response()->jsonApi([
@@ -156,6 +168,41 @@ class BotMessageController extends Controller
     }
 
     public function saveUpdates(Request $request, $type, $token){
+        
+    }
 
+    public function saveBotChats($data){
+        $bot_username = $data['from']['username'];
+        $chat_id = $data['chat']['id'];
+
+        $botconversation = $this->botconversation->where(['bot_username' => $bot_username, 'chat_id' => $chat_id])->first();
+
+        // if botconversation does not exist, create it
+        if (!$botconversation) {
+            $botconversation = $this->botconversation->create([
+                'user_id' => $this->user_id,
+                'bot_name' => $data['from']['first_name'],
+                'bot_username' => $data['from']['username'],
+                'chat_id' => $chat_id,
+                'first_name' => $data['chat']['first_name'],
+                'last_name' => $data['chat']['last_name']
+            ]);
+        }
+
+        // check whether message is replying to another message
+        if($data['reply_to_message']){
+        $replied_to_message_id = $data['reply_to_message'];
+        }else{
+            $replied_to_message_id = null;
+        }
+
+        // save bot chat
+        $this->botchat->create([
+            'message_id' => $data['message_id'],
+            'date' => $data['date'],
+            'text' => $data['text'],
+            'replied_to_message_id' => $replied_to_message_id,
+            'bot_conversation_id' => $botconversation->id
+        ]);
     }
 }
