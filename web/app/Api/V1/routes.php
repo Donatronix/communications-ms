@@ -92,7 +92,7 @@ $router->group([
         $router->group([
             'prefix' => 'bot-messages',
         ], function ($router) {
-            $router->get('/send', 'BotMessageController@sendMessage');
+            $router->post('/send', 'BotMessageController@sendMessage');
             $router->post('/get', 'BotMessageController@getUpdates');
         });
     });
