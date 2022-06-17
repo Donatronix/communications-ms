@@ -85,6 +85,16 @@ $router->group([
             $router->put('/{id:[a-fA-F0-9\-]{36}}', 'BotDetailController@update');
             $router->delete('/{id:[a-fA-F0-9\-]{36}}', 'BotDetailController@destroy');
         });
+
+        /**
+         * Bot Messages
+         */
+        $router->group([
+            'prefix' => 'bot-messages',
+        ], function ($router) {
+            $router->get('/send', 'BotMessageController@sendMessage');
+            $router->post('/get', 'BotMessageController@getUpdates');
+        });
     });
 
     /**
