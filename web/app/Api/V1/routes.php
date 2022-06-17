@@ -15,11 +15,11 @@ $router->group([
     ], function ($router) {
         $router->post('/{messengerInstance}/webhook', 'MessagesController@handleWebhook');
     });
-    
+
     // Send mails
     $router->group(
         ['prefix' => 'mail'],
-        function($router){
+        function ($router) {
             $router->post('/', '\App\Api\V1\Controllers\SendEmailController');
         }
     );
@@ -36,7 +36,7 @@ $router->group([
         $router->group([
             'prefix' => 'channels',
         ], function ($router) {
-//            $router->get('/auth/{platform}', 'ChannelController');
+            //            $router->get('/auth/{platform}', 'ChannelController');
 
             $router->post('/{messengerInstance}/send-message', 'MessagesController@sendMessage');
             $router->post('/{messengerInstance}/webhook', 'MessagesController@handleWebhook');
@@ -95,6 +95,11 @@ $router->group([
             $router->post('/send', 'BotMessageController@sendMessage');
             $router->post('/get', 'BotMessageController@getUpdates');
         });
+
+        /**
+         * Set Webhook url
+         */
+        $router->post('/getUpdates/{type}/{token}', 'BotMessageController@saveUpdates');
     });
 
     /**

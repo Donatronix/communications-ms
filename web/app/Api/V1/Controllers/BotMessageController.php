@@ -154,4 +154,8 @@ class BotMessageController extends Controller
             ], 400);
         }
     }
+
+    public function saveUpdates(Request $request, $type, $token){
+
+    }
 }

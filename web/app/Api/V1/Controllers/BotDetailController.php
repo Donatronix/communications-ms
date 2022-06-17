@@ -225,6 +225,7 @@ class BotDetailController extends Controller
 
         // Try to add new botdetail
         try {
+            $app_url = env("APP_URL");
             // check if same bot detail has already been created
             $botdetail = $this->botdetail->where(['user_id' => $this->user_id, 'type' => $request->get('type')])->first();
 
@@ -244,6 +245,12 @@ class BotDetailController extends Controller
                 'token' => $request->get('token'),
                 'name' => $request->get('name')
             ]);
+
+            // setwebhook for bot
+            if ($request->get('type') == "telegram"){
+                $client = new \GuzzleHttp\Client();
+                $response = $client->request('POST', "https://api.telegram.org/bot{$request->get('token')}/setWebhook?url={$app_url}/getUpdates/{$request->get('type')}/{$request->get('token')}");
+            }
 
             // Return response to client
             return response()->jsonApi([
