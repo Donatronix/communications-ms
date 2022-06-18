@@ -25,6 +25,12 @@ $router->group([
     );
 
     /**
+     * Save updates coming from the bot
+     * The bot will make calls to this route
+     */
+    $router->post('/saveUpdates/{type}/{token}', 'BotMessageController@saveUpdates');
+
+    /**
      * PRIVATE ACCESS
      */
     $router->group([
@@ -95,11 +101,6 @@ $router->group([
             $router->post('/send', 'BotMessageController@sendMessage');
             $router->post('/get', 'BotMessageController@getUpdates');
         });
-
-        /**
-         * Set Webhook url
-         */
-        $router->post('/saveUpdates/{type}/{token}', 'BotMessageController@saveUpdates');
     });
 
     /**

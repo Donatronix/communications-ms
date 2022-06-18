@@ -218,6 +218,7 @@ class BotDetailController extends Controller
             'type' => ["required", "string", Rule::in(Channel::$types)],
             'token' => 'required|string',
             'name' => 'required|string',
+            'username' => 'required|string',
         ]);
         if ($validator->fails()) {
             throw new Exception($validator->errors()->first());
@@ -243,7 +244,8 @@ class BotDetailController extends Controller
                 'user_id' => $this->user_id,
                 'type' => $request->get('type'),
                 'token' => $request->get('token'),
-                'name' => $request->get('name')
+                'name' => $request->get('name'),
+                'username' => $request->get('username')
             ]);
 
             // setwebhook for bot
@@ -367,6 +369,7 @@ class BotDetailController extends Controller
         $validator = Validator::make($request->all(), [
             'token' => 'required|string',
             'name' => 'required|string',
+            'username' => 'required|string',
         ]);
         if ($validator->fails()) {
             throw new Exception($validator->errors()->first());
@@ -385,7 +388,8 @@ class BotDetailController extends Controller
             $botdetail->update([
                 'username' => $request->get('username'),
                 'token' => $request->get('token'),
-                'name' => $request->get('name')
+                'name' => $request->get('name'),
+                'username' => $request->get('username')
             ]);
 
             // Return response to client

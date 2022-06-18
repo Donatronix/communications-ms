@@ -19,7 +19,7 @@ class CreateBotDetailsTable extends Migration
             $table->foreignUuid('user_id');
             $table->enum('type', Channel::$types);
             $table->string('name');
-            $table->string('username')->nullable();
+            $table->string('username');
             $table->string('token'); //->unique();
             $table->timestamps();
             $table->softDeletes();

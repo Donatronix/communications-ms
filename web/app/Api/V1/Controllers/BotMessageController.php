@@ -29,6 +29,8 @@ class BotMessageController extends Controller
      * BotMessageController constructor.
      *
      * @param BotDetail $botdetail
+     * @param BotConversation $botconversation
+     * @param BotChat $botchat
      */
     public function __construct(BotDetail $botdetail, BotConversation $botconversation, BotChat $botchat)
     {
@@ -185,7 +187,6 @@ class BotMessageController extends Controller
             }
 
             \Log::info("Update has been saved");
-
         } catch (Exception $e) {
             return response()->jsonApi([
                 'type' => 'danger',
@@ -206,7 +207,7 @@ class BotMessageController extends Controller
         // if botconversation does not exist, create it
         if (!$botconversation) {
             // if user_id is null, get it using the token
-            if (!$user_id){
+            if (!$user_id) {
                 $user_id = $this->botdetail->where('token', $data['token'])->first()->user_id;
             }
             $botconversation = $this->botconversation->create([
@@ -220,7 +221,7 @@ class BotMessageController extends Controller
         }
 
         // check whether message is replying to another message
-        if ($data['reply_to_message']) {
+        if (array_key_exists("reply_to_message", $data)) {
             $replied_to_message_id = $data['reply_to_message'];
         } else {
             $replied_to_message_id = null;
