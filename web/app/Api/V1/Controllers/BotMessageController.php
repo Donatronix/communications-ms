@@ -179,14 +179,23 @@ class BotMessageController extends Controller
                 if ($request->has('update_id')) {
                     // save bot chat and conversation
                     $data = $request->get('message');
-                    $data->merge([
+                    // add token to the message array 
+                    $new_data = array_merge($data, [
                         'token' => $token
                     ]);
-                    $this->saveBotChats($request->get('message'));
+                    $this->saveBotChats($new_data);
                 }
             }
 
             \Log::info("Update has been saved");
+
+            // Return response
+            return response()->jsonApi([
+                'type' => 'success',
+                'title' => "send message",
+                'message' => 'Your message has been sent',
+                'data' => $data
+            ], 200);
         } catch (Exception $e) {
             return response()->jsonApi([
                 'type' => 'danger',
@@ -222,7 +231,7 @@ class BotMessageController extends Controller
 
         // check whether message is replying to another message
         if (array_key_exists("reply_to_message", $data)) {
-            $replied_to_message_id = $data['reply_to_message'];
+            $replied_to_message_id = $data['reply_to_message']['message_id'];
         } else {
             $replied_to_message_id = null;
         }
