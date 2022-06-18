@@ -369,7 +369,7 @@ class BotMessageController extends Controller
         try {
             // Get conversations list
             $botconversations = $this->botconversation
-            ->where('type', $request->get('type', null))
+            ->where('bot_type', $request->get('type', null))
             ->orderBy($request->get('sort-by', 'created_at'), $request->get('sort-order', 'desc'))
             ->paginate($request->get('limit', 20));
 
@@ -496,7 +496,7 @@ class BotMessageController extends Controller
         try {
             // Get chats list
             $botchats = $this->botchat
-                ->where('conversation_id', $bot_conversation_id)
+                ->where('bot_conversation_id', $bot_conversation_id)
                 ->orderBy($request->get('sort-by', 'created_at'), $request->get('sort-order', 'desc'))
                 ->paginate($request->get('limit', 20));
 

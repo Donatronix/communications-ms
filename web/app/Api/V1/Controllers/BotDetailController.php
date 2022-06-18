@@ -226,8 +226,6 @@ class BotDetailController extends Controller
 
         // Try to add new botdetail
         try {
-            $app_url = env("APP_URL");
-            $app_version = env("APP_API_VERSION");
             // check if same bot detail has already been created
             $botdetail = $this->botdetail->where(['user_id' => $this->user_id, 'type' => $request->get('type')])->first();
 
@@ -250,9 +248,9 @@ class BotDetailController extends Controller
             ]);
 
             // setwebhook for bot
-            if ($request->get('type') == "telegram"){
-                $client = new \GuzzleHttp\Client();
-                $response = $client->request('POST', "https://api.telegram.org/bot{$request->get('token')}/setWebhook?url={$app_url}/{$app_version}/saveUpdates/{$request->get('type')}/{$request->get('token')}");
+            $response = $this->setWebHookUrl($request->get('type'));
+            if ($response instanceof JsonApiResponse) {
+                return $response;
             }
 
             // Return response to client
@@ -580,6 +578,112 @@ class BotDetailController extends Controller
                 'type' => 'danger',
                 'title' => "Get botdetail",
                 'message' => "Bot detail with id #{$id} not found: {$e->getMessage()}",
+                'data' => ''
+            ], 404);
+        }
+    }
+
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @OA\Post(
+     *     path="/bot-details/setwebhookurl",
+     *     summary="Set webhook url",
+     *     description="Set webhook url",
+     *     tags={"Bot Details"},
+     *
+     *     security={{
+     *         "default": {
+     *             "ManagerRead",
+     *             "User",
+     *             "ManagerWrite"
+     *         }
+     *     }},
+     *     x={
+     *         "auth-type": "Application & Application User",
+     *         "throttling-tier": "Unlimited",
+     *         "wso2-application-security": {
+     *             "security-types": {"oauth2"},
+     *             "optional": "false"
+     *         }
+     *     },
+     *     @OA\Response(
+     *         response="200",
+     *         description="Success send data"
+     *     ),
+     *     @OA\Response(
+     *         response="401",
+     *         description="Unauthorized"
+     *     ),
+     *     @OA\Response(
+     *         response="400",
+     *         description="Invalid request"
+     *     ),
+     *     @OA\Response(
+     *         response="403",
+     *         description="Forbidden"
+     *     ),
+     *     @OA\Response(
+     *         response="404",
+     *         description="Not found"
+     *     ),
+     *     @OA\Response(
+     *         response="500",
+     *         description="Internal server error"
+     *     )
+     * )
+     */
+    public function setBotWebHookUrl(Request $request)
+    {
+        try {
+
+            // setwebhook for bot
+            $response = $this->setWebHookUrl($request->get('type'));
+            if ($response instanceof JsonApiResponse) {
+                return $response;
+            }
+
+            // Return response
+            return response()->jsonApi([
+                'type' => 'success',
+                'title' => "botdetails list",
+                'message' => 'List of botdetails successfully received',
+                'data' => $response
+            ], 200);
+        } catch (Exception $e) {
+            return response()->jsonApi([
+                'type' => 'danger',
+                'title' => "bot details list",
+                'message' => $e->getMessage(),
+                'data' => null
+            ], 400);
+        }
+    }
+
+    /**
+     * Set Webhook Url
+     *
+     * @param $type
+     * @return mixed
+     */
+    private function setWebHookUrl($type): mixed
+    {
+        try {
+            $app_url = env("APP_URL");
+            $app_version = env("APP_API_VERSION");
+            // get token
+            $token = $this->botdetail->where('user_id', $this->user_id)->first()->token;
+            if ($type == "telegram"){
+                $client = new \GuzzleHttp\Client();
+                $response = $client->request('POST', "https://api.telegram.org/bot{$token}/setWebhook?url={$app_url}/{$app_version}/saveUpdates/{$type}/{$token}");
+            }
+        return $response->getBody();
+        } catch (ModelNotFoundException $e) {
+            return response()->jsonApi([
+                'type' => 'danger',
+                'title' => "Get botdetail",
+                'message' => "{$e->getMessage()}",
                 'data' => ''
             ], 404);
         }
