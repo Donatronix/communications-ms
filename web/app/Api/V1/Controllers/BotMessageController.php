@@ -262,7 +262,7 @@ class BotMessageController extends Controller
      * Display a listing of the resource.
      *
      * @OA\Get(
-     *     path="/bot-conversations",
+     *     path="/bot-messages/conversations",
      *     summary="Load bot conversations list",
      *     description="Load bot conversations list",
      *     tags={"Bot Messages"},
@@ -388,10 +388,10 @@ class BotMessageController extends Controller
      * Display a listing of the resource.
      *
      * @OA\Get(
-     *     path="/bot-chats/{bot_conversation_id}",
+     *     path="/bot-messages/chats/{bot_conversation_id}",
      *     summary="Load bot chats list",
      *     description="Load bot chats list",
-     *     tags={"Chats"},
+     *     tags={"Bot Messages"},
      *
      *     security={{
      *         "default": {
@@ -485,12 +485,12 @@ class BotMessageController extends Controller
      *     )
      * )
      */
-    public function getBotChats(Request $request, $conversation_id)
+    public function getBotChats(Request $request, $bot_conversation_id)
     {
         try {
             // Get chats list
             $botchats = $this->botchat
-                ->where('conversation_id', $conversation_id)
+                ->where('conversation_id', $bot_conversation_id)
                 ->orderBy($request->get('sort-by', 'created_at'), $request->get('sort-order', 'desc'))
                 ->paginate($request->get('limit', 20));
 

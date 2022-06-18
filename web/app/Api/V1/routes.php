@@ -99,7 +99,8 @@ $router->group([
             'prefix' => 'bot-messages',
         ], function ($router) {
             $router->post('/send', 'BotMessageController@sendMessage');
-            $router->post('/get', 'BotMessageController@getUpdates');
+            $router->get('/chats/{bot_conversation_id:[a-fA-F0-9\-]{36}}', 'BotMessageController@getBotChats');
+            $router->get('/conversations', 'BotMessageController@getBotConversations');
         });
     });
 
