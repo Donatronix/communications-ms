@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Channel;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -15,6 +16,7 @@ class CreateBotConversationsTable extends Migration
     {
         Schema::create('bot_conversations', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->enum('bot_type', Channel::$types);
             $table->foreignUuid('user_id');
             $table->string('bot_name');
             $table->string('bot_username');

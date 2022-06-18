@@ -148,7 +148,11 @@ class BotMessageController extends Controller
                 $data = json_decode($response->getBody(), true);
                 if ($data['ok'] == true) {
                     // save bot chat and conversation
-                    $this->saveBotChats($data['result'], $this->user_id);
+                    // add bot type to the message array 
+                    $new_data = array_merge($data['result'], [
+                        'bot_type' => $request->get('type'),
+                    ]);
+                    $this->saveBotChats($new_data, $this->user_id);
                 }
             }
 
@@ -185,9 +189,10 @@ class BotMessageController extends Controller
                 if ($request->has('update_id')) {
                     // save bot chat and conversation
                     $data = $request->get('message');
-                    // add token to the message array 
+                    // add token and bot type to the message array 
                     $new_data = array_merge($data, [
-                        'token' => $token
+                        'token' => $token,
+                        'bot_type' => $type,
                     ]);
                     $this->saveBotChats($new_data);
                 }
@@ -237,6 +242,7 @@ class BotMessageController extends Controller
                 'bot_username' => $data['from']['username'],
                 'chat_id' => $chat_id,
                 'first_name' => $data['chat']['first_name'],
+                'bot_type' => $data['bot_type'],
                 'last_name' => $data['chat']['last_name']
             ]);
         }
