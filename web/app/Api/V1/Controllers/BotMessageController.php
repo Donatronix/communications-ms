@@ -169,6 +169,12 @@ class BotMessageController extends Controller
         }
     }
 
+    /**
+     * Save updates from bot webhook
+     *
+     * @param Request $request, $type, $token
+     * @return mixed
+     */
     public function saveUpdates(Request $request, $type, $token)
     {
         // Try to save updates sent from bot
@@ -206,7 +212,13 @@ class BotMessageController extends Controller
         }
     }
 
-    public function saveBotChats($data, $user_id = null)
+    /**
+     * Private method to save chats with bots
+     *
+     * @param Array $id, $user_id
+     * @return mixed
+     */
+    private function saveBotChats($data, $user_id = null)
     {
         $bot_username = $data['from']['username'];
         $chat_id = $data['chat']['id'];
@@ -244,5 +256,258 @@ class BotMessageController extends Controller
             'replied_to_message_id' => $replied_to_message_id,
             'bot_conversation_id' => $botconversation->id
         ]);
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @OA\Get(
+     *     path="/bot-conversations",
+     *     summary="Load bot conversations list",
+     *     description="Load bot conversations list",
+     *     tags={"Bot Messages"},
+     *
+     *     security={{
+     *         "default": {
+     *             "ManagerRead",
+     *             "User",
+     *             "ManagerWrite"
+     *         }
+     *     }},
+     *     x={
+     *         "auth-type": "Application & Application User",
+     *         "throttling-tier": "Unlimited",
+     *         "wso2-application-security": {
+     *             "security-types": {"oauth2"},
+     *             "optional": "false"
+     *         }
+     *     },
+     *     @OA\Parameter(
+     *         name="type",
+     *         in="query",
+     *         description="Messenger Type",
+     *         @OA\Schema(
+     *             type="string"
+     *         ),
+     *         example="telegram"
+     *     ),
+     *     @OA\Parameter(
+     *         name="limit",
+     *         in="query",
+     *         description="Limit conversations",
+     *         @OA\Schema(
+     *             type="number"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="Count conversations",
+     *         @OA\Schema(
+     *             type="number"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="search",
+     *         in="query",
+     *         description="Search keywords",
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="sort-by",
+     *         in="query",
+     *         description="Sort by field ()",
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="sort-order",
+     *         in="query",
+     *         description="Sort order (asc, desc)",
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response="200",
+     *         description="Success send data"
+     *     ),
+     *     @OA\Response(
+     *         response="401",
+     *         description="Unauthorized"
+     *     ),
+     *     @OA\Response(
+     *         response="400",
+     *         description="Invalid request"
+     *     ),
+     *     @OA\Response(
+     *         response="403",
+     *         description="Forbidden"
+     *     ),
+     *     @OA\Response(
+     *         response="404",
+     *         description="Not found"
+     *     ),
+     *     @OA\Response(
+     *         response="500",
+     *         description="Internal server error"
+     *     )
+     * )
+     */
+    public function getBotConversations(Request $request)
+    {
+        try {
+            // Get conversations list
+            $botconversations = $this->botconversation
+            ->where('type', $request->get('type', null))
+            ->orderBy($request->get('sort-by', 'created_at'), $request->get('sort-order', 'desc'))
+            ->paginate($request->get('limit', 20));
+
+            // Return response
+            return response()->jsonApi([
+                'type' => 'success',
+                'title' => "conversations list",
+                'message' => 'List of botconversations successfully received',
+                'data' => $botconversations->toArray()
+            ], 200);
+        } catch (Exception $e) {
+            return response()->jsonApi([
+                'type' => 'danger',
+                'title' => "conversations list",
+                'message' => $e->getMessage(),
+                'data' => null
+            ], 400);
+        }
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @OA\Get(
+     *     path="/bot-chats/{bot_conversation_id}",
+     *     summary="Load bot chats list",
+     *     description="Load bot chats list",
+     *     tags={"Chats"},
+     *
+     *     security={{
+     *         "default": {
+     *             "ManagerRead",
+     *             "User",
+     *             "ManagerWrite"
+     *         }
+     *     }},
+     *     x={
+     *         "auth-type": "Application & Application User",
+     *         "throttling-tier": "Unlimited",
+     *         "wso2-application-security": {
+     *             "security-types": {"oauth2"},
+     *             "optional": "false"
+     *         }
+     *     },
+     *     @OA\Parameter(
+     *         name="bot_conversation_id",
+     *         in="path",
+     *         description="bot_conversation Id",
+     *         example="0aa06e6b-35de-3235-b925-b0c43f8f7c75",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="limit",
+     *         in="query",
+     *         description="Limit chats",
+     *         @OA\Schema(
+     *             type="number"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="Count chats",
+     *         @OA\Schema(
+     *             type="number"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="search",
+     *         in="query",
+     *         description="Search keywords",
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="sort-by",
+     *         in="query",
+     *         description="Sort by field ()",
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="sort-order",
+     *         in="query",
+     *         description="Sort order (asc, desc)",
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response="200",
+     *         description="Success send data"
+     *     ),
+     *     @OA\Response(
+     *         response="401",
+     *         description="Unauthorized"
+     *     ),
+     *     @OA\Response(
+     *         response="400",
+     *         description="Invalid request"
+     *     ),
+     *     @OA\Response(
+     *         response="403",
+     *         description="Forbidden"
+     *     ),
+     *     @OA\Response(
+     *         response="404",
+     *         description="Not found"
+     *     ),
+     *     @OA\Response(
+     *         response="500",
+     *         description="Internal server error"
+     *     )
+     * )
+     */
+    public function getBotChats(Request $request, $conversation_id)
+    {
+        try {
+            // Get chats list
+            $botchats = $this->botchat
+                ->where('conversation_id', $conversation_id)
+                ->orderBy($request->get('sort-by', 'created_at'), $request->get('sort-order', 'desc'))
+                ->paginate($request->get('limit', 20));
+
+            // Return response
+            return response()->jsonApi([
+                'type' => 'success',
+                'title' => "chats list",
+                'message' => 'List of chats successfully received',
+                'data' => $botchats->toArray()
+            ], 200);
+        } catch (Exception $e) {
+            return response()->jsonApi([
+                'type' => 'danger',
+                'title' => "chats list",
+                'message' => $e->getMessage(),
+                'data' => null
+            ], 400);
+        }
     }
 }
