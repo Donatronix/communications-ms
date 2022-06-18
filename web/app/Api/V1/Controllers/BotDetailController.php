@@ -673,16 +673,31 @@ class BotDetailController extends Controller
             $app_url = env("APP_URL");
             $app_version = env("APP_API_VERSION");
             // get token
-            $token = $this->botdetail->where('user_id', $this->user_id)->first()->token;
-            if ($type == "telegram"){
+            $token = $this->botdetail->where(['user_id' => $this->user_id, 'type' => $type])->first()->token;
+            // webhook url
+            $webhook_url = "{$app_url}/{$app_version}/saveUpdates/{$type}/{$token}";
+            if ($type == "telegram") {
+                // call api to set webhook url
                 $client = new \GuzzleHttp\Client();
-                $response = $client->request('POST', "https://api.telegram.org/bot{$token}/setWebhook?url={$app_url}/{$app_version}/saveUpdates/{$type}/{$token}");
+                $response = $client->request('GET', "https://api.telegram.org/bot{$token}/setWebhook?url={$webhook_url}");
+            } else if ($type == "viber") {
+                // call api to set webhook url
+                $client = new \GuzzleHttp\Client();
+                $response = $client->request('POST', "https://chatapi.viber.com/pa/set_webhook", [
+                    'headers' => [
+                        'X-Viber-Auth-Token' => $token
+                    ],
+                    'json' => [
+                        'url' => $webhook_url,
+                    ]
+                ]);
             }
-        return $response->getBody();
+            
+            return json_decode($response->getBody(), true);
         } catch (ModelNotFoundException $e) {
             return response()->jsonApi([
                 'type' => 'danger',
-                'title' => "Get botdetail",
+                'title' => "Set webhook url",
                 'message' => "{$e->getMessage()}",
                 'data' => ''
             ], 404);

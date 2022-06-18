@@ -139,20 +139,76 @@ class BotMessageController extends Controller
                 // call telegram bot api 
                 $client = new \GuzzleHttp\Client();
                 $response = $client->request('POST', "https://api.telegram.org/bot{$botdetail->token}/sendMessage", [
-                    'form_params' => [
+                    'json' => [
                         'chat_id' => $request->get('chat_id'),
                         'text' => $request->get('text'),
                     ]
                 ]);
 
-                $data = json_decode($response->getBody(), true);
-                if ($data['ok'] == true) {
-                    // save bot chat and conversation
-                    // add bot type to the message array 
-                    $new_data = array_merge($data['result'], [
+                $result = json_decode($response->getBody(), true);
+                if ($result['ok'] == true) {
+                    $data = $result['result'];
+
+                    // check whether message is replying to another message
+                    if (array_key_exists("reply_to_message", $data)) {
+                        $replied_to_message_id = $data['reply_to_message']['message_id'];
+                    } else {
+                        $replied_to_message_id = null;
+                    }
+
+                    $inputData = [
+                        'bot_name' => $data['from']['first_name'],
+                        'bot_username' => $data['from']['username'],
+                        'chat_id' => $data['chat']['id'],
+                        'first_name' => $data['chat']['first_name'],
                         'bot_type' => $request->get('type'),
-                    ]);
-                    $this->saveBotChats($new_data, $this->user_id);
+                        'last_name' => $data['chat']['last_name'],
+                        'replied_to_message_id' => $replied_to_message_id,
+                        'message_id' => $data['message_id'],
+                        'date' => $data['date'],
+                        'text' => $data['text'],
+                    ];
+
+                    // save bot chat and conversation
+                    $this->saveBotChats($inputData, $this->user_id);
+                }
+            }
+
+            if ($request->get('type') == "viber") {
+                // call viber bot api 
+                $client = new \GuzzleHttp\Client();
+                $response = $client->request('POST', "https://chatapi.viber.com/pa/send_message", [
+                    'headers' => [
+                        'X-Viber-Auth-Token' => $botdetail->token
+                    ],
+                    'json' => [
+                        'receiver' => $request->get('chat_id'),
+                        'type' => 'text',
+                        'text' => $request->get('text'),
+                        'sender' => [
+                            "name" => $botdetail->name
+                        ]
+                    ]
+                ]);
+
+                $data = json_decode($response->getBody(), true);
+                if (sizeof($data)) {
+
+                    $inputData = [
+                        'bot_name' => $botdetail->name,
+                        'bot_username' => $botdetail->username,
+                        'chat_id' => $data['sender']['id'],
+                        'first_name' => explode(' ', $data['sender']['name'])['0'],
+                        'bot_type' => $request->get('type'),
+                        'last_name' => explode(' ', $data['sender']['name'])['1'],
+                        'replied_to_message_id' => null,
+                        'message_id' => $data['message_token'],
+                        'date' => $data['timestamp'],
+                        'text' => $data['message']['text'],
+                    ];
+
+                    // save bot chat and conversation
+                    $this->saveBotChats($inputData, $this->user_id);
                 }
             }
 
@@ -189,12 +245,30 @@ class BotMessageController extends Controller
                 if ($request->has('update_id')) {
                     // save bot chat and conversation
                     $data = $request->get('message');
-                    // add token and bot type to the message array 
-                    $new_data = array_merge($data, [
-                        'token' => $token,
+
+
+                    // check whether message is replying to another message
+                    if (array_key_exists("reply_to_message", $data['result'])) {
+                        $replied_to_message_id = $data['reply_to_message']['message_id'];
+                    } else {
+                        $replied_to_message_id = null;
+                    }
+
+                    $inputData = [
+                        'bot_name' => $data['from']['first_name'],
+                        'bot_username' => $data['from']['username'],
+                        'chat_id' => $data['chat']['id'],
+                        'first_name' => $data['chat']['first_name'],
                         'bot_type' => $type,
-                    ]);
-                    $this->saveBotChats($new_data);
+                        'last_name' => $data['chat']['last_name'],
+                        'replied_to_message_id' => $replied_to_message_id,
+                        'message_id' => $data['message_id'],
+                        'date' => $data['date'],
+                        'text' => $data['text'],
+                        'token' => $token,
+                    ];
+                    
+                    $this->saveBotChats($inputData);
                 }
             }
 
@@ -225,8 +299,8 @@ class BotMessageController extends Controller
      */
     private function saveBotChats($data, $user_id = null)
     {
-        $bot_username = $data['from']['username'];
-        $chat_id = $data['chat']['id'];
+        $bot_username = $data['bot_username'];
+        $chat_id = $data['chat_id'];
 
         $botconversation = $this->botconversation->where(['bot_username' => $bot_username, 'chat_id' => $chat_id])->first();
 
@@ -236,22 +310,16 @@ class BotMessageController extends Controller
             if (!$user_id) {
                 $user_id = $this->botdetail->where('token', $data['token'])->first()->user_id;
             }
+
             $botconversation = $this->botconversation->create([
                 'user_id' => $user_id,
-                'bot_name' => $data['from']['first_name'],
-                'bot_username' => $data['from']['username'],
+                'bot_name' => $data['bot_name'],
+                'bot_username' => $bot_username,
                 'chat_id' => $chat_id,
-                'first_name' => $data['chat']['first_name'],
+                'first_name' => $data['first_name'],
                 'bot_type' => $data['bot_type'],
-                'last_name' => $data['chat']['last_name']
+                'last_name' => $data['last_name']
             ]);
-        }
-
-        // check whether message is replying to another message
-        if (array_key_exists("reply_to_message", $data)) {
-            $replied_to_message_id = $data['reply_to_message']['message_id'];
-        } else {
-            $replied_to_message_id = null;
         }
 
         // save bot chat
@@ -259,7 +327,7 @@ class BotMessageController extends Controller
             'message_id' => $data['message_id'],
             'date' => $data['date'],
             'text' => $data['text'],
-            'replied_to_message_id' => $replied_to_message_id,
+            'replied_to_message_id' => $data['replied_to_message_id'],
             'bot_conversation_id' => $botconversation->id
         ]);
     }
@@ -369,9 +437,9 @@ class BotMessageController extends Controller
         try {
             // Get conversations list
             $botconversations = $this->botconversation
-            ->where('bot_type', $request->get('type', null))
-            ->orderBy($request->get('sort-by', 'created_at'), $request->get('sort-order', 'desc'))
-            ->paginate($request->get('limit', 20));
+                ->where('bot_type', $request->get('type', null))
+                ->orderBy($request->get('sort-by', 'created_at'), $request->get('sort-order', 'desc'))
+                ->paginate($request->get('limit', 20));
 
             // Return response
             return response()->jsonApi([
