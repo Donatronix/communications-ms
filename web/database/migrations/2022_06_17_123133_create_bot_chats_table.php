@@ -18,6 +18,8 @@ class CreateBotChatsTable extends Migration
             $table->string('message_id');
             $table->string('date');
             $table->string('text');
+            $table->string('sender');
+            $table->string('receiver');
             $table->string('replied_to_message_id')->nullable();
             $table->foreignUuid('bot_conversation_id')->references('id')->on('bot_conversations')->constrained();
             $table->timestamps();

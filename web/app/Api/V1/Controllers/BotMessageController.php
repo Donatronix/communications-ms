@@ -157,14 +157,16 @@ class BotMessageController extends Controller
                     }
 
                     $inputData = [
-                        'bot_name' => $data['from']['first_name'],
-                        'bot_username' => $data['from']['username'],
+                        'bot_name' => $botdetail->name,
+                        'bot_username' => $botdetail->username,
                         'chat_id' => $data['chat']['id'],
                         'first_name' => $data['chat']['first_name'],
                         'bot_type' => $request->get('type'),
                         'last_name' => $data['chat']['last_name'],
                         'replied_to_message_id' => $replied_to_message_id,
                         'message_id' => $data['message_id'],
+                        'sender' => $botdetail->name,
+                        'receiver' => $data['chat']['first_name'],
                         'date' => $data['date'],
                         'text' => $data['text'],
                     ];
@@ -193,22 +195,25 @@ class BotMessageController extends Controller
 
                 $data = json_decode($response->getBody(), true);
                 if (sizeof($data)) {
+                    if ($data['status'] == 0) {
+                        $inputData = [
+                            'bot_name' => $botdetail->name,
+                            'bot_username' => $botdetail->username,
+                            'chat_id' => $data['sender']['id'],
+                            'first_name' => explode(' ', $data['sender']['name'])['0'],
+                            'bot_type' => $request->get('type'),
+                            'last_name' => explode(' ', $data['sender']['name'])['1'],
+                            'replied_to_message_id' => null,
+                            'message_id' => $data['message_token'],
+                            'date' => $data['timestamp'],
+                            'text' => $data['message']['text'],
+                        ];
 
-                    $inputData = [
-                        'bot_name' => $botdetail->name,
-                        'bot_username' => $botdetail->username,
-                        'chat_id' => $data['sender']['id'],
-                        'first_name' => explode(' ', $data['sender']['name'])['0'],
-                        'bot_type' => $request->get('type'),
-                        'last_name' => explode(' ', $data['sender']['name'])['1'],
-                        'replied_to_message_id' => null,
-                        'message_id' => $data['message_token'],
-                        'date' => $data['timestamp'],
-                        'text' => $data['message']['text'],
-                    ];
-
-                    // save bot chat and conversation
-                    $this->saveBotChats($inputData, $this->user_id);
+                        // save bot chat and conversation
+                        $this->saveBotChats($inputData, $this->user_id);
+                    } else {
+                        return $data;
+                    }
                 }
             }
 
@@ -239,8 +244,45 @@ class BotMessageController extends Controller
     {
         // Try to save updates sent from bot
         try {
+            // get bot details using token 
+            $botdetail = $this->botdetail->where('token', $token)->first();
 
             if ($type == "telegram") {
+                // call telegram bot api 
+                if ($request->has('update_id')) {
+                    // save bot chat and conversation
+                    $data = $request->get('message');
+
+
+                    // check whether message is replying to another message
+                    if (array_key_exists("reply_to_message", $data)) {
+                        $replied_to_message_id = $data['reply_to_message']['message_id'];
+                    } else {
+                        $replied_to_message_id = null;
+                    }
+
+                    $inputData = [
+                        'bot_name' => $botdetail->name,
+                        'bot_username' => $botdetail->username,
+                        'chat_id' => $data['chat']['id'],
+                        'first_name' => $data['chat']['first_name'],
+                        'bot_type' => $type,
+                        'last_name' => $data['chat']['last_name'],
+                        'replied_to_message_id' => $replied_to_message_id,
+                        'message_id' => $data['message_id'],
+                        'sender' => $data['chat']['first_name'],
+                        'receiver' => $botdetail->name,
+                        'date' => $data['date'],
+                        'text' => $data['text'],
+                        'token' => $token,
+                    ];
+
+                    // save bot chat and conversation
+                    $this->saveBotChats($inputData, $botdetail->user_id);
+                }
+            }
+
+            if ($type == "viber") {
                 // call telegram bot api 
                 if ($request->has('update_id')) {
                     // save bot chat and conversation
@@ -255,8 +297,8 @@ class BotMessageController extends Controller
                     }
 
                     $inputData = [
-                        'bot_name' => $data['from']['first_name'],
-                        'bot_username' => $data['from']['username'],
+                        'bot_name' => $botdetail->name,
+                        'bot_username' => $botdetail->username,
                         'chat_id' => $data['chat']['id'],
                         'first_name' => $data['chat']['first_name'],
                         'bot_type' => $type,
@@ -267,7 +309,7 @@ class BotMessageController extends Controller
                         'text' => $data['text'],
                         'token' => $token,
                     ];
-                    
+
                     $this->saveBotChats($inputData);
                 }
             }
@@ -297,7 +339,7 @@ class BotMessageController extends Controller
      * @param Array $id, $user_id
      * @return mixed
      */
-    private function saveBotChats($data, $user_id = null)
+    private function saveBotChats($data, $user_id)
     {
         $bot_username = $data['bot_username'];
         $chat_id = $data['chat_id'];
@@ -306,10 +348,6 @@ class BotMessageController extends Controller
 
         // if botconversation does not exist, create it
         if (!$botconversation) {
-            // if user_id is null, get it using the token
-            if (!$user_id) {
-                $user_id = $this->botdetail->where('token', $data['token'])->first()->user_id;
-            }
 
             $botconversation = $this->botconversation->create([
                 'user_id' => $user_id,
@@ -320,6 +358,7 @@ class BotMessageController extends Controller
                 'bot_type' => $data['bot_type'],
                 'last_name' => $data['last_name']
             ]);
+
         }
 
         // save bot chat
@@ -327,6 +366,8 @@ class BotMessageController extends Controller
             'message_id' => $data['message_id'],
             'date' => $data['date'],
             'text' => $data['text'],
+            'sender' => $data['sender'],
+            'receiver' => $data['receiver'],
             'replied_to_message_id' => $data['replied_to_message_id'],
             'bot_conversation_id' => $botconversation->id
         ]);
