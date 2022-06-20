@@ -136,44 +136,7 @@ class BotMessageController extends Controller
             }
 
             if ($request->get('type') == "telegram") {
-                // call telegram bot api 
-                $client = new \GuzzleHttp\Client();
-                $response = $client->request('POST', "https://api.telegram.org/bot{$botdetail->token}/sendMessage", [
-                    'json' => [
-                        'chat_id' => $request->get('chat_id'),
-                        'text' => $request->get('text'),
-                    ]
-                ]);
-
-                $result = json_decode($response->getBody(), true);
-                if ($result['ok'] == true) {
-                    $data = $result['result'];
-
-                    // check whether message is replying to another message
-                    if (array_key_exists("reply_to_message", $data)) {
-                        $replied_to_message_id = $data['reply_to_message']['message_id'];
-                    } else {
-                        $replied_to_message_id = null;
-                    }
-
-                    $inputData = [
-                        'bot_name' => $botdetail->name,
-                        'bot_username' => $botdetail->username,
-                        'chat_id' => $data['chat']['id'],
-                        'first_name' => $data['chat']['first_name'],
-                        'bot_type' => $request->get('type'),
-                        'last_name' => $data['chat']['last_name'],
-                        'replied_to_message_id' => $replied_to_message_id,
-                        'message_id' => $data['message_id'],
-                        'sender' => $botdetail->name,
-                        'receiver' => $data['chat']['first_name'],
-                        'date' => $data['date'],
-                        'text' => $data['text'],
-                    ];
-
-                    // save bot chat and conversation
-                    $this->saveBotChats($inputData, $this->user_id);
-                }
+                $data = $this->sendTelegramMessage($request, $botdetail);
             }
 
             if ($request->get('type') == "viber") {
@@ -248,70 +211,10 @@ class BotMessageController extends Controller
             $botdetail = $this->botdetail->where('token', $token)->first();
 
             if ($type == "telegram") {
-                // call telegram bot api 
-                if ($request->has('update_id')) {
-                    // save bot chat and conversation
-                    $data = $request->get('message');
-
-
-                    // check whether message is replying to another message
-                    if (array_key_exists("reply_to_message", $data)) {
-                        $replied_to_message_id = $data['reply_to_message']['message_id'];
-                    } else {
-                        $replied_to_message_id = null;
-                    }
-
-                    $inputData = [
-                        'bot_name' => $botdetail->name,
-                        'bot_username' => $botdetail->username,
-                        'chat_id' => $data['chat']['id'],
-                        'first_name' => $data['chat']['first_name'],
-                        'bot_type' => $type,
-                        'last_name' => $data['chat']['last_name'],
-                        'replied_to_message_id' => $replied_to_message_id,
-                        'message_id' => $data['message_id'],
-                        'sender' => $data['chat']['first_name'],
-                        'receiver' => $botdetail->name,
-                        'date' => $data['date'],
-                        'text' => $data['text'],
-                        'token' => $token,
-                    ];
-
-                    // save bot chat and conversation
-                    $this->saveBotChats($inputData, $botdetail->user_id);
-                }
+                $data = $this->saveTelegramUpdates($request, $botdetail, $type, $token);
             }
 
             if ($type == "viber") {
-                // call telegram bot api 
-                if ($request->has('update_id')) {
-                    // save bot chat and conversation
-                    $data = $request->get('message');
-
-
-                    // check whether message is replying to another message
-                    if (array_key_exists("reply_to_message", $data['result'])) {
-                        $replied_to_message_id = $data['reply_to_message']['message_id'];
-                    } else {
-                        $replied_to_message_id = null;
-                    }
-
-                    $inputData = [
-                        'bot_name' => $botdetail->name,
-                        'bot_username' => $botdetail->username,
-                        'chat_id' => $data['chat']['id'],
-                        'first_name' => $data['chat']['first_name'],
-                        'bot_type' => $type,
-                        'last_name' => $data['chat']['last_name'],
-                        'replied_to_message_id' => $replied_to_message_id,
-                        'message_id' => $data['message_id'],
-                        'date' => $data['date'],
-                        'text' => $data['text'],
-                        'token' => $token,
-                    ];
-
-                    $this->saveBotChats($inputData);
-                }
             }
 
             \Log::info("Update has been saved");
@@ -623,6 +526,100 @@ class BotMessageController extends Controller
                 'message' => $e->getMessage(),
                 'data' => null
             ], 400);
+        }
+    }
+
+    /**
+     * Private method to send Telegram Message
+     *
+     * @param Array $request, $botdetail
+     * @return mixed
+     */
+    private function sendTelegramMessage($request, $botdetail)
+    {
+        // call telegram bot api 
+        $client = new \GuzzleHttp\Client();
+        $response = $client->request('POST', "https://api.telegram.org/bot{$botdetail->token}/sendMessage", [
+            'json' => [
+                'chat_id' => $request->get('chat_id'),
+                'text' => $request->get('text'),
+            ]
+        ]);
+
+        $result = json_decode($response->getBody(), true);
+        if ($result['ok'] == true) {
+            $data = $result['result'];
+
+            // check whether message is replying to another message
+            if (array_key_exists("reply_to_message", $data)) {
+                $replied_to_message_id = $data['reply_to_message']['message_id'];
+            } else {
+                $replied_to_message_id = null;
+            }
+
+            $inputData = [
+                'bot_name' => $botdetail->name,
+                'bot_username' => $botdetail->username,
+                'chat_id' => $data['chat']['id'],
+                'first_name' => $data['chat']['first_name'],
+                'bot_type' => $request->get('type'),
+                'last_name' => $data['chat']['last_name'],
+                'replied_to_message_id' => $replied_to_message_id,
+                'message_id' => $data['message_id'],
+                'sender' => $botdetail->name,
+                'receiver' => $data['chat']['first_name'],
+                'date' => $data['date'],
+                'text' => $data['text'],
+            ];
+
+            // save bot chat and conversation
+            $this->saveBotChats($inputData, $this->user_id);
+
+            return $data;
+        }
+    }
+
+    /**
+     * Private method to save Telegram Updates
+     *
+     * @param Array $request, $botdetail, $type, $token
+     * @return mixed
+     */
+    private function saveTelegramUpdates($request, $botdetail, $type, $token)
+    {
+        // call telegram bot api 
+        if ($request->has('update_id')) {
+            // save bot chat and conversation
+            $data = $request->get('message');
+
+
+            // check whether message is replying to another message
+            if (array_key_exists("reply_to_message", $data)) {
+                $replied_to_message_id = $data['reply_to_message']['message_id'];
+            } else {
+                $replied_to_message_id = null;
+            }
+
+            $inputData = [
+                'bot_name' => $botdetail->name,
+                'bot_username' => $botdetail->username,
+                'chat_id' => $data['chat']['id'],
+                'first_name' => $data['chat']['first_name'],
+                'bot_type' => $type,
+                'last_name' => $data['chat']['last_name'],
+                'replied_to_message_id' => $replied_to_message_id,
+                'message_id' => $data['message_id'],
+                'sender' => $data['chat']['first_name'],
+                'receiver' => $botdetail->name,
+                'date' => $data['date'],
+                'text' => $data['text'],
+                'token' => $token,
+            ];
+
+            // save bot chat and conversation
+            $this->saveBotChats($inputData, $botdetail->user_id);
+
+            return $data;
         }
     }
 }
