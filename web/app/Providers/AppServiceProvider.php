@@ -3,8 +3,10 @@
 namespace App\Providers;
 
 use App\Contracts\MessengerContract;
+use App\Models\Channel;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Schema;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -16,6 +18,8 @@ class AppServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->singleton(MessengerContract::class);
-        Http::post('https://api.telegram.org/bot[' . env('TELEGRAM_BOT_TOKEN') . ']/setwebhook?url=' . env('APP_URL') . 'api/V1/bot/telegram/webhook');
+
+//        $type = "telegram";
+//        Http::post('https://api.telegram.org/bot[' . Channel::getChannelSettings($type)->token . ']/setwebhook?url=' . Channel::getChannelSettings($type)->uri . 'api/V1/messages/telegram/webhook');
     }
 }

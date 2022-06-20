@@ -2,7 +2,7 @@
 
 namespace App\Api\V1\Controllers;
 
-use App\Models\Bot;
+use App\Models\Channel;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -46,7 +46,7 @@ class ChannelController extends Controller
      *     ),
      *     @OA\Response(
      *          response="200",
-     *          description="The bots was successfully received."
+     *          description="The channels was successfully received."
      *     ),
      *     @OA\Response(
      *          response="400",
@@ -54,7 +54,7 @@ class ChannelController extends Controller
      *     ),
      *     @OA\Response(
      *          response="404",
-     *          description="Bots not found"
+     *          description="Channels not found"
      *     ),
      *     @OA\Response(
      *          response="500",
@@ -73,7 +73,7 @@ class ChannelController extends Controller
                 'platform' => [
                     'required',
                     'string',
-                    Rule::in(Bot::$platforms),
+                    Rule::in(Channel::$platforms),
                 ],
             ]
         );
@@ -87,22 +87,22 @@ class ChannelController extends Controller
             ], 400);
         }
 
-        // Try update bot model
+        // Try update channel model
         try {
-            $bots = Bot::where('platform', $platform)
+            $channels = Channel::where('platform', $platform)
                 ->where('status', true)
                 ->get();
 
             $result = [];
-            foreach ($bots as $key => $bot) {
+            foreach ($channels as $key => $channel) {
                 $result[$key] = [
-                    'type' => $bot->type,
-                    'title' => strtolower($bot->type),
+                    'type' => $channel->type,
+                    'title' => strtolower($channel->type),
                 ];
 
-                switch ($bot->type) {
+                switch ($channel->type) {
                     case 'telegram':
-                        $uri = trim($bot->type, '@');
+                        $uri = trim($channel->type, '@');
 
                         $result[$key] = array_merge($result[$key], [
                             'href' => "https://t.me/{$uri}",
@@ -112,48 +112,48 @@ class ChannelController extends Controller
                         break;
                     case 'viber':
                         $result[$key] = array_merge($result[$key], [
-                            //'href' => "https://chats.viber.com/{$bot->uri}",
-                            'href' => "viber://pa?ChatURI={$bot->uri}",
-                            'hrefMobile' => "viber://pa?ChatURI={$bot->uri}",
+                            //'href' => "https://chats.viber.com/{$channel->uri}",
+                            'href' => "viber://pa?ChatURI={$channel->uri}",
+                            'hrefMobile' => "viber://pa?ChatURI={$channel->uri}",
                         ]);
                         break;
                     case 'line':
                         $result[$key] = array_merge($result[$key], [
                             //'href' => "https://page.line.me/?accountId=772dmcwu",
-                            'href' => "https://line.me/R/ti/p/{$bot->uri}",
-                            'hrefMobile' => "line://ti/p/{$bot->uri}",
+                            'href' => "https://line.me/R/ti/p/{$channel->uri}",
+                            'hrefMobile' => "line://ti/p/{$channel->uri}",
                         ]);
 
                         break;
                     case 'discord':
                         $result[$key] = array_merge($result[$key], [
-                            'href' => $bot->uri,
-                            'hrefMobile' => $bot->uri,
+                            'href' => $channel->uri,
+                            'hrefMobile' => $channel->uri,
                         ]);
-                        //https://discord.com/oauth2/authorize?client_id=843810660324474890&permissions=210944&scope=bot
+                        //https://discord.com/oauth2/authorize?client_id=843810660324474890&permissions=210944&scope=channel
                         //https://discord.com/invite/75xbhgmbvP
 
                         break;
                     case 'signal':
                         $result[$key] = array_merge($result[$key], [
-                            'href' => $bot->uri,
-                            'hrefMobile' => $bot->uri,
+                            'href' => $channel->uri,
+                            'hrefMobile' => $channel->uri,
                         ]);
 
                         break;
                     case 'messenger':
                         $result[$key] = array_merge($result[$key], [
-                            'href' => $bot->uri,
-                            'hrefMobile' => $bot->uri,
+                            'href' => $channel->uri,
+                            'hrefMobile' => $channel->uri,
                         ]);
-                        //href: "https://m.me/SumraBot",
-                        //hrefMobile: "https://m.me/SumraBot",
+                        //href: "https://m.me/SumraChannel",
+                        //hrefMobile: "https://m.me/SumraChannel",
 
                         break;
                     case 'whatsapp':
                         $result[$key] = array_merge($result[$key], [
-                            'href' => $bot->uri,
-                            'hrefMobile' => $bot->uri,
+                            'href' => $channel->uri,
+                            'hrefMobile' => $channel->uri,
                         ]);
 
                         // https://wa.me/14155238886
@@ -163,8 +163,18 @@ class ChannelController extends Controller
                     case 'twilio':
                     case 'nexmo':
                         $result[$key] = array_merge($result[$key], [
-                            'href_send_phone' => "https://{$request->getHost()}/api/v1/sms/send-phone?bot_id={$bot->id}",
-                            'href_send_sms' => "https://{$request->getHost()}/api/v1/sms/send-sms?bot_id={$bot->id}",
+                            'href_send_phone' => "https://{$request->getHost()}/api/v1/sms/send-phone?channel_id={$channel->id}",
+                            'href_send_sms' => "https://{$request->getHost()}/api/v1/sms/send-sms?channel_id={$channel->id}",
+                        ]);
+                        break;
+
+                    case 'facebook':
+                        $access_token = env('FACEBOOK_MESSENGER_VERIFY_TOKEN');
+                        $url          = env('FACEBOOK_MESSENEGR_URL');
+                        $result[$key] = array_merge($result[$key], [
+                            //'href' => $channel->uri,
+                            'href' => "{$url}{$access_token}",
+                            'hrefMobile' => $channel->uri,
                         ]);
                         break;
                     default:
@@ -175,7 +185,7 @@ class ChannelController extends Controller
             return response()->jsonApi([
                 'type' => 'success',
                 'title' => 'Get auth channels list',
-                'message' => 'Bots filtered by platform received successfully',
+                'message' => 'Channels filtered by platform received successfully',
                 'data' => $result,
             ], 200);
         } catch (Exception $e) {

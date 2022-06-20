@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Laravel\Lumen\Providers\EventServiceProvider as ServiceProvider;
+use App\Listeners\SendSMSListener;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -12,6 +13,33 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
+        'SendSMS' => [
+            SendSMSListener::class,
+        ],
+        'sendVerificationEmail' => [
+            'App\Listeners\SendVerificationEmailListener'
+        ],
+        'sendForgotMailEmail' => [
+            'App\Listeners\SendForgotPasswordEmailListener'
+        ],
+        'sendCreatePasswordEmail' => [
+            'App\Listeners\SendCreatePasswordEmailListener'
+        ],
+        'sendRewardForInstallEmail' => [
+            'App\Listeners\SendRewardForInstallListener'
+        ],
+        'sendRewardForReferralEmail' => [
+            'App\Listeners\SendRewardForReferralListener'
+        ],
+        'mailer' => [
+            'App\Listeners\MailerListener'
+        ],
+        'Illuminate\Mail\Events\MessageSent' => [
+            'App\Listeners\MailerLogSentListener',
+        ],
+        'alarmWarehouseEmail' => [
+            'App\Listeners\AlarmWarehouseEmailListener'
+        ],
     ];
 
     /**

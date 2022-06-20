@@ -3,6 +3,8 @@
 namespace App\Services\Messengers;
 
 use App\Contracts\MessengerContract;
+use App\Models\Channel;
+use App\Models\User;
 use Discord\Discord;
 use Discord\Exceptions\IntentException;
 use Discord\Parts\Channel\Message;
@@ -14,13 +16,17 @@ use Illuminate\Support\Facades\Http;
 class DiscordManager implements MessengerContract
 {
     const STATUS_CHAT_STARTED = 1;
+
     private mixed $botToken;
+
     private mixed $webhookUrl;
 
     public function __construct()
     {
-        $this->botToken = env('DISCORD_BOT_TOKEN');
-        $this->webhookUrl = env('DISCORD_WEBHOOK_URL');
+        $settings = Channel::getChannelSettings('discord');
+
+        $this->botToken = $settings->token;
+        $this->webhookUrl = $settings->uri;
     }
 
     /**
@@ -81,11 +87,12 @@ class DiscordManager implements MessengerContract
     }
 
     /**
-     * @param array $message
+     * @param string|array $message
+     * @param string|null $recipient
      *
      * @return Response
      */
-    public function sendMessage(array $message): Response
+    public function sendMessage(string|array $message, string $recipient = null): Response
     {
         return Http::post($this->webhookUrl, [
             'content' => $message['content'],
@@ -98,6 +105,4 @@ class DiscordManager implements MessengerContract
             ],
         ]);
     }
-
-
 }

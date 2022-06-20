@@ -57,7 +57,6 @@ $app->singleton(
 | the default version. You may register other files below as needed.
 |
 */
-
 $app->configure('app');
 $app->configure('settings');
 
@@ -73,7 +72,6 @@ $app->configure('settings');
 */
 
 $app->middleware([
-    \Fruitcake\Cors\HandleCors::class,
     \Sumra\SDK\Middleware\TrimStrings::class,
 ]);
 
@@ -100,12 +98,6 @@ $app->register(App\Providers\EventServiceProvider::class);
 $app->register(Telegram\Bot\Laravel\TelegramServiceProvider::class);
 
 /**
- * Enable CORS policy
- */
-$app->configure('cors');
-$app->register(Fruitcake\Cors\CorsServiceProvider::class);
-
-/**
  * Pubsub - RabbitMQ
  */
 $app->configure('queues');
@@ -124,6 +116,13 @@ $app->register(\Sumra\SDK\JsonApiServiceProvider::class);
 $app->configure('swagger-lume');
 $app->register(\SwaggerLume\ServiceProvider::class);
 
+/** Mail */
+$app->register(\Illuminate\Mail\MailServiceProvider::class);
+$app->configure('mail');
+$app->alias('mailer', Illuminate\Mail\Mailer::class);
+$app->alias('mailer', Illuminate\Contracts\Mail\Mailer::class);
+$app->alias('mailer', Illuminate\Contracts\Mail\MailQueue::class);
+
 /**
  * Artisan Commands Lumen Generator
  */
@@ -139,6 +138,12 @@ $app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);
 | can respond to, as well as the controllers that may handle them.
 |
 */
+
+$app[Illuminate\Contracts\Broadcasting\Factory::class]
+    ->channel('chat', function ($user) {
+        return auth()->check();
+      });
+
 
 $app->router->group([
     'namespace' => 'App\Http\Controllers',

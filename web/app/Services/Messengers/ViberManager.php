@@ -3,6 +3,8 @@
 namespace App\Services\Messengers;
 
 use App\Contracts\MessengerContract;
+use App\Models\Channel;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -20,21 +22,23 @@ use Viber\Api\Sender;
 use Viber\Bot;
 use Viber\Client;
 
-
 class ViberManager implements MessengerContract
 {
     /**
      *
      */
     const STATUS_CHAT_STARTED = 1;
+
     /**
      * @var string|mixed
      */
     private string $apiKey;
+
     /**
      * @var string|mixed
      */
     private string $webhookUrl;
+
     /**
      * @var string
      */
@@ -70,10 +74,15 @@ class ViberManager implements MessengerContract
      */
     public function __construct()
     {
-        $this->apiKey = env('ViBER_BOT_TOKEN'); // from PA "Edit Details" page
-        $this->webhookUrl = env('VIBER_WEBHOOK_URL'); // for exmaple https://my.com/bot.php
+        $settings = Channel::getChannelSettings('viber');
 
-        $this->client = new Client(['token' => $this->apiKey]);
+        $this->apiKey = $settings->token;
+        $this->webhookUrl = $settings->uri;
+
+        $this->client = new Client([
+            'token' => $this->apiKey
+        ]);
+
         $result = $this->client->setWebhook($this->webhookUrl, [
             Type::DELIVERED,  // if message delivered to device
             Type::SEEN,       // if message is seen device
@@ -129,11 +138,12 @@ class ViberManager implements MessengerContract
     }
 
     /**
-     * @param string $message
+     * @param string|array $message
+     * @param string|null $recipient
      *
      * @return Response
      */
-    public function sendMessage(string $message): Response
+    public function sendMessage(string|array $message, string $recipient = null): Response
     {
         return $this->bot->getClient()->sendMessage(
             (new Text())
@@ -167,6 +177,7 @@ class ViberManager implements MessengerContract
                                 ->setActionBody('k' . $i)
                                 ->setText('k' . $i);
                     }
+
                     return (new Text())
                         ->setSender($botSender)
                         ->setText("Hi, welcome to our chat bot")
@@ -225,9 +236,7 @@ class ViberManager implements MessengerContract
         } catch (Throwable $th) {
             $log->error($th->getMessage());
         }
+
         return [];
-
     }
-
-
 }

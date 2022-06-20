@@ -3,7 +3,10 @@
 namespace App\Services\Messengers;
 
 use App\Contracts\MessengerContract;
+use App\Models\Channel;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use LINE\LINEBot;
 use LINE\LINEBot\Constant\HTTPHeader;
 use LINE\LINEBot\Event\MessageEvent;
@@ -44,11 +47,23 @@ class LineManager implements MessengerContract
 
     public function __construct()
     {
-        $this->channelAccessToken = env('LINE_BOT_CHANNEL_ACCESS_TOKEN');
-        $this->channelSecret = env('LINE_BOT_CHANNEL_SECRET');
+        $settings = Channel::getChannelSettings('line');
+
+        $this->channelAccessToken = $settings->token;
+        $this->channelSecret = $settings->secret;
 
         $this->httpClient = new CurlHTTPClient($this->channelAccessToken);
+
         $this->bot = new LINEBot($this->httpClient, ['channelSecret' => $this->channelSecret]);
+
+        /**/
+        $this->apiReply = Setting::getApiReply();
+
+        $this->apiPush = Setting::getApiPush();
+
+        $this->webhookResponse = file_get_contents('php://input');
+
+        $this->webhookEventObject = json_decode($this->webhookResponse);
     }
 
     /**
@@ -139,16 +154,15 @@ class LineManager implements MessengerContract
             'error' => false,
             'message' => "OK",
         ];
-
-
     }
 
     /**
-     * @param string $message
+     * @param string|array $message
+     * @param string|null $recipient
      *
      * @return array
      */
-    public function sendMessage(string $message): array
+    public function sendMessage(string|array $message, string $recipient = null): array
     {
         $textMessageBuilder = new TextMessageBuilder($message);
         $response = $this->bot->replyMessage('<reply token>', $textMessageBuilder);
@@ -157,14 +171,48 @@ class LineManager implements MessengerContract
                 'error' => false,
                 'message' => 'Succeeded!',
             ];
-
         }
 
         return [
             'error' => true,
             'message' => $response->getHTTPStatus() . ' ' . $response->getRawBody(),
         ];
-
     }
 
+    public function index(Response $response)
+    {
+        // get request body and line signature header
+        $body = file_get_contents('php://input');
+        //$signature = $_SERVER['HTTP_X_LINE_SIGNATURE'];
+
+        // log body and signature
+        file_put_contents('php://stderr', 'Body: ' . $body);
+
+        // is LINE_SIGNATURE exists in request header?
+        /*if (empty($signature)){
+            return $response->withStatus(400, 'Signature not set');
+        }
+
+        // is this request comes from LINE?
+        if($_ENV['PASS_SIGNATURE'] == false && ! SignatureValidator::validateSignature($body, $_ENV['CHANNEL_SECRET'], $signature)){
+            return $response->withStatus(400, 'Invalid signature');
+        }*/
+
+        // init bot
+        $httpClient = new CurlHTTPClient($this->channelAccessToken);
+        $bot = new LINEBot($httpClient, ['channelSecret' => $this->channelSecret]);
+
+        $data = json_decode($body, true);
+
+        foreach ($data['events'] as $event) {
+            $userMessage = $event['message']['text'];
+            if (strtolower($userMessage) == 'hello') {
+                $message = "Pradeep";
+                $textMessageBuilder = new TextMessageBuilder($message);
+                $result = $bot->replyMessage($event['replyToken'], $textMessageBuilder);
+
+                return $result->getHTTPStatus() . ' ' . $result->getRawBody();
+            }
+        }
+    }
 }

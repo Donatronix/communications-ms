@@ -1,4 +1,4 @@
-FROM webdevops/php-nginx:8.0-alpine
+FROM webdevops/php-nginx:8.1-alpine
 LABEL Maintainer="Ihor Porokhnenko <ihor.porokhnenko@gmail.com>"
 LABEL Description="Lightweight container with Nginx & PHP-FPM 8 based on Alpine Linux."
 
@@ -28,23 +28,13 @@ COPY --chown=nginx:nginx ./sumra-sdk /var/www/sumra-sdk
 ## Set work directory
 WORKDIR /var/www/html
 
-## Remove unneeded files
-RUN rm -rf /var/www/html/.idea
-RUN find /var/www/html/storage/framework/ -type f -name "*.php" -delete
-RUN rm -rf -R /var/www/html/storage/logs/*.log
-RUN rm -rf /var/www/html/.editorconfig
-RUN rm -rf /var/www/html/.gitignore
-RUN rm -rf /var/www/html/.styleci.yml
-RUN rm -rf /var/www/html/.env.example
-
 ## Update env
-RUN rm -rf /var/www/html/.env
 RUN cp -f .env.production .env
 RUN rm -rf /var/www/html/.env.production
 
 ## Set writable dirs
 RUN chown -R nginx:nginx /var/www/html
+RUN chmod -R 777 /var/www/html/storage/
 
-## Composer packages install & update
-RUN composer -v install
-RUN composer -v update
+## Composer packages install
+RUN composer install

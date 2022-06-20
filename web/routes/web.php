@@ -18,6 +18,26 @@ $router->group([
     include base_path('app/Api/V1/routes.php');
 });
 
-if (file_exists(__DIR__ . '/tests.php')) {
-    require_once(__DIR__ . '/tests.php');
-}
+/*-------------------------
+   T E S T S  Routes
+-------------------------- */
+$router->group([
+    'prefix' => 'tests'
+], function () use ($router) {
+    $router->get('db-test', function () {
+        if (DB::connection()->getDatabaseName()) {
+            echo "Connected successfully to database: " . DB::connection()->getDatabaseName();
+
+        }
+    });
+
+    $router->get('channel-test', function () {
+        $type = "line";
+
+        $channel = [
+            "Channels Settings" => App\Models\Channel::getChannelSettings($type),
+        ];
+
+        echo json_encode($channel);
+    });
+});
