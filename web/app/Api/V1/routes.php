@@ -15,14 +15,20 @@ $router->group([
     ], function ($router) {
         $router->post('/{messengerInstance}/webhook', 'MessagesController@handleWebhook');
     });
-    
+
     // Send mails
     $router->group(
         ['prefix' => 'mail'],
-        function($router){
+        function ($router) {
             $router->post('/', '\App\Api\V1\Controllers\SendEmailController');
         }
     );
+
+    /**
+     * Save updates coming from the bot
+     * The bot will make calls to this route
+     */
+    $router->post('/saveUpdates/{type}/{token}', 'BotMessageController@saveUpdates');
 
     /**
      * PRIVATE ACCESS
@@ -36,7 +42,7 @@ $router->group([
         $router->group([
             'prefix' => 'channels',
         ], function ($router) {
-//            $router->get('/auth/{platform}', 'ChannelController');
+            //            $router->get('/auth/{platform}', 'ChannelController');
 
             $router->post('/{messengerInstance}/send-message', 'MessagesController@sendMessage');
             $router->post('/{messengerInstance}/webhook', 'MessagesController@handleWebhook');
@@ -71,6 +77,31 @@ $router->group([
             $router->get('/{conversation_id:[a-fA-F0-9\-]{36}}', 'ChatController@index');
             $router->post('/{conversation_id:[a-fA-F0-9\-]{36}}', 'ChatController@store');
             $router->put('/{id:[a-fA-F0-9\-]{36}}', 'ChatController@update');
+        });
+
+        /**
+         * Bots
+         */
+        $router->group([
+            'prefix' => 'bot-details',
+        ], function ($router) {
+            $router->get('/', 'BotDetailController@index');
+            $router->post('/', 'BotDetailController@store');
+            $router->post('/setwebhookurl', 'BotDetailController@setBotWebHookUrl');
+            $router->get('/{id:[a-fA-F0-9\-]{36}}', 'BotDetailController@show');
+            $router->put('/{id:[a-fA-F0-9\-]{36}}', 'BotDetailController@update');
+            $router->delete('/{id:[a-fA-F0-9\-]{36}}', 'BotDetailController@destroy');
+        });
+
+        /**
+         * Bot Messages
+         */
+        $router->group([
+            'prefix' => 'bot-messages',
+        ], function ($router) {
+            $router->post('/send', 'BotMessageController@sendMessage');
+            $router->get('/chats/{bot_conversation_id:[a-fA-F0-9\-]{36}}', 'BotMessageController@getBotChats');
+            $router->get('/conversations', 'BotMessageController@getBotConversations');
         });
     });
 
