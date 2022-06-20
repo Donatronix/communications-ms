@@ -11,6 +11,7 @@ use App\Models\Channel;
 use Illuminate\Support\Facades\Validator;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Carbon\Carbon;
 use Illuminate\Validation\Rule;
 
 /**
@@ -45,7 +46,7 @@ class BotMessageController extends Controller
      * Send Message to external user.
      *
      * @OA\Post(
-     *     path="/send",
+     *     path="/bot-messages/send",
      *     summary="Send Message to external user",
      *     description="Send Message to external user",
      *     tags={"Bot Messages"},
@@ -140,43 +141,9 @@ class BotMessageController extends Controller
             }
 
             if ($request->get('type') == "viber") {
-                // call viber bot api 
-                $client = new \GuzzleHttp\Client();
-                $response = $client->request('POST', "https://chatapi.viber.com/pa/send_message", [
-                    'headers' => [
-                        'X-Viber-Auth-Token' => $botdetail->token
-                    ],
-                    'json' => [
-                        'receiver' => $request->get('chat_id'),
-                        'type' => 'text',
-                        'text' => $request->get('text'),
-                        'sender' => [
-                            "name" => $botdetail->name
-                        ]
-                    ]
-                ]);
-
-                $data = json_decode($response->getBody(), true);
-                if (sizeof($data)) {
-                    if ($data['status'] == 0) {
-                        $inputData = [
-                            'bot_name' => $botdetail->name,
-                            'bot_username' => $botdetail->username,
-                            'chat_id' => $data['sender']['id'],
-                            'first_name' => explode(' ', $data['sender']['name'])['0'],
-                            'bot_type' => $request->get('type'),
-                            'last_name' => explode(' ', $data['sender']['name'])['1'],
-                            'replied_to_message_id' => null,
-                            'message_id' => $data['message_token'],
-                            'date' => $data['timestamp'],
-                            'text' => $data['message']['text'],
-                        ];
-
-                        // save bot chat and conversation
-                        $this->saveBotChats($inputData, $this->user_id);
-                    } else {
-                        return $data;
-                    }
+                $data = $this->sendViberMessage($request, $botdetail);
+                if (!sizeof($data) || $data['status'] != 0) {
+                    return $data;
                 }
             }
 
@@ -202,6 +169,74 @@ class BotMessageController extends Controller
      *
      * @param Request $request, $type, $token
      * @return mixed
+     * 
+     * @OA\Post(
+     *     path="/saveUpdates/{bot_type}/{token}",
+     *     summary="Save updates from bot webhook",
+     *     description="Save updates from bot webhook",
+     *     tags={"Bot Messages"},
+     *
+     *     security={{
+     *         "default": {
+     *             "ManagerRead",
+     *             "User",
+     *             "ManagerWrite"
+     *         }
+     *     }},
+     *     x={
+     *         "auth-type": "Application & Application User",
+     *         "throttling-tier": "Unlimited",
+     *         "wso2-application-security": {
+     *             "security-types": {"oauth2"},
+     *             "optional": "false"
+     *         }
+     *     },
+     *
+     *     @OA\Parameter(
+     *         name="bot_type",
+     *         in="path",
+     *         description="type of bot messenger",
+     *         example="telegram",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="path",
+     *         description="token by the bot for authentication",
+     *         example="36374819605:GSF4oK7H50GFSg4*uTPT9puKrAd6TKBFF6Ks",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response="200",
+     *         description="Success send data"
+     *     ),
+     *     @OA\Response(
+     *         response="401",
+     *         description="Unauthorized"
+     *     ),
+     *     @OA\Response(
+     *         response="400",
+     *         description="Invalid request"
+     *     ),
+     *     @OA\Response(
+     *         response="403",
+     *         description="Forbidden"
+     *     ),
+     *     @OA\Response(
+     *         response="404",
+     *         description="Not found"
+     *     ),
+     *     @OA\Response(
+     *         response="500",
+     *         description="Internal server error"
+     *     )
+     * )
      */
     public function saveUpdates(Request $request, $type, $token)
     {
@@ -215,6 +250,7 @@ class BotMessageController extends Controller
             }
 
             if ($type == "viber") {
+                $data = $this->saveViberUpdates($request, $botdetail, $type, $token);
             }
 
             \Log::info("Update has been saved");
@@ -227,6 +263,8 @@ class BotMessageController extends Controller
                 'data' => $data
             ], 200);
         } catch (Exception $e) {
+            \Log::info($e->getMessage());
+
             return response()->jsonApi([
                 'type' => 'danger',
                 'title' => "send message",
@@ -261,7 +299,6 @@ class BotMessageController extends Controller
                 'bot_type' => $data['bot_type'],
                 'last_name' => $data['last_name']
             ]);
-
         }
 
         // save bot chat
@@ -620,6 +657,95 @@ class BotMessageController extends Controller
             $this->saveBotChats($inputData, $botdetail->user_id);
 
             return $data;
+        }
+    }
+
+    /**
+     * Private method to send Viber Message
+     *
+     * @param Array $request, $botdetail
+     * @return mixed
+     */
+    private function sendViberMessage($request, $botdetail)
+    {
+        // call viber bot api 
+        $client = new \GuzzleHttp\Client();
+        $response = $client->request('POST', "https://chatapi.viber.com/pa/send_message", [
+            'headers' => [
+                'X-Viber-Auth-Token' => $botdetail->token
+            ],
+            'json' => [
+                'receiver' => $request->get('chat_id'),
+                'type' => 'text',
+                'text' => $request->get('text'),
+                'sender' => [
+                    "name" => $botdetail->name
+                ]
+            ]
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+        
+        if (sizeof($data)) {
+            if ($data["status"] == 0) {
+                $inputData = [
+                    'bot_name' => $botdetail->name,
+                    'bot_username' => $botdetail->username,
+                    'chat_id' => $request->get('chat_id'),
+                    'first_name' => "",
+                    'bot_type' => $request->get('type'),
+                    'last_name' => "",
+                    'replied_to_message_id' => null,
+                    'message_id' => $data['message_token'],
+                    'sender' => $botdetail->name,
+                    'receiver' => "user",
+                    'date' => Carbon::now()->timestamp,
+                    'text' => $request->get('text'),
+                ];
+
+                // save bot chat and conversation
+                $this->saveBotChats($inputData, $this->user_id);
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * Private method to save Viber Updates
+     *
+     * @param Array $request, $botdetail, $type, $token
+     * @return mixed
+     */
+    private function saveViberUpdates($request, $botdetail, $type, $token)
+    {
+        // call viber bot api 
+        if ($request->event == "message") {
+            // save bot chat and conversation
+            $data = $request->toArray();
+
+            if (sizeof($data)) {
+                    $inputData = [
+                        'bot_name' => $botdetail->name,
+                        'bot_username' => $botdetail->username,
+                        'chat_id' => $data['sender']['id'],
+                        'first_name' => explode(' ', $data['sender']['name'])['0'],
+                        'bot_type' => $type,
+                        'last_name' => explode(' ', $data['sender']['name'])['1'],
+                        'replied_to_message_id' => null,
+                        'message_id' => $data['message_token'],
+                        'sender' => $botdetail->name,
+                        'receiver' => explode(' ', $data['sender']['name'])['0'],
+                        'date' => $data['timestamp'],
+                        'text' => $data['message']['text'],
+                    ];
+    
+                    // save bot chat and conversation
+                    $this->saveBotChats($inputData, $botdetail->user_id);
+            }
+
+            return $data;
+        }else{
+            \Log::info($request);
         }
     }
 }
