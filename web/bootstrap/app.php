@@ -139,6 +139,12 @@ $app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);
 |
 */
 
+$app[Illuminate\Contracts\Broadcasting\Factory::class]
+    ->channel('chat', function ($user) {
+        return auth()->check();
+      });
+
+
 $app->router->group([
     'namespace' => 'App\Http\Controllers',
 ], function ($router) {

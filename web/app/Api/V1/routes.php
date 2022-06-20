@@ -50,6 +50,28 @@ $router->group([
         ], function ($router) {
             $router->post('/{messengerInstance}/send-message', 'MessagesController@sendMessage');
         });
+
+        /**
+         * Conversations
+         */
+        $router->group([
+            'prefix' => 'conversations',
+        ], function ($router) {
+            $router->get('/', 'ConversationController@index');
+            $router->post('/start', 'ConversationController@store');
+            $router->delete('/{id:[a-fA-F0-9\-]{36}}', 'ConversationController@destroy');
+        });
+
+        /**
+         * Chats
+         */
+        $router->group([
+            'prefix' => 'chats',
+        ], function ($router) {
+            $router->get('/{conversation_id:[a-fA-F0-9\-]{36}}', 'ChatController@index');
+            $router->post('/{conversation_id:[a-fA-F0-9\-]{36}}', 'ChatController@store');
+            $router->put('/{id:[a-fA-F0-9\-]{36}}', 'ChatController@update');
+        });
     });
 
     /**
