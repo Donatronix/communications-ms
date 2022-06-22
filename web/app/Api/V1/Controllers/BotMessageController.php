@@ -124,26 +124,31 @@ class BotMessageController extends Controller
 
         // Try to add new botdetail
         try {
-            // check if same bot detail has already been created
-            $botdetail = $this->botdetail->where(['user_id' => $this->user_id, 'type' => $request->get('type')])->first();
 
-            if (!$botdetail) {
-                return response()->jsonApi([
-                    'type' => 'danger',
-                    'title' => 'Send Message',
-                    'message' => "User has not created a bot for {$request->get('type')}",
-                    'data' => null
-                ], 400);
-            }
+            if ($request->get('type') == "whatsapp") {
+                $data = $this->sendWhatsappMessage($request);
+            } else {
+                // check if same bot detail has already been created
+                $botdetail = $this->botdetail->where(['user_id' => $this->user_id, 'type' => $request->get('type')])->first();
 
-            if ($request->get('type') == "telegram") {
-                $data = $this->sendTelegramMessage($request, $botdetail);
-            }
+                if (!$botdetail) {
+                    return response()->jsonApi([
+                        'type' => 'danger',
+                        'title' => 'Send Message',
+                        'message' => "User has not created a bot for {$request->get('type')}",
+                        'data' => null
+                    ], 400);
+                }
 
-            if ($request->get('type') == "viber") {
-                $data = $this->sendViberMessage($request, $botdetail);
-                if (!sizeof($data) || $data['status'] != 0) {
-                    return $data;
+                if ($request->get('type') == "telegram") {
+                    $data = $this->sendTelegramMessage($request, $botdetail);
+                }
+
+                if ($request->get('type') == "viber") {
+                    $data = $this->sendViberMessage($request, $botdetail);
+                    if (!sizeof($data) || $data['status'] != 0) {
+                        return $data;
+                    }
                 }
             }
 
@@ -251,6 +256,10 @@ class BotMessageController extends Controller
 
             if ($type == "viber") {
                 $data = $this->saveViberUpdates($request, $botdetail, $type, $token);
+            }
+
+            if ($type == "whatsapp") {
+                $data = $this->saveWhatsappUpdates($request, $type, $token);
             }
 
             \Log::info("Update has been saved");
@@ -569,7 +578,7 @@ class BotMessageController extends Controller
     /**
      * Private method to send Telegram Message
      *
-     * @param Array $request, $botdetail
+     * @param Request $request, $botdetail
      * @return mixed
      */
     private function sendTelegramMessage($request, $botdetail)
@@ -619,7 +628,7 @@ class BotMessageController extends Controller
     /**
      * Private method to save Telegram Updates
      *
-     * @param Array $request, $botdetail, $type, $token
+     * @param Request $request, $botdetail, $type, $token
      * @return mixed
      */
     private function saveTelegramUpdates($request, $botdetail, $type, $token)
@@ -663,7 +672,7 @@ class BotMessageController extends Controller
     /**
      * Private method to send Viber Message
      *
-     * @param Array $request, $botdetail
+     * @param Request $request, $botdetail
      * @return mixed
      */
     private function sendViberMessage($request, $botdetail)
@@ -685,7 +694,7 @@ class BotMessageController extends Controller
         ]);
 
         $data = json_decode($response->getBody(), true);
-        
+
         if (sizeof($data)) {
             if ($data["status"] == 0) {
                 $inputData = [
@@ -713,7 +722,7 @@ class BotMessageController extends Controller
     /**
      * Private method to save Viber Updates
      *
-     * @param Array $request, $botdetail, $type, $token
+     * @param Request $request, $botdetail, $type, $token
      * @return mixed
      */
     private function saveViberUpdates($request, $botdetail, $type, $token)
@@ -724,27 +733,120 @@ class BotMessageController extends Controller
             $data = $request->toArray();
 
             if (sizeof($data)) {
-                    $inputData = [
-                        'bot_name' => $botdetail->name,
-                        'bot_username' => $botdetail->username,
-                        'chat_id' => $data['sender']['id'],
-                        'first_name' => explode(' ', $data['sender']['name'])['0'],
-                        'bot_type' => $type,
-                        'last_name' => explode(' ', $data['sender']['name'])['1'],
-                        'replied_to_message_id' => null,
-                        'message_id' => $data['message_token'],
-                        'sender' => $botdetail->name,
-                        'receiver' => explode(' ', $data['sender']['name'])['0'],
-                        'date' => $data['timestamp'],
-                        'text' => $data['message']['text'],
-                    ];
-    
-                    // save bot chat and conversation
-                    $this->saveBotChats($inputData, $botdetail->user_id);
+                $inputData = [
+                    'bot_name' => $botdetail->name,
+                    'bot_username' => $botdetail->username,
+                    'chat_id' => $data['sender']['id'],
+                    'first_name' => explode(' ', $data['sender']['name'])['0'],
+                    'bot_type' => $type,
+                    'last_name' => explode(' ', $data['sender']['name'])['1'],
+                    'replied_to_message_id' => null,
+                    'message_id' => $data['message_token'],
+                    'sender' => $botdetail->name,
+                    'receiver' => explode(' ', $data['sender']['name'])['0'],
+                    'date' => $data['timestamp'],
+                    'text' => $data['message']['text'],
+                ];
+
+                // save bot chat and conversation
+                $this->saveBotChats($inputData, $botdetail->user_id);
             }
 
             return $data;
-        }else{
+        } else {
+            \Log::info($request);
+        }
+    }
+
+    /**
+     * Private method to send Whatsapp Message
+     *
+     * @param Request $request
+     * @return mixed
+     */
+    private function sendWhatsappMessage($request)
+    {
+        $whatsapp_phone_id = env("WHATSAPP_CLOUD_API_PHONE_ID");
+        $whatsapp_api_token = env("WHATSAPP_CLOUD_API_TOKEN");
+        if (!$request->has('sender')) {
+            throw new Exception("sender is required in query");
+        }
+        $sender = $request->get('sender');
+        // call viber bot api 
+        $client = new \GuzzleHttp\Client();
+        $response = $client->request('POST', "https://graph.facebook.com/v13.0/{$whatsapp_phone_id}/messages", [
+            'headers' => [
+                'Authorization' => "Bearer {$whatsapp_api_token}"
+            ],
+            'json' => [
+                'messaging_product' => "whatsapp",
+                'to' => $request->get('chat_id'),
+                "type" => "text",
+                'text' => [
+                    "body" => "{$request->get('text')}\n\nFrom: $sender"
+                ]
+            ]
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+
+        if (sizeof($data)) {
+                $inputData = [
+                    'bot_name' => $sender,
+                    'bot_username' => $this->user_id,
+                    'chat_id' => $request->get('chat_id'),
+                    'first_name' => "",
+                    'bot_type' => $request->get('type'),
+                    'last_name' => "",
+                    'replied_to_message_id' => null,
+                    'message_id' => $data['messages'][0]['id'],
+                    'sender' => $sender,
+                    'receiver' => $request->get('chat_id'),
+                    'date' => Carbon::now()->timestamp,
+                    'text' => $request->get('text'),
+                ];
+
+                // save bot chat and conversation
+                $this->saveBotChats($inputData, $this->user_id);
+        }
+        return $data;
+    }
+
+    /**
+     * Private method to save whatsapp Updates
+     *
+     * @param Array $request, $type, $token
+     * @return mixed
+     */
+    private function saveWhatsappUpdates($request, $type, $token)
+    {
+        // call viber bot api 
+        if ($request->event == "message") {
+            // save bot chat and conversation
+            $data = $request->toArray();
+
+            if (sizeof($data)) {
+                $inputData = [
+                    // 'bot_name' => $botdetail->name,
+                    // 'bot_username' => $botdetail->username,
+                    // 'chat_id' => $data['sender']['id'],
+                    // 'first_name' => explode(' ', $data['sender']['name'])['0'],
+                    // 'bot_type' => $type,
+                    // 'last_name' => explode(' ', $data['sender']['name'])['1'],
+                    // 'replied_to_message_id' => null,
+                    // 'message_id' => $data['message_token'],
+                    // 'sender' => $botdetail->name,
+                    // 'receiver' => explode(' ', $data['sender']['name'])['0'],
+                    // 'date' => $data['timestamp'],
+                    // 'text' => $data['message']['text'],
+                ];
+
+                // save bot chat and conversation
+                $this->saveBotChats($inputData, $botdetail->user_id);
+            }
+
+            return $data;
+        } else {
             \Log::info($request);
         }
     }
