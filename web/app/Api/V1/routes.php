@@ -29,6 +29,8 @@ $router->group([
      * The bot will make calls to this route
      */
     $router->post('/saveUpdates/{type}/{token}', 'BotMessageController@saveUpdates');
+    $router->get('/whatsapp/webhook', 'BotMessageController@verifyWhatsappWebhook');
+    $router->post('/whatsapp/webhook', 'BotMessageController@saveWhatsappUpdates');
 
     /**
      * PRIVATE ACCESS

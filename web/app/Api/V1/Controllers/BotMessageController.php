@@ -258,10 +258,6 @@ class BotMessageController extends Controller
                 $data = $this->saveViberUpdates($request, $botdetail, $type, $token);
             }
 
-            if ($type == "whatsapp") {
-                $data = $this->saveWhatsappUpdates($request, $type, $token);
-            }
-
             \Log::info("Update has been saved");
 
             // Return response
@@ -767,6 +763,7 @@ class BotMessageController extends Controller
     private function sendWhatsappMessage($request)
     {
         $whatsapp_phone_id = env("WHATSAPP_CLOUD_API_PHONE_ID");
+        $whatsapp_phone_number = env("WHATSAPP_CLOUD_API_PHONE_NUMBER");
         $whatsapp_api_token = env("WHATSAPP_CLOUD_API_TOKEN");
         if (!$request->has('sender')) {
             throw new Exception("sender is required in query");
@@ -818,36 +815,54 @@ class BotMessageController extends Controller
      * @param Array $request, $type, $token
      * @return mixed
      */
-    private function saveWhatsappUpdates($request, $type, $token)
+    public function saveWhatsappUpdates(Request $request)
     {
-        // call viber bot api 
-        if ($request->event == "message") {
+        \Log::info($request);
+        // call whatsapp bot api 
+            $newdata = $request->toArray();
             // save bot chat and conversation
-            $data = $request->toArray();
 
-            if (sizeof($data)) {
+            if (sizeof($newdata["entry"])) {
+            $data = $newdata["entry"][0]["changes"][0]['value'];
+            $name = explode(' ', $data['contacts'][0]['profile']['name']);
+            // get firstname and lastname of the sender
+            if(sizeof($name) > 1){
+                $firstname = $name[0];
+                $lastname = $name[1];
+            }else{
+                $firstname = $name[0];
+                $lastname = "";
+            }
+            // create input data
                 $inputData = [
-                    // 'bot_name' => $botdetail->name,
-                    // 'bot_username' => $botdetail->username,
-                    // 'chat_id' => $data['sender']['id'],
-                    // 'first_name' => explode(' ', $data['sender']['name'])['0'],
-                    // 'bot_type' => $type,
-                    // 'last_name' => explode(' ', $data['sender']['name'])['1'],
-                    // 'replied_to_message_id' => null,
-                    // 'message_id' => $data['message_token'],
-                    // 'sender' => $botdetail->name,
-                    // 'receiver' => explode(' ', $data['sender']['name'])['0'],
-                    // 'date' => $data['timestamp'],
-                    // 'text' => $data['message']['text'],
+                    'bot_name' => "bot",
+                    'bot_username' => $this->user_id,
+                    'chat_id' => $data['contacts'][0]['wa_id'],
+                    'first_name' => $firstname,
+                    'bot_type' => "whatsapp",
+                    'last_name' => $lastname,
+                    'replied_to_message_id' => null,
+                    'message_id' => $data['messages'][0]['id'],
+                    'sender' => $data['contacts'][0]['wa_id'],
+                    'receiver' => "bot",
+                    'date' => $data['messages'][0]['timestamp'],
+                    'text' => $data['messages'][0]['text']['body'],
                 ];
 
                 // save bot chat and conversation
-                $this->saveBotChats($inputData, $botdetail->user_id);
+                $this->saveBotChats($inputData, $this->user_id);
             }
 
             return $data;
-        } else {
-            \Log::info($request);
+    }
+
+    public function verifyWhatsappWebhook(Request $request){
+        if ($request->has(["hub_mode","hub_challenge","hub_verify_token"])){
+            if($request->get("hub_mode") == "subscribe" && $request->get("hub_verify_token") == env("WHATSAPP_CLOUD_VERIFY_TOKEN")){
+                return $request->get("hub_challenge");
+            }else{
+                return null;
+            }
         }
     }
 }
