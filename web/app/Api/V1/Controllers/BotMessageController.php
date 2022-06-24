@@ -13,6 +13,7 @@ use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Carbon\Carbon;
 use Illuminate\Validation\Rule;
+use Sumra\SDK\Facades\PubSub;
 
 /**
  * Class BotMessageController
@@ -25,6 +26,7 @@ class BotMessageController extends Controller
     private BotDetail $botdetail;
     private BotConversation $botconversation;
     private BotChat $botchat;
+    private const RECEIVER_LISTENER = "getUserByPhone";
 
     /**
      * BotMessageController constructor.
@@ -817,7 +819,6 @@ class BotMessageController extends Controller
      */
     public function saveWhatsappUpdates(Request $request)
     {
-        \Log::info($request);
         // call whatsapp bot api 
             $newdata = $request->toArray();
             // save bot chat and conversation
@@ -833,6 +834,15 @@ class BotMessageController extends Controller
                 $firstname = $name[0];
                 $lastname = "";
             }
+
+            $user = [
+                "phone" => $data['contacts'][0]['wa_id']
+            ];
+            \Log::info($user);
+            PubSub::publish(self::RECEIVER_LISTENER, $user, 'IdentityCentreMS');
+    
+            return;
+
             // create input data
                 $inputData = [
                     'bot_name' => "bot",
