@@ -644,13 +644,8 @@ class BotDetailController extends Controller
                 return $response;
             }
 
-            // Return response
-            return response()->jsonApi([
-                'type' => 'success',
-                'title' => "botdetails list",
-                'message' => 'List of botdetails successfully received',
-                'data' => $response
-            ], 200);
+            return $response;
+            
         } catch (Exception $e) {
             return response()->jsonApi([
                 'type' => 'danger',

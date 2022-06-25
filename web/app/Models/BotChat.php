@@ -14,7 +14,7 @@ class BotChat extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'message_id', 'date', 'text', 'replied_to_message_id', 'bot_conversation_id'
+        'message_id', 'date', 'text', 'replied_to_message_id', 'bot_conversation_id', 'sender', 'receiver'
     ];
 
     /**
