@@ -26,7 +26,7 @@ class BotMessageController extends Controller
     private BotDetail $botdetail;
     private BotConversation $botconversation;
     private BotChat $botchat;
-    private const RECEIVER_LISTENER = "getUserByPhone";
+    private const RECEIVER_LISTENER = "getOwnerByPhone";
 
     /**
      * BotMessageController constructor.
@@ -825,6 +825,7 @@ class BotMessageController extends Controller
 
             if (sizeof($newdata["entry"])) {
             $data = $newdata["entry"][0]["changes"][0]['value'];
+            var_dump($data);
             $name = explode(' ', $data['contacts'][0]['profile']['name']);
             // get firstname and lastname of the sender
             if(sizeof($name) > 1){
@@ -835,18 +836,10 @@ class BotMessageController extends Controller
                 $lastname = "";
             }
 
-            $user = [
-                "phone" => $data['contacts'][0]['wa_id']
-            ];
-            \Log::info($user);
-            PubSub::publish(self::RECEIVER_LISTENER, $user, 'IdentityCentreMS');
-    
-            return;
-
             // create input data
                 $inputData = [
-                    'bot_name' => "bot",
-                    'bot_username' => $this->user_id,
+                    'bot_name' => "",
+                    'bot_username' => "",
                     'chat_id' => $data['contacts'][0]['wa_id'],
                     'first_name' => $firstname,
                     'bot_type' => "whatsapp",
@@ -854,16 +847,16 @@ class BotMessageController extends Controller
                     'replied_to_message_id' => null,
                     'message_id' => $data['messages'][0]['id'],
                     'sender' => $data['contacts'][0]['wa_id'],
-                    'receiver' => "bot",
+                    'receiver' => "",
                     'date' => $data['messages'][0]['timestamp'],
                     'text' => $data['messages'][0]['text']['body'],
                 ];
-
-                // save bot chat and conversation
-                $this->saveBotChats($inputData, $this->user_id);
+            
+                // connect contact books ms to get user-id of the partner
+            PubSub::publish(self::RECEIVER_LISTENER, $inputData, 'ContactsBooksMS');
+    
+            return;
             }
-
-            return $data;
     }
 
     public function verifyWhatsappWebhook(Request $request){
