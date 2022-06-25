@@ -19,6 +19,9 @@ class EventServiceProvider extends ServiceProvider
         'sendVerificationEmail' => [
             'App\Listeners\SendVerificationEmailListener'
         ],
+        'saveWhatsappUpdates' => [
+            'App\Listeners\SaveWhatsappUpdatesListener'
+        ],
         'sendForgotMailEmail' => [
             'App\Listeners\SendForgotPasswordEmailListener'
         ],
