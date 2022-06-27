@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Api\V1\Controllers;
+namespace App\Api\V1\Controllers\Application;
 
+use App\Api\V1\Controllers\Controller;
 use App\Services\Messenger;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -108,7 +109,7 @@ class MessagesController extends Controller
      * Handle webhook.
      *
      * @OA\Post(
-     *     path="/messages/{messengerInstance}/webhook",
+     *     path="/channels/{messengerInstance}/webhook",
      *     summary="Handle webhook from messenger",
      *     description="Handle webhook from messenger",
      *     tags={"Messenger"},
