@@ -7,35 +7,48 @@ $router->group([
     'prefix' => env('APP_API_VERSION', ''),
     'namespace' => '\App\Api\V1\Controllers'
 ], function ($router) {
+
     /**
      * PUBLIC ACCESS
      */
     $router->group([
-        'prefix' => 'messages',
+        'namespace' => 'Public'
     ], function ($router) {
-        $router->post('/{messengerInstance}/webhook', 'MessagesController@handleWebhook');
+        // Send mails
+        $router->group(
+            ['prefix' => 'mail'],
+            function ($router) {
+                $router->post('/', 'SendEmailController');
+            }
+        );
     });
 
-    // Send mails
-    $router->group(
-        ['prefix' => 'mail'],
-        function ($router) {
-            $router->post('/', '\App\Api\V1\Controllers\SendEmailController');
-        }
-    );
-
     /**
-     * Save updates coming from the bot
-     * The bot will make calls to this route
-     */
-    $router->post('/saveUpdates/{type}/{token}', 'BotMessageController@saveUpdates');
-    $router->get('/whatsapp/webhook', 'BotMessageController@verifyWhatsappWebhook');
-    $router->post('/whatsapp/webhook', 'BotMessageController@saveWhatsappUpdates');
-
-    /**
-     * PRIVATE ACCESS
+     * WEBHOOKS ACCESS
      */
     $router->group([
+        'namespace' => 'Webhooks'
+    ], function ($router) {
+        $router->group([
+            'prefix' => 'messages',
+        ], function ($router) {
+            $router->post('/{messengerInstance}/webhook', 'MessagesController@handleWebhook');
+        });
+
+        /**
+         * Save updates coming from the bot
+         * The bot will make calls to this route
+         */
+        $router->post('/saveUpdates/{type}/{token}', 'BotMessageController@saveUpdates');
+        $router->get('/whatsapp/webhook', 'BotMessageController@verifyWhatsappWebhook');
+        $router->post('/whatsapp/webhook', 'BotMessageController@saveWhatsappUpdates');
+    });
+
+    /**
+     * APPLICATION ACCESS
+     */
+    $router->group([
+        'namespace' => 'Application',
         'middleware' => 'checkUser'
     ], function ($router) {
         /**
