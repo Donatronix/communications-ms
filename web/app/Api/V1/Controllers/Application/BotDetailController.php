@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Api\V1\Controllers;
+namespace App\Api\V1\Controllers\Application;
 
+use App\Api\V1\Controllers\Controller;
 use Sumra\SDK\JsonApiResponse;
 use Illuminate\Http\Request;
 use App\Models\BotDetail;
@@ -14,7 +15,7 @@ use Illuminate\Validation\Rule;
 /**
  * Class BotDetailController
  *
- * @package App\Api\V1\Controllers 
+ * @package App\Api\V1\Controllers\Application 
  */
 class BotDetailController extends Controller
 {

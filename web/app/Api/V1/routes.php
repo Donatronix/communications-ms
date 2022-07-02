@@ -15,30 +15,14 @@ $router->group([
     $router->group([
         'namespace' => 'Public'
     ], function ($router) {
-        //
+        // Send mails
+        $router->group(
+            ['prefix' => 'mail'],
+            function ($router) {
+                $router->post('/', 'SendEmailController');
+            }
+        );
     });
-
-    $router->group([
-        'prefix' => 'messages',
-    ], function ($router) {
-        $router->post('/{messengerInstance}/webhook', 'MessagesController@handleWebhook');
-    });
-
-    // Send mails
-    $router->group(
-        ['prefix' => 'mail'],
-        function ($router) {
-            $router->post('/', '\App\Api\V1\Controllers\SendEmailController');
-        }
-    );
-
-    /**
-     * Save updates coming from the bot
-     * The bot will make calls to this route
-     */
-    $router->post('/saveUpdates/{type}/{token}', 'BotMessageController@saveUpdates');
-    $router->get('/whatsapp/webhook', 'BotMessageController@verifyWhatsappWebhook');
-    $router->post('/whatsapp/webhook', 'BotMessageController@saveWhatsappUpdates');
 
     /**
      * USER APPLICATION PRIVATE ACCESS
@@ -47,7 +31,7 @@ $router->group([
      */
     $router->group([
         'namespace' => 'Application',
-        'middleware' => 'checkUser',
+        'middleware' => 'checkUser'
     ], function ($router) {
         /**
          * Channels Auth
@@ -155,6 +139,18 @@ $router->group([
         'prefix' => 'webhooks',
         'namespace' => 'Webhooks'
     ], function ($router) {
-        //
+        $router->group([
+            'prefix' => 'messages',
+        ], function ($router) {
+            $router->post('/{messengerInstance}/webhook', 'MessagesController@handleWebhook');
+        });
+
+        /**
+         * Save updates coming from the bot
+         * The bot will make calls to this route
+         */
+        $router->post('/saveUpdates/{type}/{token}', 'BotMessageController@saveUpdates');
+        $router->get('/whatsapp/webhook', 'BotMessageController@verifyWhatsappWebhook');
+        $router->post('/whatsapp/webhook', 'BotMessageController@saveWhatsappUpdates');
     });
 });

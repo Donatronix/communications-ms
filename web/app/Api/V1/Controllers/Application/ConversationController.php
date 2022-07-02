@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Api\V1\Controllers;
+namespace App\Api\V1\Controllers\Application;
 
+use App\Api\V1\Controllers\Controller;
 use Sumra\SDK\JsonApiResponse;
 use Illuminate\Http\Request;
 use App\Models\Conversation;
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 /**
  * Class ConversationController
  *
- * @package App\Api\V1\Controllers
+ * @package App\Api\V1\Controllers\Application
  */
 class ConversationController extends Controller
 {
