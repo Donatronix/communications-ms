@@ -48,7 +48,7 @@ class BotMessageController extends Controller
      *     path="/saveUpdates/{bot_type}/{token}",
      *     summary="Save updates from bot webhook",
      *     description="Save updates from bot webhook",
-     *     tags={"Bot Messages"},
+     *     tags={"Webhook"},
      *
      *     security={{
      *         "default": {
