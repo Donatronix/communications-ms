@@ -151,12 +151,12 @@ class BotDetailController extends Controller
     }
 
     /**
-     * Save influential bot detail
+     * Save bot detail
      *
      * @OA\Post(
      *     path="/bot-details",
-     *     summary="Save influential bot detail",
-     *     description="Save influential bot detail",
+     *     summary="Save bot detail",
+     *     description="Note: bot type can be only: 'telegram', 'viber', 'whatsapp'",
      *     tags={"Bot Details"},
      *
      *     security={{

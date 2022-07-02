@@ -292,7 +292,7 @@ class ChatController extends Controller
      * @OA\Put(
      *     path="/chats/{id}",
      *     summary="Update a chat",
-     *     description="Update a chat",
+     *     description="Note: status can only be seen, delivered or deleted",
      *     tags={"Chats"},
      *
      *     security={{

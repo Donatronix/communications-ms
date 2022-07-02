@@ -112,7 +112,7 @@ class MessagesController extends Controller
      *     path="/channels/{messengerInstance}/webhook",
      *     summary="Handle webhook from messenger",
      *     description="Handle webhook from messenger",
-     *     tags={"Messenger"},
+     *     tags={"Webhook"},
      *
      *     security={{
      *         "default": {
