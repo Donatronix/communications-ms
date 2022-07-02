@@ -23,14 +23,7 @@ $router->group([
         /**
          * Send mails
          */
-        $router->group(
-            [
-                'prefix' => 'mail'
-            ],
-            function ($router) {
-                $router->post('/', 'SendEmailController');
-            }
-        );
+        $router->post('mail/sender', 'SendEmailController');
     });
 
     /**
