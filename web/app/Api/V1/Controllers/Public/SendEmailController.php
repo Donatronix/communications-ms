@@ -5,7 +5,10 @@ namespace App\Api\V1\Controllers\Public;
 use App\Http\Controllers\Controller;
 use App\Models\Message;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use PubSub;
+use Exception;
 
 class SendEmailController extends Controller
 {
@@ -13,10 +16,18 @@ class SendEmailController extends Controller
      * Send message to one or group recipients
      *
      * @OA\Post(
-     *     path="/mail",
+     *     path="/mail/sender",
      *     summary="Send message to one or group recipients",
      *     description="Send message to one or group recipients",
      *     tags={"Mailer"},
+     *
+     *     security={{
+     *         "default": {
+     *             "ManagerRead",
+     *             "User",
+     *             "ManagerWrite"
+     *         }
+     *     }},
      *
      *     @OA\RequestBody(
      *         required=true,
@@ -63,16 +74,12 @@ class SendEmailController extends Controller
      * )
      *
      * @param Request $request
+     *
+     * @return mixed
+     * @throws ValidationException
      */
     public function __invoke(Request $request)
     {
-        // Check sender user id
-        $userId = $request->header('user-id');
-
-        if ($userId === null) {
-            abort(401, 'Unauthorized');
-        }
-
         // Validate data
         $requestData = $this->validate(
             $request,
@@ -93,25 +100,29 @@ class SendEmailController extends Controller
 
             // Save message for log
             $message = Message::create(array_merge([
-                'sender_user_id' => $userId,
+                'sender_user_id' => Auth::user()->getAuthIdentifier(),
                 'status' => Message::STATUS_PROCESSING
             ], $mailData));
             $mailData['message_id'] = $message->id;
 
             // Add job to queue
             try {
-                PubSub::publish('mailer', $mailData, 'CommunicationsMS');
+                PubSub::publish('mailer', $mailData, 'workMailerQueue');
             } catch (Exception $e) {
                 $message->status = Message::STATUS_QUEUE_FAIL;
                 $message->note = $e->getMessage();
                 $message->save();
 
-                // Return response
-                //return response()->jsonApi($e, 200);
+                // Return error response
+                return response()->jsonApi($e, 200);
             }
         }
 
-        // Return response
-        return response()->jsonApi('Success sent', 200);
+        // Return success response
+        return response()->jsonApi([
+            'type' => 'success',
+            'title' => 'Success',
+            'message' => 'Message was been successful added to queue'
+        ], 200);
     }
 }

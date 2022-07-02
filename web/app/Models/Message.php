@@ -14,6 +14,9 @@ class Message extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'sender_user_id', 'subject', 'body', 'recipient_email',
+        'sender_user_id',
+        'subject',
+        'body',
+        'recipient_email',
     ];
  }
