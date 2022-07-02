@@ -163,8 +163,8 @@ class ChannelController extends Controller
                     case 'twilio':
                     case 'nexmo':
                         $result[$key] = array_merge($result[$key], [
-                            'href_send_phone' => "https://{$request->getHost()}/api/v1/sms/send-phone?channel_id={$channel->id}",
-                            'href_send_sms' => "https://{$request->getHost()}/api/v1/sms/send-sms?channel_id={$channel->id}",
+                            'href_send_phone' => "https://{$request->getHost()}/v1/sms/send-phone?channel_id={$channel->id}",
+                            'href_send_sms' => "https://{$request->getHost()}/v1/sms/send-sms?channel_id={$channel->id}",
                         ]);
                         break;
 

@@ -9,9 +9,7 @@ RUN set -ex
 RUN apk update
 
 ## Install packages necessary during the build phase
-RUN apk --no-cache add \
-    mc \
-    nano
+RUN apk --no-cache add mc
 
 ## Clean apk cache after all installed packages
 RUN rm -rf /var/cache/apk/*

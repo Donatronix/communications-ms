@@ -9,7 +9,15 @@ $router->group([
 ], function ($router) {
     /**
      * PUBLIC ACCESS
+     *
+     * level with free access to the endpoint
      */
+    $router->group([
+        'namespace' => 'Public'
+    ], function ($router) {
+        //
+    });
+
     $router->group([
         'prefix' => 'messages',
     ], function ($router) {
@@ -33,10 +41,13 @@ $router->group([
     $router->post('/whatsapp/webhook', 'BotMessageController@saveWhatsappUpdates');
 
     /**
-     * PRIVATE ACCESS
+     * USER APPLICATION PRIVATE ACCESS
+     *
+     * Application level for users
      */
     $router->group([
-        'middleware' => 'checkUser'
+        'namespace' => 'Application',
+        'middleware' => 'checkUser',
     ], function ($router) {
         /**
          * Channels Auth
@@ -109,6 +120,8 @@ $router->group([
 
     /**
      * ADMIN PANEL ACCESS
+     *
+     * Admin / super admin access level (E.g CEO company)
      */
     $router->group([
         'prefix' => 'admin',
@@ -131,5 +144,17 @@ $router->group([
             $router->delete('/{id:[a-fA-F0-9\-]{36}}', 'ChannelController@destroy');
             $router->post('/{id:[a-fA-F0-9\-]{36}}/update-status', 'ChannelController@updateStatus');
         });
+    });
+
+    /**
+     * WEBHOOKS
+     *
+     * Access level of external / internal software services
+     */
+    $router->group([
+        'prefix' => 'webhooks',
+        'namespace' => 'Webhooks'
+    ], function ($router) {
+        //
     });
 });

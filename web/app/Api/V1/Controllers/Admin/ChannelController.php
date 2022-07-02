@@ -120,7 +120,7 @@ class ChannelController extends Controller
      *         description="Unauthorized"
      *     ),
      *     @OA\Response(
-     *         response=400,
+     *         response="400",
      *         description="Invalid request"
      *     ),
      *     @OA\Response(
@@ -198,7 +198,7 @@ class ChannelController extends Controller
      *         description="New channel was successfully created"
      *     ),
      *     @OA\Response(
-     *         response=400,
+     *         response="400",
      *         description="Bad request syntax or unsupported method"
      *     ),
      *     @OA\Response(
@@ -263,7 +263,7 @@ class ChannelController extends Controller
     /**
      * Get detail info about Channel
      *
-     * Handles HTTP requests to URL: /api/v1/admin/channels/<string:channel_id>.
+     * Handles HTTP requests to URL: /v1/admin/channels/<string:channel_id>.
      * Show a single channel and lets you update and delete them.
      *
      * @OA\Get(

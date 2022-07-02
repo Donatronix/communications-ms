@@ -17,7 +17,7 @@ class SendEmailController extends Controller
      *     summary="Send message to one or group recipients",
      *     description="Send message to one or group recipients",
      *     tags={"Mailer"},
-     * 
+     *
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
@@ -53,12 +53,12 @@ class SendEmailController extends Controller
      *         description="Unauthorized"
      *     ),
      *     @OA\Response(
-     *         response=400,
+     *         response="400",
      *         description="Invalid request"
      *     ),
      *     @OA\Response(
-     *         response=404,
-     *         description="not found"
+     *         response="404",
+     *         description="Not Found"
      *     )
      * )
      *
