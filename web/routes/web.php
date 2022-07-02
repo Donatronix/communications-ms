@@ -22,12 +22,11 @@ $router->group([
    T E S T S  Routes
 -------------------------- */
 $router->group([
-    'prefix' => 'tests'
-], function () use ($router) {
+    'prefix' => env('APP_API_PREFIX', '') . '/tests'
+], function ($router) {
     $router->get('db-test', function () {
         if (DB::connection()->getDatabaseName()) {
             echo "Connected successfully to database: " . DB::connection()->getDatabaseName();
-
         }
     });
 

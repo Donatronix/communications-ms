@@ -15,9 +15,18 @@ $router->group([
     $router->group([
         'namespace' => 'Public'
     ], function ($router) {
-        // Send mails
+        /**
+         * Channels OneStep 1.0
+         */
+        $router->get('channels/auth/{platform}', 'ChannelController');
+
+        /**
+         * Send mails
+         */
         $router->group(
-            ['prefix' => 'mail'],
+            [
+                'prefix' => 'mail'
+            ],
             function ($router) {
                 $router->post('/', 'SendEmailController');
             }
@@ -39,8 +48,6 @@ $router->group([
         $router->group([
             'prefix' => 'channels',
         ], function ($router) {
-            //            $router->get('/auth/{platform}', 'ChannelController');
-
             $router->post('/{messengerInstance}/send-message', 'MessagesController@sendMessage');
             $router->post('/{messengerInstance}/webhook', 'MessagesController@handleWebhook');
         });

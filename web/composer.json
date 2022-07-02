@@ -5,7 +5,7 @@
     "type": "project",
     "private": true,
     "require": {
-        "php": "^8.1",
+        "php": "^8.0",
         "ext-fileinfo": "*",
         "ext-json": "*",
         "ext-openssl": "*",
@@ -17,14 +17,14 @@
         "laravelista/lumen-vendor-publish": "^8.0",
         "pusher/pusher-php-server": "^7.0.2",
         "linecorp/line-bot-sdk": "~7",
-        "phpunit/phpunit": "^9.5",
         "sumra/sdk": "*",
         "team-reflex/discord-php": "^7.0",
         "twilio/sdk": "~6"
     },
     "require-dev": {
         "fakerphp/faker": "~1",
-        "mockery/mockery": "~1"
+        "mockery/mockery": "~1",
+        "phpunit/phpunit": "~9"
     },
     "autoload": {
         "psr-4": {
