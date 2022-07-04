@@ -416,7 +416,7 @@ class ChannelController extends Controller
      *     )
      * )
      *
-     * @param Request                  $request
+     * @param Request $request
      * @param                          $id
      *
      * @return JsonResponse

@@ -3,19 +3,20 @@
 namespace App\Api\V1\Controllers\Application;
 
 use App\Api\V1\Controllers\Controller;
-use Sumra\SDK\JsonApiResponse;
-use Illuminate\Http\Request;
 use App\Models\BotDetail;
 use App\Models\Channel;
-use Illuminate\Support\Facades\Validator;
 use Exception;
+use GuzzleHttp\Client;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Sumra\SDK\JsonApiResponse;
 
 /**
  * Class BotDetailController
  *
- * @package App\Api\V1\Controllers\Application 
+ * @package App\Api\V1\Controllers\Application
  */
 class BotDetailController extends Controller
 {
@@ -239,7 +240,7 @@ class BotDetailController extends Controller
                 ], 400);
             }
 
-            // create new botdetail 
+            // create new botdetail
             $botdetail = $this->botdetail->create([
                 'user_id' => $this->user_id,
                 'type' => $request->get('type'),
@@ -271,6 +272,48 @@ class BotDetailController extends Controller
         }
     }
 
+    /**
+     * Set Webhook Url
+     *
+     * @param $type
+     * @return mixed
+     */
+    private function setWebHookUrl($type): mixed
+    {
+        try {
+            $app_url = env("APP_URL");
+            $app_version = env("APP_API_VERSION");
+            // get token
+            $token = $this->botdetail->where(['user_id' => $this->user_id, 'type' => $type])->first()->token;
+            // webhook url
+            $webhook_url = "{$app_url}/{$app_version}/saveUpdates/{$type}/{$token}";
+            if ($type == "telegram") {
+                // call api to set webhook url
+                $client = new Client();
+                $response = $client->request('GET', "https://api.telegram.org/bot{$token}/setWebhook?url={$webhook_url}");
+            } else if ($type == "viber") {
+                // call api to set webhook url
+                $client = new Client();
+                $response = $client->request('POST', "https://chatapi.viber.com/pa/set_webhook", [
+                    'headers' => [
+                        'X-Viber-Auth-Token' => $token
+                    ],
+                    'json' => [
+                        'url' => $webhook_url,
+                    ]
+                ]);
+            }
+
+            return json_decode($response->getBody(), true);
+        } catch (ModelNotFoundException $e) {
+            return response()->jsonApi([
+                'type' => 'danger',
+                'title' => "Set webhook url",
+                'message' => "{$e->getMessage()}",
+                'data' => ''
+            ], 404);
+        }
+    }
 
     /**
      * Update a botdetail
@@ -409,6 +452,25 @@ class BotDetailController extends Controller
         }
     }
 
+    /**
+     * Get botdetail object
+     *
+     * @param $id
+     * @return mixed
+     */
+    private function getObject($id): mixed
+    {
+        try {
+            return $this->botdetail::findOrFail($id);
+        } catch (ModelNotFoundException $e) {
+            return response()->jsonApi([
+                'type' => 'danger',
+                'title' => "Get botdetail",
+                'message' => "Bot detail with id #{$id} not found: {$e->getMessage()}",
+                'data' => ''
+            ], 404);
+        }
+    }
 
     /**
      * Delete botdetail from storage
@@ -555,7 +617,7 @@ class BotDetailController extends Controller
                 'message' => "Bot detail been received",
                 'data' => $botdetail->toArray()
             ], 200);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->jsonApi([
                 'type' => 'danger',
                 'title' => 'Bot detail',
@@ -563,27 +625,6 @@ class BotDetailController extends Controller
             ], 400);
         }
     }
-
-    /**
-     * Get botdetail object
-     *
-     * @param $id
-     * @return mixed
-     */
-    private function getObject($id): mixed
-    {
-        try {
-            return $this->botdetail::findOrFail($id);
-        } catch (ModelNotFoundException $e) {
-            return response()->jsonApi([
-                'type' => 'danger',
-                'title' => "Get botdetail",
-                'message' => "Bot detail with id #{$id} not found: {$e->getMessage()}",
-                'data' => ''
-            ], 404);
-        }
-    }
-
 
     /**
      * Display a listing of the resource.
@@ -646,7 +687,7 @@ class BotDetailController extends Controller
             }
 
             return $response;
-            
+
         } catch (Exception $e) {
             return response()->jsonApi([
                 'type' => 'danger',
@@ -654,49 +695,6 @@ class BotDetailController extends Controller
                 'message' => $e->getMessage(),
                 'data' => null
             ], 400);
-        }
-    }
-
-    /**
-     * Set Webhook Url
-     *
-     * @param $type
-     * @return mixed
-     */
-    private function setWebHookUrl($type): mixed
-    {
-        try {
-            $app_url = env("APP_URL");
-            $app_version = env("APP_API_VERSION");
-            // get token
-            $token = $this->botdetail->where(['user_id' => $this->user_id, 'type' => $type])->first()->token;
-            // webhook url
-            $webhook_url = "{$app_url}/{$app_version}/saveUpdates/{$type}/{$token}";
-            if ($type == "telegram") {
-                // call api to set webhook url
-                $client = new \GuzzleHttp\Client();
-                $response = $client->request('GET', "https://api.telegram.org/bot{$token}/setWebhook?url={$webhook_url}");
-            } else if ($type == "viber") {
-                // call api to set webhook url
-                $client = new \GuzzleHttp\Client();
-                $response = $client->request('POST', "https://chatapi.viber.com/pa/set_webhook", [
-                    'headers' => [
-                        'X-Viber-Auth-Token' => $token
-                    ],
-                    'json' => [
-                        'url' => $webhook_url,
-                    ]
-                ]);
-            }
-            
-            return json_decode($response->getBody(), true);
-        } catch (ModelNotFoundException $e) {
-            return response()->jsonApi([
-                'type' => 'danger',
-                'title' => "Set webhook url",
-                'message' => "{$e->getMessage()}",
-                'data' => ''
-            ], 404);
         }
     }
 }

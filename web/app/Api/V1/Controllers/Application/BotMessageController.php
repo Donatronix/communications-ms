@@ -3,20 +3,21 @@
 namespace App\Api\V1\Controllers\Application;
 
 use App\Api\V1\Controllers\Controller;
-use App\Models\BotConversation;
 use App\Models\BotChat;
-use Illuminate\Http\Request;
+use App\Models\BotConversation;
 use App\Models\BotDetail;
 use App\Models\Channel;
-use Illuminate\Support\Facades\Validator;
-use Exception;
 use Carbon\Carbon;
+use Exception;
+use GuzzleHttp\Client;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 /**
  * Class BotMessageController
  *
- * @package App\Api\V1\Controllers\Application 
+ * @package App\Api\V1\Controllers\Application
  */
 class BotMessageController extends Controller
 {
@@ -169,9 +170,64 @@ class BotMessageController extends Controller
     }
 
     /**
+     * Private method to send Whatsapp Message
+     *
+     * @param Request $request
+     * @return mixed
+     */
+    private function sendWhatsappMessage($request)
+    {
+        $whatsapp_phone_id = env("WHATSAPP_CLOUD_API_PHONE_ID");
+        $whatsapp_phone_number = env("WHATSAPP_CLOUD_API_PHONE_NUMBER");
+        $whatsapp_api_token = env("WHATSAPP_CLOUD_API_TOKEN");
+        if (!$request->has('sender')) {
+            throw new Exception("sender is required in query");
+        }
+        $sender = $request->get('sender');
+        // call viber bot api
+        $client = new Client();
+        $response = $client->request('POST', "https://graph.facebook.com/v13.0/{$whatsapp_phone_id}/messages", [
+            'headers' => [
+                'Authorization' => "Bearer {$whatsapp_api_token}"
+            ],
+            'json' => [
+                'messaging_product' => "whatsapp",
+                'to' => $request->get('chat_id'),
+                "type" => "text",
+                'text' => [
+                    "body" => "{$request->get('text')}\n\nFrom: $sender"
+                ]
+            ]
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+
+        if (sizeof($data)) {
+            $inputData = [
+                'bot_name' => $sender,
+                'bot_username' => $this->user_id,
+                'chat_id' => $request->get('chat_id'),
+                'first_name' => "",
+                'bot_type' => $request->get('type'),
+                'last_name' => "",
+                'replied_to_message_id' => null,
+                'message_id' => $data['messages'][0]['id'],
+                'sender' => $sender,
+                'receiver' => $request->get('chat_id'),
+                'date' => Carbon::now()->timestamp,
+                'text' => $request->get('text'),
+            ];
+
+            // save bot chat and conversation
+            $this->saveBotChats($inputData, $this->user_id);
+        }
+        return $data;
+    }
+
+    /**
      * Private method to save chats with bots
      *
-     * @param Array $id, $user_id
+     * @param Array $id , $user_id
      * @return mixed
      */
     private function saveBotChats($data, $user_id)
@@ -205,6 +261,106 @@ class BotMessageController extends Controller
             'replied_to_message_id' => $data['replied_to_message_id'],
             'bot_conversation_id' => $botconversation->id
         ]);
+    }
+
+    /**
+     * Private method to send Telegram Message
+     *
+     * @param Request $request , $botdetail
+     * @return mixed
+     */
+    private function sendTelegramMessage($request, $botdetail)
+    {
+        // call telegram bot api
+        $client = new Client();
+        $response = $client->request('POST', "https://api.telegram.org/bot{$botdetail->token}/sendMessage", [
+            'json' => [
+                'chat_id' => $request->get('chat_id'),
+                'text' => $request->get('text'),
+            ]
+        ]);
+
+        $result = json_decode($response->getBody(), true);
+        if ($result['ok'] == true) {
+            $data = $result['result'];
+
+            // check whether message is replying to another message
+            if (array_key_exists("reply_to_message", $data)) {
+                $replied_to_message_id = $data['reply_to_message']['message_id'];
+            } else {
+                $replied_to_message_id = null;
+            }
+
+            $inputData = [
+                'bot_name' => $botdetail->name,
+                'bot_username' => $botdetail->username,
+                'chat_id' => $data['chat']['id'],
+                'first_name' => $data['chat']['first_name'],
+                'bot_type' => $request->get('type'),
+                'last_name' => $data['chat']['last_name'],
+                'replied_to_message_id' => $replied_to_message_id,
+                'message_id' => $data['message_id'],
+                'sender' => $botdetail->name,
+                'receiver' => $data['chat']['first_name'],
+                'date' => $data['date'],
+                'text' => $data['text'],
+            ];
+
+            // save bot chat and conversation
+            $this->saveBotChats($inputData, $this->user_id);
+
+            return $data;
+        }
+    }
+
+    /**
+     * Private method to send Viber Message
+     *
+     * @param Request $request , $botdetail
+     * @return mixed
+     */
+    private function sendViberMessage($request, $botdetail)
+    {
+        // call viber bot api
+        $client = new Client();
+        $response = $client->request('POST', "https://chatapi.viber.com/pa/send_message", [
+            'headers' => [
+                'X-Viber-Auth-Token' => $botdetail->token
+            ],
+            'json' => [
+                'receiver' => $request->get('chat_id'),
+                'type' => 'text',
+                'text' => $request->get('text'),
+                'sender' => [
+                    "name" => $botdetail->name
+                ]
+            ]
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+
+        if (sizeof($data)) {
+            if ($data["status"] == 0) {
+                $inputData = [
+                    'bot_name' => $botdetail->name,
+                    'bot_username' => $botdetail->username,
+                    'chat_id' => $request->get('chat_id'),
+                    'first_name' => "",
+                    'bot_type' => $request->get('type'),
+                    'last_name' => "",
+                    'replied_to_message_id' => null,
+                    'message_id' => $data['message_token'],
+                    'sender' => $botdetail->name,
+                    'receiver' => "user",
+                    'date' => Carbon::now()->timestamp,
+                    'text' => $request->get('text'),
+                ];
+
+                // save bot chat and conversation
+                $this->saveBotChats($inputData, $this->user_id);
+            }
+        }
+        return $data;
     }
 
     /**
@@ -311,12 +467,12 @@ class BotMessageController extends Controller
     {
         try {
             // Get conversations list
-            if(!$request->get('type')){
+            if (!$request->get('type')) {
                 return response()->jsonApi([
                     'type' => 'danger',
                     'title' => "conversations list",
                     'message' => 'Include bot type as a parameter',
-                    'data' =>null
+                    'data' => null
                 ], 400);
             }
 
@@ -467,160 +623,5 @@ class BotMessageController extends Controller
                 'data' => null
             ], 400);
         }
-    }
-
-    /**
-     * Private method to send Telegram Message
-     *
-     * @param Request $request, $botdetail
-     * @return mixed
-     */
-    private function sendTelegramMessage($request, $botdetail)
-    {
-        // call telegram bot api 
-        $client = new \GuzzleHttp\Client();
-        $response = $client->request('POST', "https://api.telegram.org/bot{$botdetail->token}/sendMessage", [
-            'json' => [
-                'chat_id' => $request->get('chat_id'),
-                'text' => $request->get('text'),
-            ]
-        ]);
-
-        $result = json_decode($response->getBody(), true);
-        if ($result['ok'] == true) {
-            $data = $result['result'];
-
-            // check whether message is replying to another message
-            if (array_key_exists("reply_to_message", $data)) {
-                $replied_to_message_id = $data['reply_to_message']['message_id'];
-            } else {
-                $replied_to_message_id = null;
-            }
-
-            $inputData = [
-                'bot_name' => $botdetail->name,
-                'bot_username' => $botdetail->username,
-                'chat_id' => $data['chat']['id'],
-                'first_name' => $data['chat']['first_name'],
-                'bot_type' => $request->get('type'),
-                'last_name' => $data['chat']['last_name'],
-                'replied_to_message_id' => $replied_to_message_id,
-                'message_id' => $data['message_id'],
-                'sender' => $botdetail->name,
-                'receiver' => $data['chat']['first_name'],
-                'date' => $data['date'],
-                'text' => $data['text'],
-            ];
-
-            // save bot chat and conversation
-            $this->saveBotChats($inputData, $this->user_id);
-
-            return $data;
-        }
-    }
-
-    /**
-     * Private method to send Viber Message
-     *
-     * @param Request $request, $botdetail
-     * @return mixed
-     */
-    private function sendViberMessage($request, $botdetail)
-    {
-        // call viber bot api 
-        $client = new \GuzzleHttp\Client();
-        $response = $client->request('POST', "https://chatapi.viber.com/pa/send_message", [
-            'headers' => [
-                'X-Viber-Auth-Token' => $botdetail->token
-            ],
-            'json' => [
-                'receiver' => $request->get('chat_id'),
-                'type' => 'text',
-                'text' => $request->get('text'),
-                'sender' => [
-                    "name" => $botdetail->name
-                ]
-            ]
-        ]);
-
-        $data = json_decode($response->getBody(), true);
-
-        if (sizeof($data)) {
-            if ($data["status"] == 0) {
-                $inputData = [
-                    'bot_name' => $botdetail->name,
-                    'bot_username' => $botdetail->username,
-                    'chat_id' => $request->get('chat_id'),
-                    'first_name' => "",
-                    'bot_type' => $request->get('type'),
-                    'last_name' => "",
-                    'replied_to_message_id' => null,
-                    'message_id' => $data['message_token'],
-                    'sender' => $botdetail->name,
-                    'receiver' => "user",
-                    'date' => Carbon::now()->timestamp,
-                    'text' => $request->get('text'),
-                ];
-
-                // save bot chat and conversation
-                $this->saveBotChats($inputData, $this->user_id);
-            }
-        }
-        return $data;
-    }
-
-    /**
-     * Private method to send Whatsapp Message
-     *
-     * @param Request $request
-     * @return mixed
-     */
-    private function sendWhatsappMessage($request)
-    {
-        $whatsapp_phone_id = env("WHATSAPP_CLOUD_API_PHONE_ID");
-        $whatsapp_phone_number = env("WHATSAPP_CLOUD_API_PHONE_NUMBER");
-        $whatsapp_api_token = env("WHATSAPP_CLOUD_API_TOKEN");
-        if (!$request->has('sender')) {
-            throw new Exception("sender is required in query");
-        }
-        $sender = $request->get('sender');
-        // call viber bot api 
-        $client = new \GuzzleHttp\Client();
-        $response = $client->request('POST', "https://graph.facebook.com/v13.0/{$whatsapp_phone_id}/messages", [
-            'headers' => [
-                'Authorization' => "Bearer {$whatsapp_api_token}"
-            ],
-            'json' => [
-                'messaging_product' => "whatsapp",
-                'to' => $request->get('chat_id'),
-                "type" => "text",
-                'text' => [
-                    "body" => "{$request->get('text')}\n\nFrom: $sender"
-                ]
-            ]
-        ]);
-
-        $data = json_decode($response->getBody(), true);
-
-        if (sizeof($data)) {
-                $inputData = [
-                    'bot_name' => $sender,
-                    'bot_username' => $this->user_id,
-                    'chat_id' => $request->get('chat_id'),
-                    'first_name' => "",
-                    'bot_type' => $request->get('type'),
-                    'last_name' => "",
-                    'replied_to_message_id' => null,
-                    'message_id' => $data['messages'][0]['id'],
-                    'sender' => $sender,
-                    'receiver' => $request->get('chat_id'),
-                    'date' => Carbon::now()->timestamp,
-                    'text' => $request->get('text'),
-                ];
-
-                // save bot chat and conversation
-                $this->saveBotChats($inputData, $this->user_id);
-        }
-        return $data;
     }
 }
