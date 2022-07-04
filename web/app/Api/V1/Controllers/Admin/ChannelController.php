@@ -124,7 +124,7 @@ class ChannelController extends Controller
      *         description="Invalid request"
      *     ),
      *     @OA\Response(
-     *         response=500,
+     *         response="500",
      *         description="Server got itself in trouble"
      *     )
      * )

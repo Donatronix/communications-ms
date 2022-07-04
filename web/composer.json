@@ -5,7 +5,7 @@
     "type": "project",
     "private": true,
     "require": {
-        "php": "^8.0",
+        "php": "^8.",
         "ext-fileinfo": "*",
         "ext-json": "*",
         "ext-openssl": "*",
@@ -18,7 +18,15 @@
         "linecorp/line-bot-sdk": "~7",
         "sumra/sdk": "*",
         "team-reflex/discord-php": "^7.0",
-        "twilio/sdk": "~6"
+        "twilio/sdk": "~6",
+
+
+        "ext-bcmath": "*",
+        "aws/aws-sdk-php": "~3",
+        "bschmitt/laravel-amqp": "~2",
+        "illuminate/mail": "~6",
+        "kalnoy/nestedset": "~5",
+        "smorken/ext-http": "*"
     },
     "require-dev": {
         "fakerphp/faker": "~1",

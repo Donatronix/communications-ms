@@ -16,13 +16,15 @@ class CreateBotConversationsTable extends Migration
     {
         Schema::create('bot_conversations', function (Blueprint $table) {
             $table->uuid('id')->primary();
+
             $table->enum('bot_type', Channel::$types);
-            $table->foreignUuid('user_id');
+            $table->uuid('user_id');
             $table->string('bot_name');
             $table->string('bot_username');
             $table->string('chat_id');
             $table->string('first_name')->nullable();
             $table->string('last_name')->nullable();
+
             $table->timestamps();
             $table->softDeletes();
         });
