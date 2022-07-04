@@ -120,7 +120,6 @@ class ChannelController extends Controller
                         break;
                     case 'line':
                         $result[$key] = array_merge($result[$key], [
-                            //'href' => "https://page.line.me/?accountId=772dmcwu",
                             'href' => "https://line.me/R/ti/p/{$channel->uri}",
                             'hrefMobile' => "line://ti/p/{$channel->uri}",
                         ]);
