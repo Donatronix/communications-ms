@@ -16,6 +16,7 @@ class CreateChannelsTable extends Migration
     {
         Schema::create('channels', function (Blueprint $table) {
             $table->uuid('id')->primary();
+
             $table->string('name', 100);
             $table->string('uri', 100);
             $table->string('sid', 100)->nullable();

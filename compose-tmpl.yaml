@@ -10,6 +10,7 @@ services:
     ports:
       - '8093:80'
       - '18093:443'
+      - '2096:2096'
     environment:
       - WEB_DOCUMENT_ROOT=/var/www/html/public
       - PHP_DISMOD=apcu,calendar,exif,gd,imagick,imap,ioncube,mongodb,ldap,pcntl,pdo_pgsql,pgsql,shmop,soap,sysvmsg,sysvsem,sysvshm,vips
