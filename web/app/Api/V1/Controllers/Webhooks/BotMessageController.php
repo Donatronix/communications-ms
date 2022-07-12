@@ -13,7 +13,7 @@ use Sumra\SDK\Facades\PubSub;
 /**
  * Class BotMessageController
  *
- * @package App\Api\V1\Controllers\Application 
+ * @package App\Api\V1\Controllers\Application
  */
 class BotMessageController extends Controller
 {
@@ -43,7 +43,7 @@ class BotMessageController extends Controller
      *
      * @param Request $request, $type, $token
      * @return mixed
-     * 
+     *
      * @OA\Post(
      *     path="/saveUpdates/{bot_type}/{token}",
      *     summary="Save updates from bot webhook",
@@ -57,14 +57,6 @@ class BotMessageController extends Controller
      *             "ManagerWrite"
      *         }
      *     }},
-     *     x={
-     *         "auth-type": "Application & Application User",
-     *         "throttling-tier": "Unlimited",
-     *         "wso2-application-security": {
-     *             "security-types": {"oauth2"},
-     *             "optional": "false"
-     *         }
-     *     },
      *
      *     @OA\Parameter(
      *         name="bot_type",
@@ -116,7 +108,7 @@ class BotMessageController extends Controller
     {
         // Try to save updates sent from bot
         try {
-            // get bot details using token 
+            // get bot details using token
             $botdetail = $this->botdetail->where('token', $token)->first();
 
             if ($type == "telegram") {
@@ -195,7 +187,7 @@ class BotMessageController extends Controller
      */
     private function saveTelegramUpdates($request, $botdetail, $type, $token)
     {
-        // call telegram bot api 
+        // call telegram bot api
         if ($request->has('update_id')) {
             // save bot chat and conversation
             $data = $request->get('message');
@@ -239,7 +231,7 @@ class BotMessageController extends Controller
      */
     private function saveViberUpdates($request, $botdetail, $type, $token)
     {
-        // call viber bot api 
+        // call viber bot api
         if ($request->event == "message") {
             // save bot chat and conversation
             $data = $request->toArray();
@@ -278,7 +270,7 @@ class BotMessageController extends Controller
      */
     public function saveWhatsappUpdates(Request $request)
     {
-        // call whatsapp bot api 
+        // call whatsapp bot api
             $newdata = $request->toArray();
             // save bot chat and conversation
 
@@ -309,10 +301,10 @@ class BotMessageController extends Controller
                     'date' => $data['messages'][0]['timestamp'],
                     'text' => $data['messages'][0]['text']['body'],
                 ];
-            
+
                 // connect contact books ms to get user-id of the partner
             PubSub::publish(self::RECEIVER_LISTENER, $inputData, 'ContactsBooksMS');
-    
+
             return;
             }
     }
