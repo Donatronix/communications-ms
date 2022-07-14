@@ -9,31 +9,30 @@ $router->group([
 ], function ($router) {
     /**
      * PUBLIC ACCESS
+     *
+     * level with free access to the endpoint
      */
     $router->group([
-        'prefix' => 'messages',
+        'namespace' => 'Public'
     ], function ($router) {
-        $router->post('/{messengerInstance}/webhook', 'MessagesController@handleWebhook');
+        /**
+         * Channels OneStep 1.0
+         */
+        $router->get('channels/auth/{platform}', 'ChannelController');
+
+        /**
+         * Send mails
+         */
+        $router->post('mail/sender', 'SendEmailController');
     });
 
-    // Send mails
-    $router->group(
-        ['prefix' => 'mail'],
-        function ($router) {
-            $router->post('/', '\App\Api\V1\Controllers\SendEmailController');
-        }
-    );
-
     /**
-     * Save updates coming from the bot
-     * The bot will make calls to this route
-     */
-    $router->post('/saveUpdates/{type}/{token}', 'BotMessageController@saveUpdates');
-
-    /**
-     * PRIVATE ACCESS
+     * USER APPLICATION PRIVATE ACCESS
+     *
+     * Application level for users
      */
     $router->group([
+        'namespace' => 'Application',
         'middleware' => 'checkUser'
     ], function ($router) {
         /**
@@ -42,8 +41,6 @@ $router->group([
         $router->group([
             'prefix' => 'channels',
         ], function ($router) {
-            //            $router->get('/auth/{platform}', 'ChannelController');
-
             $router->post('/{messengerInstance}/send-message', 'MessagesController@sendMessage');
             $router->post('/{messengerInstance}/webhook', 'MessagesController@handleWebhook');
         });
@@ -107,6 +104,8 @@ $router->group([
 
     /**
      * ADMIN PANEL ACCESS
+     *
+     * Admin / super admin access level (E.g CEO company)
      */
     $router->group([
         'prefix' => 'admin',
@@ -129,5 +128,29 @@ $router->group([
             $router->delete('/{id:[a-fA-F0-9\-]{36}}', 'ChannelController@destroy');
             $router->post('/{id:[a-fA-F0-9\-]{36}}/update-status', 'ChannelController@updateStatus');
         });
+    });
+
+    /**
+     * WEBHOOKS
+     *
+     * Access level of external / internal software services
+     */
+    $router->group([
+        'prefix' => 'webhooks',
+        'namespace' => 'Webhooks'
+    ], function ($router) {
+        $router->group([
+            'prefix' => 'messages',
+        ], function ($router) {
+            $router->post('/{messengerInstance}/webhook', 'MessagesController@handleWebhook');
+        });
+
+        /**
+         * Save updates coming from the bot
+         * The bot will make calls to this route
+         */
+        $router->post('/saveUpdates/{type}/{token}', 'BotMessageController@saveUpdates');
+        $router->get('/whatsapp/webhook', 'BotMessageController@verifyWhatsappWebhook');
+        $router->post('/whatsapp/webhook', 'BotMessageController@saveWhatsappUpdates');
     });
 });

@@ -1,19 +1,20 @@
 <?php
 
-namespace App\Api\V1\Controllers;
+namespace App\Api\V1\Controllers\Application;
 
-use Sumra\SDK\JsonApiResponse;
-use Illuminate\Http\Request;
+use App\Api\V1\Controllers\Controller;
+use App\Events\MessageSent;
 use App\Models\Chat;
-use Illuminate\Support\Facades\Validator;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use App\Events\MessageSent;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Sumra\SDK\JsonApiResponse;
 
 /**
  * Class ChatController
  *
- * @package App\Api\V1\Controllers
+ * @package App\Api\V1\Controllers\Application
  */
 class ChatController extends Controller
 {
@@ -49,14 +50,7 @@ class ChatController extends Controller
      *             "ManagerWrite"
      *         }
      *     }},
-     *     x={
-     *         "auth-type": "Application & Application User",
-     *         "throttling-tier": "Unlimited",
-     *         "wso2-application-security": {
-     *             "security-types": {"oauth2"},
-     *             "optional": "false"
-     *         }
-     *     },
+     *
      *     @OA\Parameter(
      *         name="conversation_id",
      *         in="path",
@@ -177,14 +171,7 @@ class ChatController extends Controller
      *             "ManagerWrite"
      *         }
      *     }},
-     *     x={
-     *         "auth-type": "Application & Application User",
-     *         "throttling-tier": "Unlimited",
-     *         "wso2-application-security": {
-     *             "security-types": {"oauth2"},
-     *             "optional": "false"
-     *         }
-     *     },
+     *
      *     @OA\Parameter(
      *         name="conversation_id",
      *         in="path",
@@ -257,7 +244,7 @@ class ChatController extends Controller
         // Try to add new chat
         try {
 
-            // create new chat 
+            // create new chat
             $chat = $this->model->create([
                 'user_id' => $this->user_id,
                 'conversation_id' => $conversation_id,
@@ -291,7 +278,7 @@ class ChatController extends Controller
      * @OA\Put(
      *     path="/chats/{id}",
      *     summary="Update a chat",
-     *     description="Update a chat",
+     *     description="Note: status can only be seen, delivered or deleted",
      *     tags={"Chats"},
      *
      *     security={{
@@ -301,14 +288,7 @@ class ChatController extends Controller
      *             "ManagerWrite"
      *         }
      *     }},
-     *     x={
-     *         "auth-type": "Application & Application User",
-     *         "throttling-tier": "Unlimited",
-     *         "wso2-application-security": {
-     *             "security-types": {"oauth2"},
-     *             "optional": "false"
-     *         }
-     *     },
+     *
      *     @OA\Parameter(
      *         name="chat_id",
      *         in="path",
@@ -384,26 +364,26 @@ class ChatController extends Controller
                 return $chat;
             }
 
-                $status = $request->get('status');
-                if ($status == "delivered") {
+            $status = $request->get('status');
+            if ($status == "delivered") {
+                $chat->update([
+                    'is_delivered' => 1,
+                ]);
+            } else if ($status == "seen") {
+                $chat->update([
+                    'is_seen' => 1,
+                ]);
+            } else if ($status == "deleted") {
+                if ($chat->user_id == $this->user_id) {
                     $chat->update([
-                        'is_delivered' => 1,
+                        'deleted_from_sender' => 1
                     ]);
-                } else if ($status == "seen") {
+                } else {
                     $chat->update([
-                        'is_seen' => 1,
+                        'deleted_from_receiver' => 1
                     ]);
-                } else if ($status == "deleted") {
-                    if ($chat->user_id == $this->user_id) {
-                        $chat->update([
-                            'deleted_from_sender' => 1
-                        ]);
-                    } else {
-                        $chat->update([
-                            'deleted_from_receiver' => 1
-                        ]);
-                    }
                 }
+            }
 
             // Return response to client
             return response()->jsonApi([

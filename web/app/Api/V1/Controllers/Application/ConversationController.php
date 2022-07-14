@@ -1,19 +1,20 @@
 <?php
 
-namespace App\Api\V1\Controllers;
+namespace App\Api\V1\Controllers\Application;
 
-use Sumra\SDK\JsonApiResponse;
-use Illuminate\Http\Request;
-use App\Models\Conversation;
+use App\Api\V1\Controllers\Controller;
 use App\Models\Chat;
-use Illuminate\Support\Facades\Validator;
+use App\Models\Conversation;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Sumra\SDK\JsonApiResponse;
 
 /**
  * Class ConversationController
  *
- * @package App\Api\V1\Controllers
+ * @package App\Api\V1\Controllers\Application
  */
 class ConversationController extends Controller
 {
@@ -51,14 +52,7 @@ class ConversationController extends Controller
      *             "ManagerWrite"
      *         }
      *     }},
-     *     x={
-     *         "auth-type": "Application & Application User",
-     *         "throttling-tier": "Unlimited",
-     *         "wso2-application-security": {
-     *             "security-types": {"oauth2"},
-     *             "optional": "false"
-     *         }
-     *     },
+     *
      *     @OA\Parameter(
      *         name="limit",
      *         in="query",
@@ -131,10 +125,10 @@ class ConversationController extends Controller
         try {
             // Get conversations list
             $conversations = $this->model
-            ->where('first_user_id', $this->user_id)
-            ->orWhere('second_user_id', $this->user_id)
-            ->orderBy($request->get('sort-by', 'created_at'), $request->get('sort-order', 'desc'))
-            ->paginate($request->get('limit', 20));
+                ->where('first_user_id', $this->user_id)
+                ->orWhere('second_user_id', $this->user_id)
+                ->orderBy($request->get('sort-by', 'created_at'), $request->get('sort-order', 'desc'))
+                ->paginate($request->get('limit', 20));
 
             // Return response
             return response()->jsonApi([
@@ -169,14 +163,7 @@ class ConversationController extends Controller
      *             "ManagerWrite"
      *         }
      *     }},
-     *     x={
-     *         "auth-type": "Application & Application User",
-     *         "throttling-tier": "Unlimited",
-     *         "wso2-application-security": {
-     *             "security-types": {"oauth2"},
-     *             "optional": "false"
-     *         }
-     *     },
+     *
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
@@ -233,7 +220,7 @@ class ConversationController extends Controller
             'second_user_id' => 'required|string',
             'message' => 'required|string',
         ]);
-        if ($validator->fails()){
+        if ($validator->fails()) {
             throw new Exception($validator->errors()->first());
         }
 
@@ -241,13 +228,13 @@ class ConversationController extends Controller
         try {
 
             // transform the request object to include first user id
-                $request->merge([
-                    'first_user_id' => $this->user_id
-                ]);
+            $request->merge([
+                'first_user_id' => $this->user_id
+            ]);
             // Create new
             $conversation = $this->model->create($request->all());
 
-            // create chat 
+            // create chat
             $chat = $this->chat->create([
                 'user_id' => $this->user_id,
                 'conversation_id' => $conversation->id,
@@ -289,14 +276,7 @@ class ConversationController extends Controller
      *             "ManagerWrite"
      *         }
      *     }},
-     *     x={
-     *         "auth-type": "Application & Application User",
-     *         "throttling-tier": "Unlimited",
-     *         "wso2-application-security": {
-     *             "security-types": {"oauth2"},
-     *             "optional": "false"
-     *         }
-     *     },
+     *
      *     @OA\Parameter(
      *         name="id",
      *         in="path",

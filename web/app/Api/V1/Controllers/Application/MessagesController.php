@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Api\V1\Controllers;
+namespace App\Api\V1\Controllers\Application;
 
+use App\Api\V1\Controllers\Controller;
 use App\Services\Messenger;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -25,14 +26,6 @@ class MessagesController extends Controller
      *             "ManagerWrite"
      *         }
      *     }},
-     *     x={
-     *         "auth-type": "Application & Application User",
-     *         "throttling-tier": "Unlimited",
-     *         "wso2-application-security": {
-     *             "security-types": {"oauth2"},
-     *             "optional": "false"
-     *         }
-     *     },
      *
      *     @OA\Parameter(
      *         name="from",
@@ -108,10 +101,10 @@ class MessagesController extends Controller
      * Handle webhook.
      *
      * @OA\Post(
-     *     path="/messages/{messengerInstance}/webhook",
+     *     path="/channels/{messengerInstance}/webhook",
      *     summary="Handle webhook from messenger",
      *     description="Handle webhook from messenger",
-     *     tags={"Messenger"},
+     *     tags={"Webhook"},
      *
      *     security={{
      *         "default": {
@@ -120,14 +113,6 @@ class MessagesController extends Controller
      *             "ManagerWrite"
      *         }
      *     }},
-     *     x={
-     *         "auth-type": "Application & Application User",
-     *         "throttling-tier": "Unlimited",
-     *         "wso2-application-security": {
-     *             "security-types": {"oauth2"},
-     *             "optional": "false"
-     *         }
-     *     },
      *
      *     @OA\Parameter(
      *         name="from",

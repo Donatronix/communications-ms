@@ -14,17 +14,23 @@
         "illuminate/mail": "~8",
         "irazasyed/telegram-bot-sdk": "~3",
         "laravel/lumen-framework": "~8",
-        "laravelista/lumen-vendor-publish": "^8.0",
         "pusher/pusher-php-server": "^7.0.2",
         "linecorp/line-bot-sdk": "~7",
-        "phpunit/phpunit": "^9.5",
         "sumra/sdk": "*",
         "team-reflex/discord-php": "^7.0",
-        "twilio/sdk": "~6"
+        "twilio/sdk": "~6",
+
+
+        "ext-bcmath": "*",
+        "aws/aws-sdk-php": "~3",
+        "bschmitt/laravel-amqp": "~2",
+        "kalnoy/nestedset": "~5",
+        "smorken/ext-http": "*"
     },
     "require-dev": {
         "fakerphp/faker": "~1",
-        "mockery/mockery": "~1"
+        "mockery/mockery": "~1",
+        "phpunit/phpunit": "~9"
     },
     "autoload": {
         "psr-4": {

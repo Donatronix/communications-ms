@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Api\V1\Controllers;
+namespace App\Api\V1\Controllers\Public;
 
+use App\Api\V1\Controllers\Controller;
 use App\Models\Channel;
 use Exception;
 use Illuminate\Http\Request;
@@ -26,14 +27,6 @@ class ChannelController extends Controller
      *             "ManagerWrite"
      *         }
      *     }},
-     *     x={
-     *         "auth-type": "Application & Application User",
-     *         "throttling-tier": "Unlimited",
-     *         "wso2-application-security": {
-     *             "security-types": {"oauth2"},
-     *             "optional": "false"
-     *         }
-     *     },
      *
      *     @OA\Parameter(
      *         name="platform",
@@ -119,7 +112,6 @@ class ChannelController extends Controller
                         break;
                     case 'line':
                         $result[$key] = array_merge($result[$key], [
-                            //'href' => "https://page.line.me/?accountId=772dmcwu",
                             'href' => "https://line.me/R/ti/p/{$channel->uri}",
                             'hrefMobile' => "line://ti/p/{$channel->uri}",
                         ]);
@@ -163,8 +155,8 @@ class ChannelController extends Controller
                     case 'twilio':
                     case 'nexmo':
                         $result[$key] = array_merge($result[$key], [
-                            'href_send_phone' => "https://{$request->getHost()}/api/v1/sms/send-phone?channel_id={$channel->id}",
-                            'href_send_sms' => "https://{$request->getHost()}/api/v1/sms/send-sms?channel_id={$channel->id}",
+                            'href_send_phone' => "https://{$request->getHost()}/v1/sms/send-phone?channel_id={$channel->id}",
+                            'href_send_sms' => "https://{$request->getHost()}/v1/sms/send-sms?channel_id={$channel->id}",
                         ]);
                         break;
 

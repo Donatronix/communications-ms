@@ -8,21 +8,23 @@ class CreateChatsTable extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * @return void
      */
     public function up()
     {
         Schema::create('chats', function (Blueprint $table) {
             $table->uuid('id')->primary();
+
             $table->text('message');
             $table->boolean('is_delivered')->default(0);
             $table->boolean('is_seen')->default(0);
             $table->boolean('deleted_from_sender')->default(0);
             $table->boolean('deleted_from_receiver')->default(0);
-            $table->foreignUuid('receiver_id');
-            $table->foreignUuid('user_id');
+            $table->uuid('receiver_id');
+            $table->uuid('user_id');
             $table->foreignUuid('conversation_id')->references('id')->on('conversations')->constrained();
+
             $table->timestamps();
             $table->softDeletes();
         });
@@ -30,7 +32,7 @@ class CreateChatsTable extends Migration
 
     /**
      * Reverse the migrations.
-     * 
+     *
      * @return void
      */
     public function down()

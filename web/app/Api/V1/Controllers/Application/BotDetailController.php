@@ -1,20 +1,22 @@
 <?php
 
-namespace App\Api\V1\Controllers;
+namespace App\Api\V1\Controllers\Application;
 
-use Sumra\SDK\JsonApiResponse;
-use Illuminate\Http\Request;
+use App\Api\V1\Controllers\Controller;
 use App\Models\BotDetail;
 use App\Models\Channel;
-use Illuminate\Support\Facades\Validator;
 use Exception;
+use GuzzleHttp\Client;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Sumra\SDK\JsonApiResponse;
 
 /**
  * Class BotDetailController
  *
- * @package App\Api\V1\Controllers 
+ * @package App\Api\V1\Controllers\Application
  */
 class BotDetailController extends Controller
 {
@@ -49,14 +51,7 @@ class BotDetailController extends Controller
      *             "ManagerWrite"
      *         }
      *     }},
-     *     x={
-     *         "auth-type": "Application & Application User",
-     *         "throttling-tier": "Unlimited",
-     *         "wso2-application-security": {
-     *             "security-types": {"oauth2"},
-     *             "optional": "false"
-     *         }
-     *     },
+     *
      *     @OA\Parameter(
      *         name="limit",
      *         in="query",
@@ -150,12 +145,12 @@ class BotDetailController extends Controller
     }
 
     /**
-     * Save influential bot detail
+     * Save bot detail
      *
      * @OA\Post(
      *     path="/bot-details",
-     *     summary="Save influential bot detail",
-     *     description="Save influential bot detail",
+     *     summary="Save bot detail",
+     *     description="Note: bot type can be only: 'telegram', 'viber', 'whatsapp'",
      *     tags={"Bot Details"},
      *
      *     security={{
@@ -165,14 +160,7 @@ class BotDetailController extends Controller
      *             "ManagerWrite"
      *         }
      *     }},
-     *     x={
-     *         "auth-type": "Application & Application User",
-     *         "throttling-tier": "Unlimited",
-     *         "wso2-application-security": {
-     *             "security-types": {"oauth2"},
-     *             "optional": "false"
-     *         }
-     *     },
+     *
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(ref="#/components/schemas/BotDetailSchema")
@@ -238,7 +226,7 @@ class BotDetailController extends Controller
                 ], 400);
             }
 
-            // create new botdetail 
+            // create new botdetail
             $botdetail = $this->botdetail->create([
                 'user_id' => $this->user_id,
                 'type' => $request->get('type'),
@@ -270,6 +258,48 @@ class BotDetailController extends Controller
         }
     }
 
+    /**
+     * Set Webhook Url
+     *
+     * @param $type
+     * @return mixed
+     */
+    private function setWebHookUrl($type): mixed
+    {
+        try {
+            $app_url = env("APP_URL");
+            $app_version = env("APP_API_VERSION");
+            // get token
+            $token = $this->botdetail->where(['user_id' => $this->user_id, 'type' => $type])->first()->token;
+            // webhook url
+            $webhook_url = "{$app_url}/{$app_version}/saveUpdates/{$type}/{$token}";
+            if ($type == "telegram") {
+                // call api to set webhook url
+                $client = new Client();
+                $response = $client->request('GET', "https://api.telegram.org/bot{$token}/setWebhook?url={$webhook_url}");
+            } else if ($type == "viber") {
+                // call api to set webhook url
+                $client = new Client();
+                $response = $client->request('POST', "https://chatapi.viber.com/pa/set_webhook", [
+                    'headers' => [
+                        'X-Viber-Auth-Token' => $token
+                    ],
+                    'json' => [
+                        'url' => $webhook_url,
+                    ]
+                ]);
+            }
+
+            return json_decode($response->getBody(), true);
+        } catch (ModelNotFoundException $e) {
+            return response()->jsonApi([
+                'type' => 'danger',
+                'title' => "Set webhook url",
+                'message' => "{$e->getMessage()}",
+                'data' => ''
+            ], 404);
+        }
+    }
 
     /**
      * Update a botdetail
@@ -287,14 +317,7 @@ class BotDetailController extends Controller
      *             "ManagerWrite"
      *         }
      *     }},
-     *     x={
-     *         "auth-type": "Application & Application User",
-     *         "throttling-tier": "Unlimited",
-     *         "wso2-application-security": {
-     *             "security-types": {"oauth2"},
-     *             "optional": "false"
-     *         }
-     *     },
+     *
      *     @OA\Parameter(
      *         name="botdetail_id",
      *         in="path",
@@ -408,6 +431,25 @@ class BotDetailController extends Controller
         }
     }
 
+    /**
+     * Get botdetail object
+     *
+     * @param $id
+     * @return mixed
+     */
+    private function getObject($id): mixed
+    {
+        try {
+            return $this->botdetail::findOrFail($id);
+        } catch (ModelNotFoundException $e) {
+            return response()->jsonApi([
+                'type' => 'danger',
+                'title' => "Get botdetail",
+                'message' => "Bot detail with id #{$id} not found: {$e->getMessage()}",
+                'data' => ''
+            ], 404);
+        }
+    }
 
     /**
      * Delete botdetail from storage
@@ -425,14 +467,7 @@ class BotDetailController extends Controller
      *             "ManagerWrite"
      *         }
      *     }},
-     *     x={
-     *         "auth-type": "Application & Application User",
-     *         "throttling-tier": "Unlimited",
-     *         "wso2-application-security": {
-     *             "security-types": {"oauth2"},
-     *             "optional": "false"
-     *         }
-     *     },
+     *
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -513,14 +548,6 @@ class BotDetailController extends Controller
      *             "ManagerWrite"
      *         }
      *     }},
-     *     x={
-     *         "auth-type": "Application & Application User",
-     *         "throttling-tier": "Unlimited",
-     *         "wso2-application-security": {
-     *             "security-types": {"oauth2"},
-     *             "optional": "false"
-     *         }
-     *     },
      *
      *     @OA\Parameter(
      *         name="id",
@@ -554,7 +581,7 @@ class BotDetailController extends Controller
                 'message' => "Bot detail been received",
                 'data' => $botdetail->toArray()
             ], 200);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->jsonApi([
                 'type' => 'danger',
                 'title' => 'Bot detail',
@@ -562,27 +589,6 @@ class BotDetailController extends Controller
             ], 400);
         }
     }
-
-    /**
-     * Get botdetail object
-     *
-     * @param $id
-     * @return mixed
-     */
-    private function getObject($id): mixed
-    {
-        try {
-            return $this->botdetail::findOrFail($id);
-        } catch (ModelNotFoundException $e) {
-            return response()->jsonApi([
-                'type' => 'danger',
-                'title' => "Get botdetail",
-                'message' => "Bot detail with id #{$id} not found: {$e->getMessage()}",
-                'data' => ''
-            ], 404);
-        }
-    }
-
 
     /**
      * Display a listing of the resource.
@@ -600,14 +606,7 @@ class BotDetailController extends Controller
      *             "ManagerWrite"
      *         }
      *     }},
-     *     x={
-     *         "auth-type": "Application & Application User",
-     *         "throttling-tier": "Unlimited",
-     *         "wso2-application-security": {
-     *             "security-types": {"oauth2"},
-     *             "optional": "false"
-     *         }
-     *     },
+     *
      *     @OA\Response(
      *         response="200",
      *         description="Success send data"
@@ -644,13 +643,8 @@ class BotDetailController extends Controller
                 return $response;
             }
 
-            // Return response
-            return response()->jsonApi([
-                'type' => 'success',
-                'title' => "botdetails list",
-                'message' => 'List of botdetails successfully received',
-                'data' => $response
-            ], 200);
+            return $response;
+
         } catch (Exception $e) {
             return response()->jsonApi([
                 'type' => 'danger',
@@ -658,49 +652,6 @@ class BotDetailController extends Controller
                 'message' => $e->getMessage(),
                 'data' => null
             ], 400);
-        }
-    }
-
-    /**
-     * Set Webhook Url
-     *
-     * @param $type
-     * @return mixed
-     */
-    private function setWebHookUrl($type): mixed
-    {
-        try {
-            $app_url = env("APP_URL");
-            $app_version = env("APP_API_VERSION");
-            // get token
-            $token = $this->botdetail->where(['user_id' => $this->user_id, 'type' => $type])->first()->token;
-            // webhook url
-            $webhook_url = "{$app_url}/{$app_version}/saveUpdates/{$type}/{$token}";
-            if ($type == "telegram") {
-                // call api to set webhook url
-                $client = new \GuzzleHttp\Client();
-                $response = $client->request('GET', "https://api.telegram.org/bot{$token}/setWebhook?url={$webhook_url}");
-            } else if ($type == "viber") {
-                // call api to set webhook url
-                $client = new \GuzzleHttp\Client();
-                $response = $client->request('POST', "https://chatapi.viber.com/pa/set_webhook", [
-                    'headers' => [
-                        'X-Viber-Auth-Token' => $token
-                    ],
-                    'json' => [
-                        'url' => $webhook_url,
-                    ]
-                ]);
-            }
-            
-            return json_decode($response->getBody(), true);
-        } catch (ModelNotFoundException $e) {
-            return response()->jsonApi([
-                'type' => 'danger',
-                'title' => "Set webhook url",
-                'message' => "{$e->getMessage()}",
-                'data' => ''
-            ], 404);
         }
     }
 }

@@ -8,16 +8,18 @@ class CreateConversationsTable extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * @return void
      */
     public function up()
     {
         Schema::create('conversations', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('first_user_id');
-            $table->foreignUuid('second_user_id');
+
+            $table->uuid('first_user_id');
+            $table->uuid('second_user_id');
             $table->boolean('status')->nullable();
+
             $table->timestamps();
             $table->softDeletes();
         });
@@ -25,7 +27,7 @@ class CreateConversationsTable extends Migration
 
     /**
      * Reverse the migrations.
-     * 
+     *
      * @return void
      */
     public function down()

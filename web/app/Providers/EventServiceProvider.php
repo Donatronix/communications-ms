@@ -19,6 +19,9 @@ class EventServiceProvider extends ServiceProvider
         'sendVerificationEmail' => [
             'App\Listeners\SendVerificationEmailListener'
         ],
+        'saveWhatsappUpdates' => [
+            'App\Listeners\SaveWhatsappUpdatesListener'
+        ],
         'sendForgotMailEmail' => [
             'App\Listeners\SendForgotPasswordEmailListener'
         ],
@@ -47,7 +50,7 @@ class EventServiceProvider extends ServiceProvider
      *
      * @return bool
      */
-    public function shouldDiscoverEvents()
+    public function shouldDiscoverEvents(): bool
     {
         return false;
     }
