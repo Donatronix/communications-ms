@@ -60,7 +60,7 @@ class SendEmailController extends Controller
      *         description="Success sended message"
      *     ),
      *     @OA\Response(
-     *         response=401,
+     *         response="401",
      *         description="Unauthorized"
      *     ),
      *     @OA\Response(

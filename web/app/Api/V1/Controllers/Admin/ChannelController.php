@@ -108,7 +108,7 @@ class ChannelController extends Controller
      *         description="All channels received successfully"
      *     ),
      *     @OA\Response(
-     *         response=401,
+     *         response="401",
      *         description="Unauthorized"
      *     ),
      *     @OA\Response(
@@ -186,7 +186,7 @@ class ChannelController extends Controller
      *         description="Bad request syntax or unsupported method"
      *     ),
      *     @OA\Response(
-     *         response=401,
+     *         response="401",
      *         description="Unauthorized"
      *     ),
      *     @OA\Response(
@@ -454,7 +454,7 @@ class ChannelController extends Controller
      *         description="The channel was successfully deleted."
      *     ),
      *     @OA\Response(
-     *         response=401,
+     *         response="401",
      *         description="Unauthorized"
      *     ),
      *     @OA\Response(
