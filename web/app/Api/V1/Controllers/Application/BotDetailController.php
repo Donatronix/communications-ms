@@ -603,6 +603,18 @@ class BotDetailController extends Controller
      *             "ManagerWrite"
      *         }
      *     }},
+     * 
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *     @OA\Property(
+     *         property="type",
+     *         type="string",
+     *         description="Type of bot",
+     *         example="telegram"
+     *     ),
+     *          )
+     *     ),
      *
      *     @OA\Response(
      *         response="200",
