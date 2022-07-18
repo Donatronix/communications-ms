@@ -107,10 +107,11 @@ class BotMessageController extends Controller
     {
         // Validate input
         $validator = Validator::make($request->all(), [
-            'type' => ["required", "string", Rule::in(Channel::$types)],
+            'type' => ["required", "string", Rule::in(Channel::$messengers)],
             'text' => 'required|string',
             'chat_id' => 'required|string',
         ]);
+
         if ($validator->fails()) {
             throw new Exception($validator->errors()->first());
         }

@@ -21,7 +21,7 @@ use Sumra\SDK\JsonApiResponse;
 class ChannelController extends Controller
 {
     /**
-     * Receiving list of Channels. Can get all channels, if type=None and platform=None
+     * Receiving list of all channels
      * else receive channels by filtering type or platform fields.
      *
      * @OA\Get(
@@ -71,9 +71,9 @@ class ChannelController extends Controller
      *         )
      *     ),
      *     @OA\Parameter(
-     *         name="type",
+     *         name="messenger",
      *         in="query",
-     *         description="Show channels by type",
+     *         description="Show channels by messenger",
      *         @OA\Schema(
      *             type="enum"
      *         )
@@ -89,7 +89,7 @@ class ChannelController extends Controller
      *     @OA\Parameter(
      *         name="sort[by]",
      *         in="query",
-     *         description="Sort by field (name, type, platform)",
+     *         description="Sort by field (name, messenger, platform)",
      *         @OA\Schema(
      *             type="string"
      *         )
@@ -127,9 +127,9 @@ class ChannelController extends Controller
     {
         try {
             // Get channels list
-            $channels = Channel::select('id', 'name', 'uri', 'token', 'sid', 'secret', 'number', 'type', 'status')
-                ->when($request->has('type'), function ($q) use ($request) {
-                    return $q->where('type', $request->get('type'));
+            $channels = Channel::query()
+                ->when($request->has('messenger'), function ($q) use ($request) {
+                    return $q->where('messenger', $request->get('messenger'));
                 })
                 ->when($request->has('platform'), function ($q) use ($request) {
                     return $q->where('platform', $request->get('platform'));
@@ -141,14 +141,12 @@ class ChannelController extends Controller
 
             // Return response
             return response()->jsonApi([
-                'type' => 'success',
                 'title' => "Channels list",
                 'message' => 'All channels received successfully',
-                'data' => $channels->toArray(),
-            ], 200);
+                'data' => $channels,
+            ]);
         } catch (Exception $e) {
             return response()->jsonApi([
-                'type' => 'danger',
                 'title' => "Channels list",
                 'message' => 'Failed to get all channels' . $e->getMessage(),
             ], 400);
@@ -161,7 +159,7 @@ class ChannelController extends Controller
      * @OA\Post(
      *     path="/admin/channels",
      *     summary="Create a new channel",
-     *     description="NOTICE. Channel type can be only: 'telegram', 'viber', 'line', 'discord', 'signal', 'whatsapp', 'twilio', 'nexmo', 'facebook'. Channel platform can be only: 'sumra', 'ultainfinity'.",
+     *     description="NOTICE. Channel messenger can be only: 'telegram', 'viber', 'line', 'discord', 'signal', 'whatsapp', 'twilio', 'nexmo', 'facebook'. Channel platform can be only: 'sumra', 'ultainfinity'.",
      *     tags={"Admin / Channels"},
      *
      *     security={{
@@ -207,9 +205,9 @@ class ChannelController extends Controller
 
         // Checks if there is a channel in the database with the given token.
         $channel = Channel::where('token', $request->get('token', null))->first();
+
         if ($channel) {
             return response()->jsonApi([
-                'type' => 'danger',
                 'title' => 'Adding a channel',
                 'message' => 'Channel with this token already exists.',
                 'data' => null,
@@ -217,26 +215,15 @@ class ChannelController extends Controller
         }
 
         try {
-            $channel = Channel::create([
-                'name' => $request->get('name', null),
-                'uri',
-                'token',
-                'platform',
-                'type',
-                'number',
-                'sid',
-                'secret',
-            ]);
+            $channel = Channel::create($request->all());
 
             return response()->jsonApi([
-                'type' => 'success',
                 'title' => 'Adding a channel',
                 'message' => "New channel {$channel->name} was successfully added",
                 'data' => $channel->toArray(),
             ], 201);
         } catch (Exception $e) {
             return response()->jsonApi([
-                'type' => 'danger',
                 'title' => 'Adding a channel',
                 'message' => 'New channel was not created: ' . $e->getMessage(),
                 'data' => null,
@@ -308,32 +295,10 @@ class ChannelController extends Controller
         }
 
         return response()->jsonApi([
-            'type' => 'success',
             'title' => 'Channel details',
             'message' => "The channel was successfully received",
             'data' => $channel->toArray(),
         ], 200);
-    }
-
-    /**
-     * Get Channel object
-     *
-     * @param $id
-     *
-     * @return mixed
-     */
-    private function getObject($id)
-    {
-        try {
-            return Channel::findOrFail($id);
-        } catch (ModelNotFoundException $e) {
-            return response()->jsonApi([
-                'type' => 'danger',
-                'title' => "Get channel",
-                'message' => "Channel #{$id} not found or empty",
-                'data' => null,
-            ], 404);
-        }
     }
 
     /**
@@ -408,14 +373,12 @@ class ChannelController extends Controller
             $channel->save();
 
             return response()->jsonApi([
-                'type' => 'success',
                 'title' => 'Update a channel',
                 'message' => "The channel was {$channel->name} successfully updated",
                 'data' => $channel->toArray(),
-            ], 200);
+            ]);
         } catch (Exception $e) {
             return response()->jsonApi([
-                'type' => 'danger',
                 'title' => 'Change a channel',
                 'message' => $e->getMessage(),
                 'data' => null,
@@ -490,14 +453,12 @@ class ChannelController extends Controller
             $channel->delete();
 
             return response()->jsonApi([
-                'type' => 'success',
                 'title' => "Delete of channel",
                 'message' => 'The channel was successfully deleted',
                 'data' => null,
             ], 204);
         } catch (Exception $e) {
             return response()->jsonApi([
-                'type' => 'danger',
                 'title' => "Delete of channel",
                 'message' => 'Cannot delete channel' . $e->getMessage(),
                 'data' => null,
@@ -556,20 +517,34 @@ class ChannelController extends Controller
                 'status' => !$channel->status,
             ]);
 
-            // Load channel
-            $channel->load('channels');
-
             return response()->jsonApi([
-                'type' => 'success',
                 'title' => 'Favorites list',
-                'message' => sprintf("%s was successfully %s favorites", $channel->display_name, $channel->is_favorite ? 'added to' : 'removed from'),
-                'data' => $channel->toArray(),
-            ], 200);
+                'message' => sprintf("%s was successfully status updated", $channel->title),
+                'data' => $channel,
+            ]);
         } catch (Exception $e) {
             return response()->jsonApi([
-                'type' => 'danger',
                 'title' => "Favorites list",
-                'message' => "Can't change status for Channels {$channel->display_name}",
+                'message' => "Can't change status for Channels {$channel->title}",
+            ], 404);
+        }
+    }
+
+    /**
+     * Get Channel object
+     *
+     * @param $id
+     *
+     * @return mixed
+     */
+    private function getObject($id)
+    {
+        try {
+            return Channel::findOrFail($id);
+        } catch (ModelNotFoundException $e) {
+            return response()->jsonApi([
+                'title' => "Get channel",
+                'message' => "Channel #{$id} not found or empty",
             ], 404);
         }
     }

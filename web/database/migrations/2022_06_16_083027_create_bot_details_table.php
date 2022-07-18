@@ -18,7 +18,7 @@ class CreateBotDetailsTable extends Migration
             $table->uuid('id')->primary();
 
             $table->uuid('user_id');
-            $table->enum('type', Channel::$types);
+            $table->enum('type', Channel::$messengers);
             $table->string('name');
             $table->string('username');
             $table->string('token'); //->unique();

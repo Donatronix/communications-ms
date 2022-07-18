@@ -3,11 +3,12 @@
 namespace App\Api\V1\Controllers\Webhooks;
 
 use App\Api\V1\Controllers\Controller;
-use App\Models\BotConversation;
 use App\Models\BotChat;
-use Illuminate\Http\Request;
+use App\Models\BotConversation;
 use App\Models\BotDetail;
 use Exception;
+use Illuminate\Http\Request;
+use Log;
 use Sumra\SDK\Facades\PubSub;
 
 /**
@@ -17,11 +18,10 @@ use Sumra\SDK\Facades\PubSub;
  */
 class BotMessageController extends Controller
 {
-
+    private const RECEIVER_LISTENER = "getOwnerByPhone";
     private BotDetail $botdetail;
     private BotConversation $botconversation;
     private BotChat $botchat;
-    private const RECEIVER_LISTENER = "getOwnerByPhone";
 
     /**
      * BotMessageController constructor.
@@ -41,7 +41,7 @@ class BotMessageController extends Controller
     /**
      * Save updates from bot webhook
      *
-     * @param Request $request, $type, $token
+     * @param Request $request , $type, $token
      * @return mixed
      *
      * @OA\Post(
@@ -119,7 +119,7 @@ class BotMessageController extends Controller
                 $data = $this->saveViberUpdates($request, $botdetail, $type, $token);
             }
 
-            \Log::info("Update has been saved");
+            Log::info("Update has been saved");
 
             // Return response
             return response()->jsonApi([
@@ -129,7 +129,7 @@ class BotMessageController extends Controller
                 'data' => $data
             ], 200);
         } catch (Exception $e) {
-            \Log::info($e->getMessage());
+            Log::info($e->getMessage());
 
             return response()->jsonApi([
                 'type' => 'danger',
@@ -141,48 +141,9 @@ class BotMessageController extends Controller
     }
 
     /**
-     * Private method to save chats with bots
-     *
-     * @param Array $id, $user_id
-     * @return mixed
-     */
-    private function saveBotChats($data, $user_id)
-    {
-        $bot_username = $data['bot_username'];
-        $chat_id = $data['chat_id'];
-
-        $botconversation = $this->botconversation->where(['bot_username' => $bot_username, 'chat_id' => $chat_id])->first();
-
-        // if botconversation does not exist, create it
-        if (!$botconversation) {
-
-            $botconversation = $this->botconversation->create([
-                'user_id' => $user_id,
-                'bot_name' => $data['bot_name'],
-                'bot_username' => $bot_username,
-                'chat_id' => $chat_id,
-                'first_name' => $data['first_name'],
-                'bot_type' => $data['bot_type'],
-                'last_name' => $data['last_name']
-            ]);
-        }
-
-        // save bot chat
-        $this->botchat->create([
-            'message_id' => $data['message_id'],
-            'date' => $data['date'],
-            'text' => $data['text'],
-            'sender' => $data['sender'],
-            'receiver' => $data['receiver'],
-            'replied_to_message_id' => $data['replied_to_message_id'],
-            'bot_conversation_id' => $botconversation->id
-        ]);
-    }
-
-    /**
      * Private method to save Telegram Updates
      *
-     * @param Request $request, $botdetail, $type, $token
+     * @param Request $request , $botdetail, $type, $token
      * @return mixed
      */
     private function saveTelegramUpdates($request, $botdetail, $type, $token)
@@ -224,9 +185,48 @@ class BotMessageController extends Controller
     }
 
     /**
+     * Private method to save chats with bots
+     *
+     * @param Array $id , $user_id
+     * @return mixed
+     */
+    private function saveBotChats($data, $user_id)
+    {
+        $bot_username = $data['bot_username'];
+        $chat_id = $data['chat_id'];
+
+        $botconversation = $this->botconversation->where(['bot_username' => $bot_username, 'chat_id' => $chat_id])->first();
+
+        // if botconversation does not exist, create it
+        if (!$botconversation) {
+
+            $botconversation = $this->botconversation->create([
+                'user_id' => $user_id,
+                'bot_name' => $data['bot_name'],
+                'bot_username' => $bot_username,
+                'chat_id' => $chat_id,
+                'first_name' => $data['first_name'],
+                'bot_type' => $data['bot_type'],
+                'last_name' => $data['last_name']
+            ]);
+        }
+
+        // save bot chat
+        $this->botchat->create([
+            'message_id' => $data['message_id'],
+            'date' => $data['date'],
+            'text' => $data['text'],
+            'sender' => $data['sender'],
+            'receiver' => $data['receiver'],
+            'replied_to_message_id' => $data['replied_to_message_id'],
+            'bot_conversation_id' => $botconversation->id
+        ]);
+    }
+
+    /**
      * Private method to save Viber Updates
      *
-     * @param Request $request, $botdetail, $type, $token
+     * @param Request $request , $botdetail, $type, $token
      * @return mixed
      */
     private function saveViberUpdates($request, $botdetail, $type, $token)
@@ -258,62 +258,63 @@ class BotMessageController extends Controller
 
             return $data;
         } else {
-            \Log::info($request);
+            Log::info($request);
         }
     }
 
     /**
      * Private method to save whatsapp Updates
      *
-     * @param Array $request, $type, $token
+     * @param Array $request , $type, $token
      * @return mixed
      */
     public function saveWhatsappUpdates(Request $request)
     {
         // call whatsapp bot api
-            $newdata = $request->toArray();
-            // save bot chat and conversation
+        $newdata = $request->toArray();
+        // save bot chat and conversation
 
-            if (sizeof($newdata["entry"])) {
+        if (sizeof($newdata["entry"])) {
             $data = $newdata["entry"][0]["changes"][0]['value'];
             $name = explode(' ', $data['contacts'][0]['profile']['name']);
             // get firstname and lastname of the sender
-            if(sizeof($name) > 1){
+            if (sizeof($name) > 1) {
                 $firstname = $name[0];
                 $lastname = $name[1];
-            }else{
+            } else {
                 $firstname = $name[0];
                 $lastname = "";
             }
 
             // create input data
-                $inputData = [
-                    'bot_name' => "",
-                    'bot_username' => "",
-                    'chat_id' => $data['contacts'][0]['wa_id'],
-                    'first_name' => $firstname,
-                    'bot_type' => "whatsapp",
-                    'last_name' => $lastname,
-                    'replied_to_message_id' => null,
-                    'message_id' => $data['messages'][0]['id'],
-                    'sender' => $data['contacts'][0]['wa_id'],
-                    'receiver' => "",
-                    'date' => $data['messages'][0]['timestamp'],
-                    'text' => $data['messages'][0]['text']['body'],
-                ];
+            $inputData = [
+                'bot_name' => "",
+                'bot_username' => "",
+                'chat_id' => $data['contacts'][0]['wa_id'],
+                'first_name' => $firstname,
+                'bot_type' => "whatsapp",
+                'last_name' => $lastname,
+                'replied_to_message_id' => null,
+                'message_id' => $data['messages'][0]['id'],
+                'sender' => $data['contacts'][0]['wa_id'],
+                'receiver' => "",
+                'date' => $data['messages'][0]['timestamp'],
+                'text' => $data['messages'][0]['text']['body'],
+            ];
 
-                // connect contact books ms to get user-id of the partner
+            // connect contact books ms to get user-id of the partner
             PubSub::publish(self::RECEIVER_LISTENER, $inputData, 'ContactsBooksMS');
 
             return;
-            }
+        }
     }
 
-    public function verifyWhatsappWebhook(Request $request){
-        if ($request->has(["hub_mode","hub_challenge","hub_verify_token"])){
-            if($request->get("hub_mode") == "subscribe" && $request->get("hub_verify_token") == env("WHATSAPP_CLOUD_VERIFY_TOKEN")){
+    public function verifyWhatsappWebhook(Request $request)
+    {
+        if ($request->has(["hub_mode", "hub_challenge", "hub_verify_token"])) {
+            if ($request->get("hub_mode") == "subscribe" && $request->get("hub_verify_token") == env("WHATSAPP_CLOUD_VERIFY_TOKEN")) {
                 return $request->get("hub_challenge");
-            }else{
+            } else {
                 return null;
             }
         }

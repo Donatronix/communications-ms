@@ -44,6 +44,10 @@ return [
         'files' => [
             'host' => env('API_FILES_HOST', 'http://localhost:8080'),
             'version' => env('API_FILES_VERSION', '/v1')
+        ],
+        'identity' => [
+           'host' => env('API_IDENTITY_HOST', 'http://localhost:8200'),
+           'version' => env('API_IDENTITY_VERSION', '/v1')
         ]
     ],
 

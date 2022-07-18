@@ -20,7 +20,6 @@ use Sumra\SDK\JsonApiResponse;
  */
 class BotDetailController extends Controller
 {
-
     private BotDetail $botdetail;
 
     /**
@@ -33,7 +32,6 @@ class BotDetailController extends Controller
         $this->botdetail = $botdetail;
         $this->user_id = auth()->user()->getAuthIdentifier();
     }
-
 
     /**
      * Display a listing of the resource.
@@ -203,7 +201,7 @@ class BotDetailController extends Controller
     {
         // Validate input
         $validator = Validator::make($request->all(), [
-            'type' => ["required", "string", Rule::in(Channel::$types)],
+            'type' => ["required", "string", Rule::in(Channel::$messengers)],
             'token' => 'required|string',
             'name' => 'required|string',
             'username' => 'required|string',
@@ -574,7 +572,6 @@ class BotDetailController extends Controller
         }
 
         try {
-
             return response()->jsonApi([
                 'type' => 'success',
                 'title' => 'Bot detail',
@@ -636,7 +633,6 @@ class BotDetailController extends Controller
     public function setBotWebHookUrl(Request $request)
     {
         try {
-
             // setwebhook for bot
             $response = $this->setWebHookUrl($request->get('type'));
             if ($response instanceof JsonApiResponse) {

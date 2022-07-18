@@ -8,7 +8,6 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use GuzzleHTTP\Client;
 
-
 class FaceBookManager implements MessengerContract
 {
     const STATUS_CHAT_STARTED = 1;

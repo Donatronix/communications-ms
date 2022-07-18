@@ -4,11 +4,11 @@ namespace App\Api\V1\Controllers\Public;
 
 use App\Http\Controllers\Controller;
 use App\Models\Message;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use PubSub;
-use Exception;
 
 class SendEmailController extends Controller
 {
@@ -91,7 +91,7 @@ class SendEmailController extends Controller
         );
 
         // Send mail for each recipients
-        foreach($requestData['emails'] as $email){
+        foreach ($requestData['emails'] as $email) {
             $mailData = [
                 'subject' => $requestData['subject'],
                 'body' => $requestData['body'],
