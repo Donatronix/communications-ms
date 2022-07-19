@@ -102,7 +102,9 @@ $app->register(Telegram\Bot\Laravel\TelegramServiceProvider::class);
  */
 $app->configure('queues');
 $app->register(VladimirYuldashev\LaravelQueueRabbitMQ\LaravelQueueRabbitMQServiceProvider::class);
-class_alias(\Illuminate\Support\Facades\App::class, 'App');
+if (!class_exists('App')) {
+    class_alias(\Illuminate\Support\Facades\App::class, 'App');
+}
 $app->register(\Sumra\SDK\PubSubServiceProvider::class);
 
 /**
