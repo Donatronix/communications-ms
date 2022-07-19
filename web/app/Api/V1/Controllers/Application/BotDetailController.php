@@ -127,17 +127,14 @@ class BotDetailController extends Controller
 
             // Return response
             return response()->jsonApi([
-                'type' => 'success',
                 'title' => "botdetails list",
                 'message' => 'List of botdetails successfully received',
                 'data' => $botdetails->toArray()
-            ], 200);
+            ]);
         } catch (Exception $e) {
             return response()->jsonApi([
-                'type' => 'danger',
                 'title' => "bot details list",
-                'message' => $e->getMessage(),
-                'data' => null
+                'message' => $e->getMessage()
             ], 400);
         }
     }
@@ -217,10 +214,8 @@ class BotDetailController extends Controller
 
             if ($botdetail) {
                 return response()->jsonApi([
-                    'type' => 'danger',
                     'title' => 'New botdetail registration',
-                    'message' => "User already created a {$request->get('type')} bot. Try update it instead",
-                    'data' => null
+                    'message' => "User already created a {$request->get('type')} bot. Try update it instead"
                 ], 400);
             }
 
@@ -241,17 +236,14 @@ class BotDetailController extends Controller
 
             // Return response to client
             return response()->jsonApi([
-                'type' => 'success',
                 'title' => 'New bot detail created registration',
                 'message' => "Bot detail successfully added",
                 'data' => $botdetail->toArray()
-            ], 200);
+            ]);
         } catch (Exception $e) {
             return response()->jsonApi([
-                'type' => 'danger',
                 'title' => 'New botdetail registration',
-                'message' => $e->getMessage(),
-                'data' => null
+                'message' => $e->getMessage()
             ], 400);
         }
     }
@@ -291,10 +283,8 @@ class BotDetailController extends Controller
             return json_decode($response->getBody(), true);
         } catch (ModelNotFoundException $e) {
             return response()->jsonApi([
-                'type' => 'danger',
                 'title' => "Set webhook url",
-                'message' => "{$e->getMessage()}",
-                'data' => ''
+                'message' => "{$e->getMessage()}"
             ], 404);
         }
     }
@@ -414,17 +404,14 @@ class BotDetailController extends Controller
 
             // Return response to client
             return response()->jsonApi([
-                'type' => 'success',
                 'title' => 'Bot detail updation',
                 'message' => "Bot detail successfully updated",
                 'data' => $botdetail->toArray()
-            ], 200);
+            ]);
         } catch (Exception $e) {
             return response()->jsonApi([
-                'type' => 'danger',
                 'title' => 'Bot detail updation',
-                'message' => $e->getMessage(),
-                'data' => null
+                'message' => $e->getMessage()
             ], 400);
         }
     }
@@ -441,10 +428,8 @@ class BotDetailController extends Controller
             return $this->botdetail::findOrFail($id);
         } catch (ModelNotFoundException $e) {
             return response()->jsonApi([
-                'type' => 'danger',
                 'title' => "Get botdetail",
                 'message' => "Bot detail with id #{$id} not found: {$e->getMessage()}",
-                'data' => ''
             ], 404);
         }
     }
@@ -515,17 +500,13 @@ class BotDetailController extends Controller
             $botdetail->delete();
 
             return response()->jsonApi([
-                'type' => 'success',
                 'title' => "Delete botdetail",
                 'message' => 'botdetail is successfully deleted',
-                'data' => null
-            ], 200);
+            ]);
         } catch (Exception $e) {
             return response()->jsonApi([
-                'type' => 'danger',
                 'title' => "Delete of botdetail",
                 'message' => $e->getMessage(),
-                'data' => null
             ], 400);
         }
     }
@@ -573,14 +554,12 @@ class BotDetailController extends Controller
 
         try {
             return response()->jsonApi([
-                'type' => 'success',
                 'title' => 'Bot detail',
                 'message' => "Bot detail been received",
                 'data' => $botdetail->toArray()
-            ], 200);
+            ]);
         } catch (Exception $e) {
             return response()->jsonApi([
-                'type' => 'danger',
                 'title' => 'Bot detail',
                 'message' => $e->getMessage(),
             ], 400);
@@ -643,10 +622,8 @@ class BotDetailController extends Controller
 
         } catch (Exception $e) {
             return response()->jsonApi([
-                'type' => 'danger',
                 'title' => "bot details list",
                 'message' => $e->getMessage(),
-                'data' => null
             ], 400);
         }
     }

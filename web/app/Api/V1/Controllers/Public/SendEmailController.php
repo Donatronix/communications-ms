@@ -120,9 +120,8 @@ class SendEmailController extends Controller
 
         // Return success response
         return response()->jsonApi([
-            'type' => 'success',
             'title' => 'Success',
             'message' => 'Message was been successful added to queue'
-        ], 200);
+        ]);
     }
 }

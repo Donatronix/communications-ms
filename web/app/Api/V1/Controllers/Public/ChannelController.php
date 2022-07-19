@@ -73,7 +73,8 @@ class ChannelController extends Controller
         if ($validator->fails()) {
             return response()->jsonApi([
                 'title' => 'Get auth channels list',
-                'message' => "Validation error: " . $validator->errors(),
+                'message' => 'Input data validation error',
+                'data' => $validator->errors()
             ], 422);
         }
 

@@ -123,19 +123,16 @@ class BotMessageController extends Controller
 
             // Return response
             return response()->jsonApi([
-                'type' => 'success',
                 'title' => "send message",
                 'message' => 'Your message has been sent',
                 'data' => $data
-            ], 200);
+            ]);
         } catch (Exception $e) {
             Log::info($e->getMessage());
 
             return response()->jsonApi([
-                'type' => 'danger',
                 'title' => "send message",
                 'message' => $e->getMessage(),
-                'data' => null
             ], 400);
         }
     }

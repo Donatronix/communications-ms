@@ -127,10 +127,8 @@ class BotMessageController extends Controller
 
                 if (!$botdetail) {
                     return response()->jsonApi([
-                        'type' => 'danger',
                         'title' => 'Send Message',
                         'message' => "User has not created a bot for {$request->get('type')}",
-                        'data' => null
                     ], 400);
                 }
 
@@ -148,17 +146,14 @@ class BotMessageController extends Controller
 
             // Return response
             return response()->jsonApi([
-                'type' => 'success',
                 'title' => "send message",
                 'message' => 'Your message has been sent',
                 'data' => $data
-            ], 200);
+            ]);
         } catch (Exception $e) {
             return response()->jsonApi([
-                'type' => 'danger',
                 'title' => "send message",
                 'message' => $e->getMessage(),
-                'data' => null
             ], 400);
         }
     }
@@ -456,10 +451,8 @@ class BotMessageController extends Controller
             // Get conversations list
             if (!$request->get('type')) {
                 return response()->jsonApi([
-                    'type' => 'danger',
                     'title' => "conversations list",
-                    'message' => 'Include bot type as a parameter',
-                    'data' => null
+                    'message' => 'Include bot type as a parameter'
                 ], 400);
             }
 
@@ -470,17 +463,14 @@ class BotMessageController extends Controller
 
             // Return response
             return response()->jsonApi([
-                'type' => 'success',
                 'title' => "conversations list",
                 'message' => 'List of botconversations successfully received',
                 'data' => $botconversations->toArray()
-            ], 200);
+            ]);
         } catch (Exception $e) {
             return response()->jsonApi([
-                'type' => 'danger',
                 'title' => "conversations list",
-                'message' => $e->getMessage(),
-                'data' => null
+                'message' => $e->getMessage()
             ], 400);
         }
     }
@@ -590,17 +580,14 @@ class BotMessageController extends Controller
 
             // Return response
             return response()->jsonApi([
-                'type' => 'success',
                 'title' => "chats list",
                 'message' => 'List of chats successfully received',
                 'data' => $botchats->toArray()
-            ], 200);
+            ]);
         } catch (Exception $e) {
             return response()->jsonApi([
-                'type' => 'danger',
                 'title' => "chats list",
                 'message' => $e->getMessage(),
-                'data' => null
             ], 400);
         }
     }

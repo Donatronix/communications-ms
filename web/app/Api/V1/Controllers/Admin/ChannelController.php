@@ -210,7 +210,6 @@ class ChannelController extends Controller
             return response()->jsonApi([
                 'title' => 'Adding a channel',
                 'message' => 'Channel with this token already exists.',
-                'data' => null,
             ], 400);
         }
 
@@ -220,13 +219,12 @@ class ChannelController extends Controller
             return response()->jsonApi([
                 'title' => 'Adding a channel',
                 'message' => "New channel {$channel->name} was successfully added",
-                'data' => $channel->toArray(),
+                'data' => $channel,
             ], 201);
         } catch (Exception $e) {
             return response()->jsonApi([
                 'title' => 'Adding a channel',
                 'message' => 'New channel was not created: ' . $e->getMessage(),
-                'data' => null,
             ], 400);
         }
     }
@@ -297,8 +295,8 @@ class ChannelController extends Controller
         return response()->jsonApi([
             'title' => 'Channel details',
             'message' => "The channel was successfully received",
-            'data' => $channel->toArray(),
-        ], 200);
+            'data' => $channel,
+        ]);
     }
 
     /**
@@ -381,7 +379,6 @@ class ChannelController extends Controller
             return response()->jsonApi([
                 'title' => 'Change a channel',
                 'message' => $e->getMessage(),
-                'data' => null,
             ], 400);
         }
     }
@@ -455,13 +452,11 @@ class ChannelController extends Controller
             return response()->jsonApi([
                 'title' => "Delete of channel",
                 'message' => 'The channel was successfully deleted',
-                'data' => null,
             ], 204);
         } catch (Exception $e) {
             return response()->jsonApi([
                 'title' => "Delete of channel",
                 'message' => 'Cannot delete channel' . $e->getMessage(),
-                'data' => null,
             ], 400);
         }
     }
