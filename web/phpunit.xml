@@ -6,7 +6,11 @@
 >
     <testsuites>
         <testsuite name="Application Test Suite">
-            <directory suffix="Test.php">./tests</directory>
+            <!-- <directory suffix="Test.php">./tests</directory> -->
+            <file>./tests/BotDetailsTest.php</file>
+            <file>./tests/BotMessagesTest.php</file>
+            <file>./tests/ConversationsTest.php</file>
+            <file>./tests/ChatsTest.php</file>
         </testsuite>
     </testsuites>
     <php>

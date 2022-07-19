@@ -74,6 +74,12 @@ class BotMessageController extends Controller
      *         description="Chat Id of the user to send a message",
      *         example="2063523844"
      *     ),
+     *     @OA\Property(
+     *         property="type",
+     *         type="string",
+     *         description="Type of bot",
+     *         example="telegram"
+     *     ),
      *          )
      *     ),
      *
