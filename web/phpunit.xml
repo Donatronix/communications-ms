@@ -11,6 +11,7 @@
             <file>./tests/BotMessagesTest.php</file>
             <file>./tests/ConversationsTest.php</file>
             <file>./tests/ChatsTest.php</file>
+            <file>./tests/ChannelsTest.php</file>
         </testsuite>
     </testsuites>
     <php>
