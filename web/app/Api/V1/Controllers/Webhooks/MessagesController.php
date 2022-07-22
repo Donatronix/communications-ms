@@ -93,6 +93,6 @@ class MessagesController extends Controller
 
         return response()->json([
             'data' => $messageId,
-        ], 200);
+        ]);
     }
 }

@@ -141,11 +141,10 @@ class ChannelController extends Controller
 
             // Return response
             return response()->jsonApi([
-                'type' => 'success',
                 'title' => "Channels list",
                 'message' => 'All channels received successfully',
                 'data' => $channels,
-            ], 200);
+            ]);
         } catch (Exception $e) {
             return response()->jsonApi([
                 'title' => "Channels list",
@@ -210,8 +209,7 @@ class ChannelController extends Controller
         if ($channel) {
             return response()->jsonApi([
                 'title' => 'Adding a channel',
-                'message' => 'Channel with this token already exists.',
-                'data' => null,
+                'message' => 'Channel with this token already exists.'
             ], 400);
         }
 
@@ -219,16 +217,14 @@ class ChannelController extends Controller
             $channel = Channel::create($request->all());
 
             return response()->jsonApi([
-                'type' => 'success',
                 'title' => 'Adding a channel',
                 'message' => "New channel {$channel->name} was successfully added",
                 'data' => $channel->toArray(),
-            ], 200);
+            ], 201);
         } catch (Exception $e) {
             return response()->jsonApi([
                 'title' => 'Adding a channel',
                 'message' => 'New channel was not created: ' . $e->getMessage(),
-                'data' => null,
             ], 400);
         }
     }
@@ -297,11 +293,10 @@ class ChannelController extends Controller
         }
 
         return response()->jsonApi([
-            'type' => 'success',
             'title' => 'Channel details',
             'message' => "The channel was successfully received",
             'data' => $channel->toArray(),
-        ], 200);
+        ]);
     }
 
     /**
@@ -376,16 +371,14 @@ class ChannelController extends Controller
             $channel->save();
 
             return response()->jsonApi([
-                'type' => 'success',
                 'title' => 'Update a channel',
                 'message' => "The channel was {$channel->name} successfully updated",
                 'data' => $channel->toArray(),
-            ], 200);
+            ]);
         } catch (Exception $e) {
             return response()->jsonApi([
                 'title' => 'Change a channel',
-                'message' => $e->getMessage(),
-                'data' => null,
+                'message' => $e->getMessage()
             ], 400);
         }
     }
@@ -457,16 +450,13 @@ class ChannelController extends Controller
             $channel->delete();
 
             return response()->jsonApi([
-                'type' => 'success',
                 'title' => "Delete of channel",
-                'message' => 'The channel was successfully deleted',
-                'data' => [],
-            ], 200);
+                'message' => 'The channel was successfully deleted'
+            ]);
         } catch (Exception $e) {
             return response()->jsonApi([
                 'title' => "Delete of channel",
                 'message' => 'Cannot delete channel' . $e->getMessage(),
-                'data' => null,
             ], 400);
         }
     }
@@ -523,7 +513,6 @@ class ChannelController extends Controller
             ]);
 
             return response()->jsonApi([
-                'type' => 'success',
                 'title' => 'Favorites list',
                 'message' => sprintf("%s was successfully status updated", $channel->title),
                 'data' => $channel,
