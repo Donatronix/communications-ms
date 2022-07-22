@@ -239,7 +239,7 @@ class BotDetailController extends Controller
                 'title' => 'New bot detail created registration',
                 'message' => "Bot detail successfully added",
                 'data' => $botdetail->toArray()
-            ]);
+            ], 201);
         } catch (Exception $e) {
             return response()->jsonApi([
                 'title' => 'New botdetail registration',
@@ -501,12 +501,12 @@ class BotDetailController extends Controller
 
             return response()->jsonApi([
                 'title' => "Delete botdetail",
-                'message' => 'botdetail is successfully deleted',
+                'message' => 'botdetail is successfully deleted'
             ]);
         } catch (Exception $e) {
             return response()->jsonApi([
                 'title' => "Delete of botdetail",
-                'message' => $e->getMessage(),
+                'message' => $e->getMessage()
             ], 400);
         }
     }
@@ -635,7 +635,7 @@ class BotDetailController extends Controller
         } catch (Exception $e) {
             return response()->jsonApi([
                 'title' => "bot details list",
-                'message' => $e->getMessage(),
+                'message' => $e->getMessage()
             ], 400);
         }
     }

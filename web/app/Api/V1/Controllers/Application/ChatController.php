@@ -146,7 +146,7 @@ class ChatController extends Controller
         } catch (Exception $e) {
             return response()->jsonApi([
                 'title' => "chats list",
-                'message' => $e->getMessage(),
+                'message' => $e->getMessage()
             ], 400);
         }
     }
@@ -260,7 +260,7 @@ class ChatController extends Controller
         } catch (Exception $e) {
             return response()->jsonApi([
                 'title' => 'New chat registration',
-                'message' => $e->getMessage(),
+                'message' => $e->getMessage()
             ], 400);
         }
     }
@@ -388,7 +388,7 @@ class ChatController extends Controller
         } catch (Exception $e) {
             return response()->jsonApi([
                 'title' => 'Chat updation',
-                'message' => $e->getMessage(),
+                'message' => $e->getMessage()
             ], 400);
         }
     }

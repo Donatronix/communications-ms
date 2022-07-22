@@ -134,7 +134,7 @@ class BotMessageController extends Controller
                 if (!$botdetail) {
                     return response()->jsonApi([
                         'title' => 'Send Message',
-                        'message' => "User has not created a bot for {$request->get('type')}",
+                        'message' => "User has not created a bot for {$request->get('type')}"
                     ], 400);
                 }
 
@@ -159,7 +159,7 @@ class BotMessageController extends Controller
         } catch (Exception $e) {
             return response()->jsonApi([
                 'title' => "send message",
-                'message' => $e->getMessage(),
+                'message' => $e->getMessage()
             ], 400);
         }
     }
@@ -593,7 +593,7 @@ class BotMessageController extends Controller
         } catch (Exception $e) {
             return response()->jsonApi([
                 'title' => "chats list",
-                'message' => $e->getMessage(),
+                'message' => $e->getMessage()
             ], 400);
         }
     }

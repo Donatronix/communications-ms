@@ -139,7 +139,7 @@ class ConversationController extends Controller
         } catch (Exception $e) {
             return response()->jsonApi([
                 'title' => "conversations list",
-                'message' => $e->getMessage(),
+                'message' => $e->getMessage()
             ], 400);
         }
     }
@@ -248,7 +248,7 @@ class ConversationController extends Controller
         } catch (Exception $e) {
             return response()->jsonApi([
                 'title' => 'New conversation registration',
-                'message' => $e->getMessage(),
+                'message' => $e->getMessage()
             ], 400);
         }
     }
@@ -321,7 +321,7 @@ class ConversationController extends Controller
 
             return response()->jsonApi([
                 'title' => "Delete conversation",
-                'message' => 'conversation is successfully deleted',
+                'message' => 'conversation is successfully deleted'
             ]);
         } catch (Exception $e) {
             return response()->jsonApi([
@@ -344,7 +344,7 @@ class ConversationController extends Controller
         } catch (ModelNotFoundException $e) {
             return response()->jsonApi([
                 'title' => "Get chat",
-                'message' => "Chat with id #{$id} not found: {$e->getMessage()}",
+                'message' => "Chat with id #{$id} not found: {$e->getMessage()}"
             ], 404);
         }
     }

@@ -209,7 +209,7 @@ class ChannelController extends Controller
         if ($channel) {
             return response()->jsonApi([
                 'title' => 'Adding a channel',
-                'message' => 'Channel with this token already exists.',
+                'message' => 'Channel with this token already exists.'
             ], 400);
         }
 
@@ -295,7 +295,7 @@ class ChannelController extends Controller
         return response()->jsonApi([
             'title' => 'Channel details',
             'message' => "The channel was successfully received",
-            'data' => $channel,
+            'data' => $channel
         ]);
     }
 
@@ -367,7 +367,7 @@ class ChannelController extends Controller
 
         // Try update channel model
         try {
-            $channel->name = $request->get('name', null);
+            $channel->title = $request->get('title', null);
             $channel->save();
 
             return response()->jsonApi([
@@ -378,7 +378,7 @@ class ChannelController extends Controller
         } catch (Exception $e) {
             return response()->jsonApi([
                 'title' => 'Change a channel',
-                'message' => $e->getMessage(),
+                'message' => $e->getMessage()
             ], 400);
         }
     }
@@ -451,7 +451,7 @@ class ChannelController extends Controller
 
             return response()->jsonApi([
                 'title' => "Delete of channel",
-                'message' => 'The channel was successfully deleted',
+                'message' => 'The channel was successfully deleted'
             ], 204);
         } catch (Exception $e) {
             return response()->jsonApi([

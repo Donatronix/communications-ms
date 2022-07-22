@@ -132,7 +132,7 @@ class BotMessageController extends Controller
 
             return response()->jsonApi([
                 'title' => "send message",
-                'message' => $e->getMessage(),
+                'message' => $e->getMessage()
             ], 400);
         }
     }

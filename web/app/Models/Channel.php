@@ -135,6 +135,15 @@ class Channel extends Model
         8 => self::MESSENGER_FACEBOOK,
     ];
 
+    protected $fillable = [
+        'uri',
+        'type',
+        'title',
+        'token',
+        'platform',
+        'webhook_url'
+    ];
+
     /**
      * The attributes excluded from the model's JSON form.
      *
@@ -159,7 +168,7 @@ class Channel extends Model
     public static function validationRules(): array
     {
         return [
-            'name' => 'required|string|min:4',
+            'title' => 'required|string|min:4',
             'token' => 'required|string|min:30',
             'uri' => 'required|string|min:4',
             'type' => 'string|min:4',
