@@ -31,12 +31,10 @@ class SendSMSListener
             $messenger = Messenger::getInstance(strtolower($data->instance));
 
             $response = $messenger->sendMessage($data->message, $data->to ?? null);
-
             Log::info($response);
-            exit;
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             Log::info($e->getMessage());
-            exit;
         }
     }
 }

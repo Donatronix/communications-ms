@@ -21,7 +21,8 @@ class CreateChannelsTable extends Migration
             $table->enum('messenger', Channel::$messengers);
             $table->string('uri', 100);
             $table->string('token', 200); //->unique();
-
+            $table->string('sid', 200)->nullable();
+            
             $table->string('number', 100)->nullable();
 
             $table->enum('platform', Channel::$platforms);

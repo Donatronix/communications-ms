@@ -159,10 +159,9 @@ class Channel extends Model
      * @param $messenger
      * @return mixed
      */
-    public static function getChannelSettings($messenger){
+    public static function getChannelSettings($messenger) {
         return Channel::where('messenger', $messenger)
-            ->where("platform", env('APP_PLATFORM'))
-            ->get()->last();
+            ->where("platform", env('APP_PLATFORM'))->get()->last();
     }
 
     public static function validationRules(): array

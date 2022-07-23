@@ -40,7 +40,7 @@ class SMSManager implements MessengerContract
      */
     public function __construct()
     {
-        $settings = Channel::getChannelSettings('twillio');
+        $settings = Channel::getChannelSettings('twilio');
 
         $this->twilioSid = $settings->sid;
         $this->twilioAuthToken = $settings->token;
