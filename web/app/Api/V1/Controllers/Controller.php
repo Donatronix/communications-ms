@@ -44,6 +44,16 @@ use Laravel\Lumen\Routing\Controller as BaseController;
  */
 
 /**
+ * @OA\SecurityScheme(
+ *      in="header",
+ *      type="apiKey",
+ *      name="User-Id",
+ *      description="Auth User ID",
+ *      securityScheme="apiKey",
+ * ),
+ */
+
+/**
  * ApiResponse Schema
  *
  * @OA\Schema(

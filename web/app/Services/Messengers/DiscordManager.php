@@ -83,7 +83,7 @@ class DiscordManager implements MessengerContract
 
         $discord->run();
 
-        return;
+        // return;
     }
 
     /**
