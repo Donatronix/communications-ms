@@ -300,7 +300,7 @@ class BotMessageController extends Controller
             ];
 
             // connect contact books ms to get user-id of the partner
-            PubSub::publish(self::RECEIVER_LISTENER, $inputData, 'ContactsBooksMS');
+            PubSub::publish(self::RECEIVER_LISTENER, $inputData, config('pubsub.queue.contacts_books'));
 
             return;
         }
