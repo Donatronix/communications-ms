@@ -85,13 +85,16 @@ class MessagesController extends Controller
             $response = $messenger->sendMessage($request->get('message'), $request->get('to', null));
 
             return response()->json([
-                'title' => 'Message sent successfully',
+                'title' => 'Sending message',
                 'message' => 'Message sent successfully',
-                'data' => $response,
+                'data' => [
+                    'sid' => $response->content['sid'],
+                    'status' => $response->content['status']
+                ],
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'title' => '',
+                'title' => 'Sending message',
                 'message' => $e->getMessage(),
             ], 500);
         }
