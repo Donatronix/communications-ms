@@ -7,7 +7,6 @@ use App\Services\Messenger;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use ReflectionException;
-use App\Models\Channel;
 
 class MessagesController extends Controller
 {
@@ -82,16 +81,18 @@ class MessagesController extends Controller
     {
         try {
             $messenger = Messenger::getInstance(strtolower($messengerInstance));
-            $response = $messenger->sendMessage($request->message, $request->to ?? null);
-            // $messageId = $response->getMessageId() ?? null;
+
+            $response = $messenger->sendMessage($request->get('message'), $request->get('to', null));
+
             return response()->json([
                 'title' => 'Message sent successfully',
+                'message' => 'Message sent successfully',
                 'data' => $response,
             ]);
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json([
-                'error' => $e->getMessage(),
+                'title' => '',
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -106,11 +107,7 @@ class MessagesController extends Controller
      *     tags={"Webhook"},
      *
      *     security={{
-     *         "default": {
-     *             "ManagerRead",
-     *             "User",
-     *             "ManagerWrite"
-     *         }
+     *         "apiKey": {}
      *     }},
      *
      *     @OA\Parameter(

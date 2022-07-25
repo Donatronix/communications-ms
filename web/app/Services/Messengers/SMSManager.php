@@ -6,6 +6,7 @@ use App\Contracts\MessengerContract;
 use App\Models\Channel;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Twilio\Exceptions\ConfigurationException;
 use Twilio\Exceptions\TwilioException;
 use Twilio\Rest\Api\V2010\Account\MessageInstance;
@@ -98,6 +99,12 @@ class SMSManager implements MessengerContract
      */
     public function sendMessage(string|array $message, string $recipient = null): MessageInstance
     {
+        // Check if not exist '+'
+        if(Str::startsWith($recipient, '+')){
+            $recipient = '+' . $recipient;
+        }
+
+        // Send message
         return $this->client->messages->create($recipient, [
             'from' => $this->twilioNumber,
             'body' => $message
