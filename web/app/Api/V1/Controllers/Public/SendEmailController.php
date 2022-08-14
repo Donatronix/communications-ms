@@ -4,11 +4,11 @@ namespace App\Api\V1\Controllers\Public;
 
 use App\Http\Controllers\Controller;
 use App\Models\Message;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use PubSub;
-use Exception;
 
 class SendEmailController extends Controller
 {
@@ -60,7 +60,7 @@ class SendEmailController extends Controller
      *         description="Success sended message"
      *     ),
      *     @OA\Response(
-     *         response=401,
+     *         response="401",
      *         description="Unauthorized"
      *     ),
      *     @OA\Response(
@@ -91,7 +91,7 @@ class SendEmailController extends Controller
         );
 
         // Send mail for each recipients
-        foreach($requestData['emails'] as $email){
+        foreach ($requestData['emails'] as $email) {
             $mailData = [
                 'subject' => $requestData['subject'],
                 'body' => $requestData['body'],
@@ -107,7 +107,7 @@ class SendEmailController extends Controller
 
             // Add job to queue
             try {
-                PubSub::publish('mailer', $mailData, 'workMailerQueue');
+                PubSub::publish('sendEmail', $mailData, config('pubsub.queue.communications'));
             } catch (Exception $e) {
                 $message->status = Message::STATUS_QUEUE_FAIL;
                 $message->note = $e->getMessage();
@@ -120,9 +120,8 @@ class SendEmailController extends Controller
 
         // Return success response
         return response()->jsonApi([
-            'type' => 'success',
             'title' => 'Success',
             'message' => 'Message was been successful added to queue'
-        ], 200);
+        ]);
     }
 }

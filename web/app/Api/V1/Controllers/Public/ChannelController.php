@@ -5,7 +5,6 @@ namespace App\Api\V1\Controllers\Public;
 use App\Api\V1\Controllers\Controller;
 use App\Models\Channel;
 use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -42,7 +41,7 @@ class ChannelController extends Controller
      *          description="The channels was successfully received."
      *     ),
      *     @OA\Response(
-     *          response="400",
+     *          response="422",
      *          description="Validation Error"
      *     ),
      *     @OA\Response(
@@ -54,14 +53,14 @@ class ChannelController extends Controller
      *          description="Server got itself in trouble"
      *     )
      * )
+     * @param String $platform
+     * @return mixed
      */
-    public function __invoke($platform, Request $request)
+    public function __invoke(string $platform): mixed
     {
         // Validate input
         $validator = Validator::make(
-            [
-                'platform' => $platform,
-            ],
+            ['platform' => $platform],
             [
                 'platform' => [
                     'required',
@@ -73,29 +72,42 @@ class ChannelController extends Controller
 
         if ($validator->fails()) {
             return response()->jsonApi([
-                'type' => 'warning',
-                'title' => '',
-                'message' => "Validation error",
-                'data' => $validator->errors(),
-            ], 400);
+                'title' => 'Get auth channels list',
+                'message' => 'Input data validation error',
+                'data' => $validator->errors()
+            ], 422);
         }
 
         // Try update channel model
         try {
-            $channels = Channel::where('platform', $platform)
+            $channels = Channel::query()
+                ->where('type', 'auth')
+                ->where('platform', $platform)
                 ->where('status', true)
                 ->get();
 
             $result = [];
             foreach ($channels as $key => $channel) {
+                if($channel->messenger == 'twilio'){
+                    continue;
+                }
+
                 $result[$key] = [
-                    'type' => $channel->type,
-                    'title' => strtolower($channel->type),
+                    'title' => $channel->title,
+                    'messenger' => $channel->messenger,
                 ];
 
-                switch ($channel->type) {
+                switch ($channel->messenger) {
+                    case 'whatsapp':
+                        $result[$key] = array_merge($result[$key], [
+                            'href' => "https://wa.me/{$channel->uri}?text=join", // text=join%20putting-itself
+                            'hrefMobile' => "https://wa.me/{$channel->uri}?text=join"
+                        ]);
+                        //"https://web.whatsapp.com/send/?phone=14155238886&text=join%20stage-nine&app_absent=0",
+
+                        break;
                     case 'telegram':
-                        $uri = trim($channel->type, '@');
+                        $uri = trim($channel->uri, '@');
 
                         $result[$key] = array_merge($result[$key], [
                             'href' => "https://t.me/{$uri}",
@@ -105,10 +117,10 @@ class ChannelController extends Controller
                         break;
                     case 'viber':
                         $result[$key] = array_merge($result[$key], [
-                            //'href' => "https://chats.viber.com/{$channel->uri}",
                             'href' => "viber://pa?ChatURI={$channel->uri}",
                             'hrefMobile' => "viber://pa?ChatURI={$channel->uri}",
                         ]);
+
                         break;
                     case 'line':
                         $result[$key] = array_merge($result[$key], [
@@ -119,10 +131,9 @@ class ChannelController extends Controller
                         break;
                     case 'discord':
                         $result[$key] = array_merge($result[$key], [
-                            'href' => $channel->uri,
-                            'hrefMobile' => $channel->uri,
+                            'href' => "https://discord.gg/{$channel->uri}",
+                            'hrefMobile' => "https://discord.gg/{$channel->uri}"
                         ]);
-                        //https://discord.com/oauth2/authorize?client_id=843810660324474890&permissions=210944&scope=channel
                         //https://discord.com/invite/75xbhgmbvP
 
                         break;
@@ -135,39 +146,19 @@ class ChannelController extends Controller
                         break;
                     case 'messenger':
                         $result[$key] = array_merge($result[$key], [
-                            'href' => $channel->uri,
-                            'hrefMobile' => $channel->uri,
-                        ]);
-                        //href: "https://m.me/SumraChannel",
-                        //hrefMobile: "https://m.me/SumraChannel",
-
-                        break;
-                    case 'whatsapp':
-                        $result[$key] = array_merge($result[$key], [
-                            'href' => $channel->uri,
-                            'hrefMobile' => $channel->uri,
+                            'href' => "https://m.me/$channel->uri",
+                            'hrefMobile' => "https://m.me/$channel->uri",
                         ]);
 
-                        // https://wa.me/14155238886
-                        //"https://web.whatsapp.com/send/?phone=14155238886&text=join%20stage-nine&app_absent=0",
-
                         break;
-                    case 'twilio':
-                    case 'nexmo':
-                        $result[$key] = array_merge($result[$key], [
-                            'href_send_phone' => "https://{$request->getHost()}/v1/sms/send-phone?channel_id={$channel->id}",
-                            'href_send_sms' => "https://{$request->getHost()}/v1/sms/send-sms?channel_id={$channel->id}",
-                        ]);
-                        break;
-
                     case 'facebook':
                         $access_token = env('FACEBOOK_MESSENGER_VERIFY_TOKEN');
-                        $url          = env('FACEBOOK_MESSENEGR_URL');
+                        $url = env('FACEBOOK_MESSENEGR_URL');
                         $result[$key] = array_merge($result[$key], [
-                            //'href' => $channel->uri,
                             'href' => "{$url}{$access_token}",
                             'hrefMobile' => $channel->uri,
                         ]);
+
                         break;
                     default:
                         break;
@@ -175,18 +166,15 @@ class ChannelController extends Controller
             }
 
             return response()->jsonApi([
-                'type' => 'success',
                 'title' => 'Get auth channels list',
                 'message' => 'Channels filtered by platform received successfully',
                 'data' => $result,
-            ], 200);
+            ]);
         } catch (Exception $e) {
             return response()->jsonApi([
-                'type' => 'danger',
                 'title' => 'Get auth channels list',
                 'message' => $e->getMessage(),
-                'data' => null,
-            ], 400);
+            ], $e->getCode());
         }
     }
 }

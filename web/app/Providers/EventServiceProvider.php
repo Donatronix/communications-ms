@@ -34,8 +34,8 @@ class EventServiceProvider extends ServiceProvider
         'sendRewardForReferralEmail' => [
             'App\Listeners\SendRewardForReferralListener'
         ],
-        'mailer' => [
-            'App\Listeners\MailerListener'
+        'sendEmail' => [
+            'App\Listeners\SendMailerListener'
         ],
         'Illuminate\Mail\Events\MessageSent' => [
             'App\Listeners\MailerLogSentListener',

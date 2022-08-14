@@ -47,23 +47,11 @@ use Sumra\SDK\Traits\UuidTrait;
  *         description="Period in days",
  *         example="10"
  *     ),
- *     @OA\Property(
- *         property="sid",
- *         type="string",
- *         description="Channel SID",
- *         example="1002000"
- *     ),
  *    @OA\Property(
  *         property="number",
  *         type="string",
  *         description="Channel number",
  *         example="+8056788888"
- *     ),
- *    @OA\Property(
- *         property="secret",
- *         type="string",
- *         description="Channel access secret",
- *         example="10-secret/access"
  *     ),
  * )
  */
@@ -80,23 +68,39 @@ class Channel extends Model
     const STATUS_ACTIVE = 1;
 
     /**
-     *
+     * Messengers
      */
-    const TYPE_TELEGRAM     = 'telegram';
-    const TYPE_VIBER        = 'viber';
-    const TYPE_LINE         = 'line';
-    const TYPE_DISCORD      = 'discord';
-    const TYPE_SIGNAL       = 'signal';
-    const TYPE_WHATSAPP     = 'whatsapp';
-    const TYPE_TWILIO       = 'twilio';
-    const TYPE_NEXMO        = 'nexmo';
-    const TYPE_FACEBOOK     = 'facebook';
+    const MESSENGER_TELEGRAM     = 'telegram';
+    const MESSENGER_VIBER        = 'viber';
+    const MESSENGER_LINE         = 'line';
+    const MESSENGER_DISCORD      = 'discord';
+    const MESSENGER_SIGNAL       = 'signal';
+    const MESSENGER_WHATSAPP     = 'whatsapp';
+    const MESSENGER_TWILIO       = 'twilio';
+    const MESSENGER_NEXMO        = 'nexmo';
+    const MESSENGER_FACEBOOK     = 'facebook';
 
     /**
-     *
+     * Platforms
      */
     const PLATFORM_ULTAINFINITY = 'ultainfinity';
     const PLATFORM_SUMRA = 'sumra';
+
+    /**
+     * Type of channel
+     */
+    const TYPE_AUTH = 'auth';
+    const TYPE_INFO = 'info';
+    const TYPE_CHAT = 'chat';
+
+    /**
+     * @var array|string[]
+     */
+    public static array $types = [
+        0 => self::TYPE_AUTH,
+        1 => self::TYPE_INFO,
+        2 => self::TYPE_CHAT
+    ];
 
     /**
      * Currency statuses array
@@ -108,33 +112,62 @@ class Channel extends Model
         1 => self::STATUS_ACTIVE,
     ];
 
+    /**
+     * @var array|string[]
+     */
     public static array $platforms = [
         0 => self::PLATFORM_ULTAINFINITY,
         1 => self::PLATFORM_SUMRA,
     ];
 
-    public static array $types = [
-        0 => self::TYPE_TELEGRAM,
-        1 => self::TYPE_VIBER,
-        2 => self::TYPE_LINE,
-        3 => self::TYPE_DISCORD,
-        4 => self::TYPE_SIGNAL,
-        5 => self::TYPE_WHATSAPP,
-        6 => self::TYPE_TWILIO,
-        7 => self::TYPE_NEXMO,
-        8 => self::TYPE_FACEBOOK,
+    /**
+     * @var array|string[]
+     */
+    public static array $messengers = [
+        0 => self::MESSENGER_TELEGRAM,
+        1 => self::MESSENGER_VIBER,
+        2 => self::MESSENGER_LINE,
+        3 => self::MESSENGER_DISCORD,
+        4 => self::MESSENGER_SIGNAL,
+        5 => self::MESSENGER_WHATSAPP,
+        6 => self::MESSENGER_TWILIO,
+        7 => self::MESSENGER_NEXMO,
+        8 => self::MESSENGER_FACEBOOK,
     ];
 
-    public static function getChannelSettings($type){
-        return Channel::where("type", $type)
-            ->where("platform", env('APP_PLATFORM'))
-            ->get()->last();
+    protected $fillable = [
+        'uri',
+        'type',
+        'title',
+        'token',
+        'platform',
+        'webhook_url'
+    ];
+
+    /**
+     * The attributes excluded from the model's JSON form.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+        'deleted_at'
+    ];
+
+    /**
+     * @param $messenger
+     * @return mixed
+     */
+    public static function getChannelSettings($messenger) {
+        return Channel::where('messenger', $messenger)
+            ->where("platform", env('APP_PLATFORM'))->get()->last();
     }
 
     public static function validationRules(): array
     {
         return [
-            'name' => 'required|string|min:4',
+            'title' => 'required|string|min:4',
             'token' => 'required|string|min:30',
             'uri' => 'required|string|min:4',
             'type' => 'string|min:4',

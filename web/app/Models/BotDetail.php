@@ -49,7 +49,11 @@ class BotDetail extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'user_id', 'type', 'name', 'token', 'username',
+        'user_id',
+        'type',
+        'name',
+        'token',
+        'username',
     ];
 
     /**

@@ -44,6 +44,16 @@ use Laravel\Lumen\Routing\Controller as BaseController;
  */
 
 /**
+ * @OA\SecurityScheme(
+ *      in="header",
+ *      type="apiKey",
+ *      name="user-id",
+ *      description="Auth User ID",
+ *      securityScheme="apiKey",
+ * ),
+ */
+
+/**
  * ApiResponse Schema
  *
  * @OA\Schema(
@@ -72,4 +82,6 @@ use Laravel\Lumen\Routing\Controller as BaseController;
  *
  * @package App\Api\V1\Controllers
  */
-class Controller extends BaseController{}
+class Controller extends BaseController
+{
+}

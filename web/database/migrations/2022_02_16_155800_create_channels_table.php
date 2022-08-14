@@ -17,28 +17,25 @@ class CreateChannelsTable extends Migration
         Schema::create('channels', function (Blueprint $table) {
             $table->uuid('id')->primary();
 
-            $table->string('name', 100);
+            $table->string('title', 100);
+            $table->enum('messenger', Channel::$messengers);
             $table->string('uri', 100);
-            $table->string('sid', 100)->nullable();
-
             $table->string('token', 200); //->unique();
-
-            $table->string('secret', 200)->nullable();
+            $table->string('sid', 200)->nullable();
+            
             $table->string('number', 100)->nullable();
-            $table->enum('type', Channel::$types);
+
             $table->enum('platform', Channel::$platforms);
+            $table->enum('type', Channel::$types);
+
             $table->boolean('status')->default(true);
 
             // 'webhook_url': f'url.{request.param[1]}',
-            // 'status': 'testing',
-            // 'is_active': bool(random() < 0.5)  # random true or false
 
             $table->timestamps();
             $table->softDeletes();
         });
     }
-
-// auth_code = relationship("AuthCode", back_populates="bot", cascade="all, delete-orphan")
 
     /**
      * Reverse the migrations.

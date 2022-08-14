@@ -4,11 +4,10 @@ namespace App\Services\Messengers;
 
 use App\Contracts\MessengerContract;
 use App\Models\Channel;
-use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Twilio\Exceptions\ConfigurationException;
 use Twilio\Exceptions\TwilioException;
-use Twilio\Rest\Api\V2010\Account\MessageInstance;
 use Twilio\Rest\Client;
 
 class SMSManager implements MessengerContract
@@ -36,17 +35,21 @@ class SMSManager implements MessengerContract
     private Client $client;
 
     /**
-     * @throws ConfigurationException
+     * @throws \Exception
      */
     public function __construct()
     {
-        $settings = Channel::getChannelSettings('twillio');
+        $settings = Channel::getChannelSettings('twilio');
 
         $this->twilioSid = $settings->sid;
         $this->twilioAuthToken = $settings->token;
         $this->twilioNumber = $settings->number;
 
-        $this->client = new Client($this->twilioSid, $this->twilioAuthToken);
+        try {
+            $this->client = new Client($this->twilioSid, $this->twilioAuthToken);
+        } catch (ConfigurationException $e) {
+            throw new \Exception($e);
+        }
     }
 
     /**
@@ -93,14 +96,36 @@ class SMSManager implements MessengerContract
      * @param string|array $message
      * @param string|null $recipient
      *
-     * @return MessageInstance
+     * @return object|string
      * @throws TwilioException
+     * @throws \Exception
      */
-    public function sendMessage(string|array $message, string $recipient = null): MessageInstance
+    public function sendMessage(string|array $message, string $recipient = null): object|string
     {
-        return $this->client->messages->create($recipient, [
-            'from' => $this->twilioNumber,
-            'body' => $message
-        ]);
+        // Check if not exist '+'
+        if (!Str::startsWith($recipient, '+')) {
+            $recipient = '+' . $recipient;
+        }
+
+        try {
+            // Send message
+            $result = $this->client->messages->create(
+                $recipient,
+                [
+                    'from' => $this->twilioNumber,
+                    'body' => $message
+                ]
+            );
+
+            $response = $this->client->getHttpClient()->lastResponse;
+
+            return (object)[
+                'content' => $response->getContent(),
+                'headers' => $response->getHeaders(),
+                'code' => $response->getStatusCode()
+            ];
+        } catch (TwilioException $e) {
+            throw new \Exception($e);
+        }
     }
 }

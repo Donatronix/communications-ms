@@ -6,26 +6,20 @@
     "private": true,
     "require": {
         "php": "^8.1",
+        "ext-bcmath": "*",
         "ext-fileinfo": "*",
         "ext-json": "*",
         "ext-openssl": "*",
         "ext-zlib": "*",
-        "bogdaan/viber-bot-php": "^0.0.15",
+        "bogdaan/viber-bot-php": "~0",
         "illuminate/mail": "~8",
         "irazasyed/telegram-bot-sdk": "~3",
         "laravel/lumen-framework": "~8",
-        "pusher/pusher-php-server": "^7.0.2",
+        "pusher/pusher-php-server": "~7",
         "linecorp/line-bot-sdk": "~7",
         "sumra/sdk": "*",
-        "team-reflex/discord-php": "^7.0",
-        "twilio/sdk": "~6",
-
-
-        "ext-bcmath": "*",
-        "aws/aws-sdk-php": "~3",
-        "bschmitt/laravel-amqp": "~2",
-        "kalnoy/nestedset": "~5",
-        "smorken/ext-http": "*"
+        "team-reflex/discord-php": "~7",
+        "twilio/sdk": "~6"
     },
     "require-dev": {
         "fakerphp/faker": "~1",

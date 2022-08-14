@@ -14,7 +14,9 @@ class Conversation extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'first_user_id', 'second_user_id', 'status',
+        'first_user_id',
+        'second_user_id',
+        'status',
     ];
 
     /**

@@ -74,6 +74,12 @@ class BotMessageController extends Controller
      *         description="Chat Id of the user to send a message",
      *         example="2063523844"
      *     ),
+     *     @OA\Property(
+     *         property="type",
+     *         type="string",
+     *         description="Type of bot",
+     *         example="telegram"
+     *     ),
      *          )
      *     ),
      *
@@ -107,10 +113,11 @@ class BotMessageController extends Controller
     {
         // Validate input
         $validator = Validator::make($request->all(), [
-            'type' => ["required", "string", Rule::in(Channel::$types)],
+            'type' => ["required", "string", Rule::in(Channel::$messengers)],
             'text' => 'required|string',
             'chat_id' => 'required|string',
         ]);
+
         if ($validator->fails()) {
             throw new Exception($validator->errors()->first());
         }
@@ -126,10 +133,8 @@ class BotMessageController extends Controller
 
                 if (!$botdetail) {
                     return response()->jsonApi([
-                        'type' => 'danger',
                         'title' => 'Send Message',
-                        'message' => "User has not created a bot for {$request->get('type')}",
-                        'data' => null
+                        'message' => "User has not created a bot for {$request->get('type')}"
                     ], 400);
                 }
 
@@ -147,17 +152,14 @@ class BotMessageController extends Controller
 
             // Return response
             return response()->jsonApi([
-                'type' => 'success',
                 'title' => "send message",
                 'message' => 'Your message has been sent',
                 'data' => $data
-            ], 200);
+            ]);
         } catch (Exception $e) {
             return response()->jsonApi([
-                'type' => 'danger',
                 'title' => "send message",
-                'message' => $e->getMessage(),
-                'data' => null
+                'message' => $e->getMessage()
             ], 400);
         }
     }
@@ -455,10 +457,8 @@ class BotMessageController extends Controller
             // Get conversations list
             if (!$request->get('type')) {
                 return response()->jsonApi([
-                    'type' => 'danger',
                     'title' => "conversations list",
-                    'message' => 'Include bot type as a parameter',
-                    'data' => null
+                    'message' => 'Include bot type as a parameter'
                 ], 400);
             }
 
@@ -469,17 +469,14 @@ class BotMessageController extends Controller
 
             // Return response
             return response()->jsonApi([
-                'type' => 'success',
                 'title' => "conversations list",
                 'message' => 'List of botconversations successfully received',
                 'data' => $botconversations->toArray()
-            ], 200);
+            ]);
         } catch (Exception $e) {
             return response()->jsonApi([
-                'type' => 'danger',
                 'title' => "conversations list",
-                'message' => $e->getMessage(),
-                'data' => null
+                'message' => $e->getMessage()
             ], 400);
         }
     }
@@ -589,17 +586,14 @@ class BotMessageController extends Controller
 
             // Return response
             return response()->jsonApi([
-                'type' => 'success',
                 'title' => "chats list",
                 'message' => 'List of chats successfully received',
                 'data' => $botchats->toArray()
-            ], 200);
+            ]);
         } catch (Exception $e) {
             return response()->jsonApi([
-                'type' => 'danger',
                 'title' => "chats list",
-                'message' => $e->getMessage(),
-                'data' => null
+                'message' => $e->getMessage()
             ], 400);
         }
     }

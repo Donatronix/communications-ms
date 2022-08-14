@@ -14,7 +14,13 @@ class BotConversation extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'user_id', 'bot_name', 'bot_username', 'chat_id', 'first_name', 'last_name', 'bot_type'
+        'user_id',
+        'bot_name',
+        'bot_username',
+        'chat_id',
+        'first_name',
+        'last_name',
+        'bot_type'
     ];
 
     /**

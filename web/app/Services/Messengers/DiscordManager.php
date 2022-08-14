@@ -17,16 +17,16 @@ class DiscordManager implements MessengerContract
 {
     const STATUS_CHAT_STARTED = 1;
 
-    private mixed $botToken;
-
     private mixed $webhookUrl;
+
+    private mixed $settings;
 
     public function __construct()
     {
-        $settings = Channel::getChannelSettings('discord');
+        $this->settings = Channel::getChannelSettings('discord');
 
-        $this->botToken = $settings->token;
-        $this->webhookUrl = $settings->uri;
+        //@todo need fix, inncorrect value
+        $this->webhookUrl = $this->settings->uri;
     }
 
     /**
@@ -69,7 +69,7 @@ class DiscordManager implements MessengerContract
     {
         try {
             $discord = new Discord([
-                'token' => $this->botToken,
+                'token' => $this->settings->token,
             ]);
         } catch (IntentException $e) {
         }
@@ -83,7 +83,7 @@ class DiscordManager implements MessengerContract
 
         $discord->run();
 
-        return;
+        // return;
     }
 
     /**

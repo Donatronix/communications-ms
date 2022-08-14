@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use Sumra\SDK\JsonApiResponse;
+use Sumra\SDK\Services\JsonApiResponse;
 
 /**
  * Class BotDetailController
@@ -20,7 +20,6 @@ use Sumra\SDK\JsonApiResponse;
  */
 class BotDetailController extends Controller
 {
-
     private BotDetail $botdetail;
 
     /**
@@ -33,7 +32,6 @@ class BotDetailController extends Controller
         $this->botdetail = $botdetail;
         $this->user_id = auth()->user()->getAuthIdentifier();
     }
-
 
     /**
      * Display a listing of the resource.
@@ -129,17 +127,14 @@ class BotDetailController extends Controller
 
             // Return response
             return response()->jsonApi([
-                'type' => 'success',
                 'title' => "botdetails list",
                 'message' => 'List of botdetails successfully received',
                 'data' => $botdetails->toArray()
-            ], 200);
+            ]);
         } catch (Exception $e) {
             return response()->jsonApi([
-                'type' => 'danger',
                 'title' => "bot details list",
-                'message' => $e->getMessage(),
-                'data' => null
+                'message' => $e->getMessage()
             ], 400);
         }
     }
@@ -203,7 +198,7 @@ class BotDetailController extends Controller
     {
         // Validate input
         $validator = Validator::make($request->all(), [
-            'type' => ["required", "string", Rule::in(Channel::$types)],
+            'type' => ["required", "string", Rule::in(Channel::$messengers)],
             'token' => 'required|string',
             'name' => 'required|string',
             'username' => 'required|string',
@@ -219,10 +214,8 @@ class BotDetailController extends Controller
 
             if ($botdetail) {
                 return response()->jsonApi([
-                    'type' => 'danger',
                     'title' => 'New botdetail registration',
-                    'message' => "User already created a {$request->get('type')} bot. Try update it instead",
-                    'data' => null
+                    'message' => "User already created a {$request->get('type')} bot. Try update it instead"
                 ], 400);
             }
 
@@ -243,17 +236,14 @@ class BotDetailController extends Controller
 
             // Return response to client
             return response()->jsonApi([
-                'type' => 'success',
                 'title' => 'New bot detail created registration',
                 'message' => "Bot detail successfully added",
                 'data' => $botdetail->toArray()
-            ], 200);
+            ], 201);
         } catch (Exception $e) {
             return response()->jsonApi([
-                'type' => 'danger',
                 'title' => 'New botdetail registration',
-                'message' => $e->getMessage(),
-                'data' => null
+                'message' => $e->getMessage()
             ], 400);
         }
     }
@@ -293,10 +283,8 @@ class BotDetailController extends Controller
             return json_decode($response->getBody(), true);
         } catch (ModelNotFoundException $e) {
             return response()->jsonApi([
-                'type' => 'danger',
                 'title' => "Set webhook url",
-                'message' => "{$e->getMessage()}",
-                'data' => ''
+                'message' => "{$e->getMessage()}"
             ], 404);
         }
     }
@@ -416,17 +404,14 @@ class BotDetailController extends Controller
 
             // Return response to client
             return response()->jsonApi([
-                'type' => 'success',
                 'title' => 'Bot detail updation',
                 'message' => "Bot detail successfully updated",
                 'data' => $botdetail->toArray()
-            ], 200);
+            ]);
         } catch (Exception $e) {
             return response()->jsonApi([
-                'type' => 'danger',
                 'title' => 'Bot detail updation',
-                'message' => $e->getMessage(),
-                'data' => null
+                'message' => $e->getMessage()
             ], 400);
         }
     }
@@ -443,10 +428,8 @@ class BotDetailController extends Controller
             return $this->botdetail::findOrFail($id);
         } catch (ModelNotFoundException $e) {
             return response()->jsonApi([
-                'type' => 'danger',
                 'title' => "Get botdetail",
                 'message' => "Bot detail with id #{$id} not found: {$e->getMessage()}",
-                'data' => ''
             ], 404);
         }
     }
@@ -517,17 +500,13 @@ class BotDetailController extends Controller
             $botdetail->delete();
 
             return response()->jsonApi([
-                'type' => 'success',
                 'title' => "Delete botdetail",
-                'message' => 'botdetail is successfully deleted',
-                'data' => null
-            ], 200);
+                'message' => 'botdetail is successfully deleted'
+            ]);
         } catch (Exception $e) {
             return response()->jsonApi([
-                'type' => 'danger',
                 'title' => "Delete of botdetail",
-                'message' => $e->getMessage(),
-                'data' => null
+                'message' => $e->getMessage()
             ], 400);
         }
     }
@@ -574,16 +553,13 @@ class BotDetailController extends Controller
         }
 
         try {
-
             return response()->jsonApi([
-                'type' => 'success',
                 'title' => 'Bot detail',
                 'message' => "Bot detail been received",
                 'data' => $botdetail->toArray()
-            ], 200);
+            ]);
         } catch (Exception $e) {
             return response()->jsonApi([
-                'type' => 'danger',
                 'title' => 'Bot detail',
                 'message' => $e->getMessage(),
             ], 400);
@@ -606,6 +582,18 @@ class BotDetailController extends Controller
      *             "ManagerWrite"
      *         }
      *     }},
+     *
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *     @OA\Property(
+     *         property="type",
+     *         type="string",
+     *         description="Type of bot",
+     *         example="telegram"
+     *     ),
+     *          )
+     *     ),
      *
      *     @OA\Response(
      *         response="200",
@@ -636,7 +624,6 @@ class BotDetailController extends Controller
     public function setBotWebHookUrl(Request $request)
     {
         try {
-
             // setwebhook for bot
             $response = $this->setWebHookUrl($request->get('type'));
             if ($response instanceof JsonApiResponse) {
@@ -647,10 +634,8 @@ class BotDetailController extends Controller
 
         } catch (Exception $e) {
             return response()->jsonApi([
-                'type' => 'danger',
                 'title' => "bot details list",
-                'message' => $e->getMessage(),
-                'data' => null
+                'message' => $e->getMessage()
             ], 400);
         }
     }

@@ -17,7 +17,7 @@ class CreateBotConversationsTable extends Migration
         Schema::create('bot_conversations', function (Blueprint $table) {
             $table->uuid('id')->primary();
 
-            $table->enum('bot_type', Channel::$types);
+            $table->enum('bot_type', Channel::$messengers);
             $table->uuid('user_id');
             $table->string('bot_name');
             $table->string('bot_username');

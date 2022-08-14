@@ -20,37 +20,9 @@ class MessagesController extends Controller
      *     tags={"Messenger"},
      *
      *     security={{
-     *         "default": {
-     *             "ManagerRead",
-     *             "User",
-     *             "ManagerWrite"
-     *         }
+     *         "apiKey": {}
      *     }},
      *
-     *     @OA\Parameter(
-     *         name="from",
-     *         in="query",
-     *         description="Sender's Id or number",
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="to",
-     *         in="query",
-     *         description="Receiver's ID or number",
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="message",
-     *         in="query",
-     *         description="Message to be sent",
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
      *     @OA\Parameter(
      *         name="messengerInstance",
      *         in="path",
@@ -60,6 +32,27 @@ class MessagesController extends Controller
      *         )
      *     ),
      *
+     *     @OA\RequestBody(
+     *          @OA\JsonContent(
+     *              @OA\Property(
+     *                  property="from",
+     *                  type="string",
+     *                  description="Sender number OR ID"
+     *              ),
+     *
+     *              @OA\Property(
+     *                  property="to",
+     *                  type="string",
+     *                  description="Receiver number OR ID"
+     *              ),
+     *
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string",
+     *                  description="Content to send"
+     *              )
+     *          )
+     *     ),
      *     @OA\Response(
      *         response="200",
      *         description="Success send data"
@@ -86,15 +79,25 @@ class MessagesController extends Controller
      */
     public function sendMessage(Request $request, $messengerInstance): JsonResponse
     {
-        $messenger = Messenger::getInstance(strtolower($messengerInstance));
+        try {
+            $messenger = Messenger::getInstance(strtolower($messengerInstance));
 
-        $response = $messenger->sendMessage($request->message, $request->to ?? null);
+            $response = $messenger->sendMessage($request->get('message'), $request->get('to', null));
 
-        $messageId = $response->getMessageId();
-
-        return response()->json([
-            'data' => $messageId,
-        ], 200);
+            return response()->json([
+                'title' => 'Sending message',
+                'message' => 'Message sent successfully',
+                'data' => [
+                    'sid' => $response->content['sid'],
+                    'status' => $response->content['status']
+                ],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'title' => 'Sending message',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -107,11 +110,7 @@ class MessagesController extends Controller
      *     tags={"Webhook"},
      *
      *     security={{
-     *         "default": {
-     *             "ManagerRead",
-     *             "User",
-     *             "ManagerWrite"
-     *         }
+     *         "apiKey": {}
      *     }},
      *
      *     @OA\Parameter(
@@ -180,6 +179,6 @@ class MessagesController extends Controller
 
         return response()->json([
             'data' => $messageId,
-        ], 200);
+        ]);
     }
 }
