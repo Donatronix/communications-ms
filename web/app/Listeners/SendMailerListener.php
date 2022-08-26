@@ -2,7 +2,7 @@
 
 namespace App\Listeners;
 
-use App\Mails\MailerMail;
+use App\Mails\WelcomeMail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
@@ -18,7 +18,7 @@ class SendMailerListener
     {
         Log::info($data);
 
-        Mail::to($data['recipient_email'])->send(new MailerMail($data));
+        Mail::to($data['recipient_email'])->send(new WelcomeMail($data));
 
         // check for failed ones
         if (Mail::failures()) {

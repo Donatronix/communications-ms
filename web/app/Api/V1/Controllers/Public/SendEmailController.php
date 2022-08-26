@@ -107,7 +107,7 @@ class SendEmailController extends Controller
 
             // Add job to queue
             try {
-                PubSub::publish('sendEmail', $mailData, config('pubsub.queue.communications'));
+                PubSub::publish('sendEmail', $mailData, "CommunicationsMS");
             } catch (Exception $e) {
                 $message->status = Message::STATUS_QUEUE_FAIL;
                 $message->note = $e->getMessage();
