@@ -21,7 +21,7 @@ class CreateMessagesTable extends Migration
             $table->longText('body');
             $table->string('recipient_email');
             $table->integer('status')->default(0);
-            $table->string('note')->nullable();
+            $table->text('note')->nullable();
 
             $table->timestamps();
             $table->softDeletes();
