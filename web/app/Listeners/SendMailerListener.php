@@ -18,7 +18,7 @@ class SendMailerListener
     {
         Log::info($data);
 
-        Mail::to($data['recipient_email'])->send(new WelcomeMail($data));
+        Mail::to($data['recipient'])->send(new WelcomeMail($data));
 
         // check for failed ones
         if (Mail::failures()) {

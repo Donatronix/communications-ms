@@ -3,12 +3,12 @@
 namespace App\Api\V1\Controllers\Public;
 
 use App\Http\Controllers\Controller;
+use App\Mails\WelcomeMail;
 use App\Models\Message;
-use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
-use PubSub;
 
 class SendEmailController extends Controller
 {
@@ -19,15 +19,7 @@ class SendEmailController extends Controller
      *     path="/mail/sender",
      *     summary="Send message to one or group recipients",
      *     description="Send message to one or group recipients",
-     *     tags={"Mailer"},
-     *
-     *     security={{
-     *         "default": {
-     *             "ManagerRead",
-     *             "User",
-     *             "ManagerWrite"
-     *         }
-     *     }},
+     *     tags={"Mail Sender"},
      *
      *     @OA\RequestBody(
      *         required=true,
@@ -78,7 +70,7 @@ class SendEmailController extends Controller
      * @return mixed
      * @throws ValidationException
      */
-    public function __invoke(Request $request)
+    public function __invoke(Request $request): mixed
     {
         // Validate data
         $requestData = $this->validate(
@@ -95,26 +87,31 @@ class SendEmailController extends Controller
             $mailData = [
                 'subject' => $requestData['subject'],
                 'body' => $requestData['body'],
-                'recipient_email' => $email
+                'recipient' => $email
             ];
 
             // Save message for log
             $message = Message::create(array_merge([
-                'sender_user_id' => Auth::user()->getAuthIdentifier(),
+                'sender_id' => Auth::user()->getAuthIdentifier(),
                 'status' => Message::STATUS_PROCESSING
             ], $mailData));
+
             $mailData['message_id'] = $message->id;
 
-            // Add job to queue
-            try {
-                PubSub::publish('sendEmail', $mailData, config('pubsub.queue.communications'));
-            } catch (Exception $e) {
-                $message->status = Message::STATUS_QUEUE_FAIL;
-                $message->note = $e->getMessage();
+            // Do send mail
+            Mail::to($email)->send(new WelcomeMail($mailData));
+
+            // Check for failed ones
+            if (Mail::failures()) {
+                $message->status = Message::STATUS_FAILURE;
+                $message->note = Mail::failures();
                 $message->save();
 
                 // Return error response
-                return response()->jsonApi($e, 200);
+                return response()->jsonApi(Mail::failures(), 200);
+            }else{
+                $message->status = Message::STATUS_SENT;
+                $message->save();
             }
         }
 

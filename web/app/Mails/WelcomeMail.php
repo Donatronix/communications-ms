@@ -26,9 +26,9 @@ class WelcomeMail extends Mailable
     }
 
     /**
-     * @return MailerMail
+     * @return WelcomeMail
      */
-    public function build()
+    public function build(): WelcomeMail
     {
         return $this
             ->subject($this->data['subject'])

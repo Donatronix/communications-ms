@@ -16,15 +16,14 @@ class CreateMessagesTable extends Migration
         Schema::create('messages', function (Blueprint $table) {
             $table->uuid('id')->primary();
 
-            $table->uuid('sender_user_id')->nullable(false);
             $table->string('subject');
             $table->longText('body');
-            $table->string('recipient_email');
-            $table->integer('status')->default(0);
-            $table->text('note')->nullable();
+            $table->string('recipient');
+            $table->uuid('sender_id')->default(config('settings.empty_uuid'));
+            $table->unsignedTinyInteger('status')->default(0);
+            $table->mediumText('note')->nullable();
 
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
