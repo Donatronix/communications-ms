@@ -203,6 +203,7 @@ class BotDetailController extends Controller
             'name' => 'required|string',
             'username' => 'required|string',
         ]);
+
         if ($validator->fails()) {
             throw new Exception($validator->errors()->first());
         }

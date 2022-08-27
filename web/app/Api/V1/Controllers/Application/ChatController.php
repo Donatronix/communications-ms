@@ -350,7 +350,6 @@ class ChatController extends Controller
 
         // Try to update chat
         try {
-
             // find chat with id
             $chat = $this->getObject($id);
 

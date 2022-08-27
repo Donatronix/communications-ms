@@ -13,9 +13,18 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
+        /**
+         * Send Email Message Request
+         */
+        'SendEmailMessageRequest' => [
+            'App\Listeners\SendEmailMessageRequestListener'
+        ],
+
+
         'SendSMS' => [
             SendSMSListener::class,
         ],
+
         'sendVerificationEmail' => [
             'App\Listeners\SendVerificationEmailListener'
         ],
@@ -33,9 +42,6 @@ class EventServiceProvider extends ServiceProvider
         ],
         'sendRewardForReferralEmail' => [
             'App\Listeners\SendRewardForReferralListener'
-        ],
-        'sendEmail' => [
-            'App\Listeners\SendMailerListener'
         ],
         'Illuminate\Mail\Events\MessageSent' => [
             'App\Listeners\MailerLogSentListener',

@@ -43,21 +43,4 @@ $router->group([
 
         echo json_encode($channel);
     });
-
-    // MAIL TEST
-    $router->get(env('API_PREFIX') . '/mail-test', function () {
-        $data = [
-            'recipient' => env('MAIL_FROM_ADDRESS'),
-            'subject' => 'Test send by amazon',
-            'body' => 'This body of mail about test send by amazon'
-        ];
-
-        Mail::to($data['recipient'])->send(new MailerMail($data));
-
-        // check for failed ones
-        if (Mail::failures()) {
-            // return failed mails
-            return new \Error(Mail::failures());
-        }
-    });
 });

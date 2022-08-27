@@ -7,8 +7,11 @@ use App\Mails\WelcomeMail;
 use App\Models\Message;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use Sumra\SDK\Facades\PubSub;
 
 class SendEmailController extends Controller
 {
@@ -26,13 +29,13 @@ class SendEmailController extends Controller
      *         @OA\JsonContent(
      *             @OA\Property(
      *                 property="subject",
-     *                 type="text",
+     *                 type="string",
      *                 description="Message body",
      *                 example=""
      *             ),
      *             @OA\Property(
      *                 property="body",
-     *                 type="text",
+     *                 type="string",
      *                 description="Message body",
      *                 example=""
      *             ),
@@ -44,7 +47,13 @@ class SendEmailController extends Controller
      *                     type="string",
      *                     example="client1@client.com"
      *                 )
-     *             )
+     *             ),
+     *             @OA\Property(
+     *                 property="template",
+     *                 type="string",
+     *                 description="Template of message",
+     *                 example="welcome"
+     *             ),
      *         )
      *     ),
      *     @OA\Response(
@@ -73,20 +82,27 @@ class SendEmailController extends Controller
     public function __invoke(Request $request): mixed
     {
         // Validate data
-        $requestData = $this->validate(
-            $request,
-            [
-                'subject' => 'string|nullable',
-                'body' => 'string|required',
-                'emails' => 'array|required'
-            ]
-        );
+        $validation = Validator::make($request->all(), [
+            'subject' => 'string|nullable',
+            'body' => 'string|required',
+            'emails' => 'array|required',
+            'template' => 'required|string',
+        ]);
+
+        // If validation error, the stop
+        if ($validation->fails()) {
+            Log::error('Validation error: ' . $validation->errors());
+            exit();
+        }
+
+        // Get validated data
+        $requestData = (object)$validation->validated();
 
         // Send mail for each recipients
-        foreach ($requestData['emails'] as $email) {
+        foreach ($requestData->emails as $email) {
             $mailData = [
-                'subject' => $requestData['subject'],
-                'body' => $requestData['body'],
+                'subject' => $requestData->subject,
+                'body' => $requestData->body,
                 'recipient' => $email
             ];
 
@@ -97,22 +113,10 @@ class SendEmailController extends Controller
             ], $mailData));
 
             $mailData['message_id'] = $message->id;
+            $mailData['template'] = 'welcome';
 
-            // Do send mail
-            Mail::to($email)->send(new WelcomeMail($mailData));
-
-            // Check for failed ones
-            if (Mail::failures()) {
-                $message->status = Message::STATUS_FAILURE;
-                $message->note = Mail::failures();
-                $message->save();
-
-                // Return error response
-                return response()->jsonApi(Mail::failures(), 200);
-            }else{
-                $message->status = Message::STATUS_SENT;
-                $message->save();
-            }
+            // Add message to queue
+            PubSub::publish('SendEmailMessageRequest', $mailData, config('pubsub.queue.communications'));
         }
 
         // Return success response
